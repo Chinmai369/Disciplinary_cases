@@ -1,0 +1,66 @@
+import React, { createContext, useState, useEffect } from 'react';
+import { login as loginAPI, verifyToken as verifyTokenAPI } from '../services/authService';
+
+export const AuthContext = createContext();
+
+export const AuthProvider = ({ children }) => {
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+
+  useEffect(() => {
+    // Check if user is already logged in
+    const token = localStorage.getItem('token');
+    const storedUser = localStorage.getItem('user');
+
+    if (token && storedUser) {
+      try {
+        const userData = JSON.parse(storedUser);
+        setUser(userData);
+        setIsAuthenticated(true);
+        // Verify token with backend
+        verifyTokenAPI(token).catch(() => {
+          // Token invalid, clear storage
+          logout();
+        });
+      } catch (error) {
+        logout();
+      }
+    }
+    setLoading(false);
+  }, []);
+
+  const login = async (username, password) => {
+    try {
+      const response = await loginAPI(username, password);
+      const { user: userData, token } = response.data;
+      
+      localStorage.setItem('token', token);
+      localStorage.setItem('user', JSON.stringify(userData));
+      
+      setUser(userData);
+      setIsAuthenticated(true);
+      
+      return { success: true };
+    } catch (error) {
+      return { 
+        success: false, 
+        message: error.response?.data?.message || 'Login failed' 
+      };
+    }
+  };
+
+  const logout = () => {
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    setUser(null);
+    setIsAuthenticated(false);
+  };
+
+  return (
+    <AuthContext.Provider value={{ user, login, logout, isAuthenticated, loading }}>
+      {children}
+    </AuthContext.Provider>
+  );
+};
+
