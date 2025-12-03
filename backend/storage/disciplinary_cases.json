@@ -1,0 +1,19 @@
+[
+  {
+    "id": "1764655526320",
+    "employeeId": "EMP_09",
+    "employeeName": "Demo",
+    "employeeEmail": "demo@gmail.com",
+    "department": "demo",
+    "position": "demo",
+    "incidentDate": "2025-12-12",
+    "reportedDate": "2025-12-02",
+    "description": "ok",
+    "severity": "High",
+    "status": "Under Review",
+    "actionTaken": "ok",
+    "notes": "ok",
+    "createdAt": "2025-12-02T06:05:26.320Z",
+    "updatedAt": "2025-12-02T06:05:26.320Z"
+  }
+]

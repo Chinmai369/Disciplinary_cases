@@ -2,12 +2,17 @@ import React, { useState, useContext } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { AuthContext } from '../contexts/AuthContext';
 import Menu from './Menu';
+import ExitConfirmationModal from './ExitConfirmationModal';
+import useBackButtonBlocker from '../hooks/useBackButtonBlocker';
 
 const Layout = ({ children }) => {
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const navigate = useNavigate();
-  const { user, logout } = useContext(AuthContext);
+  const { user, logout, isAuthenticated } = useContext(AuthContext);
+  
+  // Handle back button blocking with confirmation
+  const { showConfirm, handleConfirm, handleCancel } = useBackButtonBlocker(isAuthenticated, logout);
 
   return (
     <div className="min-h-screen bg-gray-50 flex">
@@ -120,6 +125,13 @@ const Layout = ({ children }) => {
           onClick={() => setIsUserMenuOpen(false)}
         ></div>
       )}
+
+      {/* Exit Confirmation Modal */}
+      <ExitConfirmationModal
+        isOpen={showConfirm}
+        onConfirm={handleConfirm}
+        onCancel={handleCancel}
+      />
     </div>
   );
 };
