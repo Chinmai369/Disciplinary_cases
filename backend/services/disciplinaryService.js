@@ -9,21 +9,27 @@ const getCaseById = async (id) => {
 };
 
 const createCase = async (caseData) => {
-  // Validate required fields
-  if (!caseData.employeeId || !caseData.employeeName || !caseData.incidentDate || !caseData.description) {
-    throw new Error('Missing required fields');
+  // Validate required fields - support both old and new form structure
+  const employeeName = caseData.employeeName || caseData.name;
+  if (!caseData.employeeId || !employeeName) {
+    throw new Error('Missing required fields: employeeId and name are required');
   }
 
+  // Create case with all fields from the form (supporting both old and new structure)
+  // Spread caseData first, then override with specific mappings
   const newCase = {
+    ...caseData, // Include all form fields first
     id: Date.now().toString(),
     employeeId: caseData.employeeId,
-    employeeName: caseData.employeeName,
+    employeeName: employeeName, // Map name to employeeName for compatibility
+    name: caseData.name || employeeName, // Keep name field too
+    // Ensure backward compatibility fields have defaults
     employeeEmail: caseData.employeeEmail || '',
     department: caseData.department || '',
     position: caseData.position || '',
-    incidentDate: caseData.incidentDate,
+    incidentDate: caseData.incidentDate || '',
     reportedDate: caseData.reportedDate || new Date().toISOString(),
-    description: caseData.description,
+    description: caseData.description || caseData.remarks || '',
     severity: caseData.severity || 'Medium',
     status: caseData.status || 'Pending',
     actionTaken: caseData.actionTaken || '',
