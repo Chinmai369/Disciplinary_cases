@@ -16,9 +16,19 @@ const CaseList = () => {
     try {
       setLoading(true);
       const response = await getCases();
-      setCases(response.data || []);
+      // Handle API response structure: axios wraps in response.data
+      // Backend returns: { success: true, data: [...] }
+      // So we need: response.data.data
+      let casesData = [];
+      if (response.data && response.data.data && Array.isArray(response.data.data)) {
+        casesData = response.data.data;
+      } else if (Array.isArray(response.data)) {
+        casesData = response.data;
+      }
+      setCases(casesData);
     } catch (error) {
       console.error('Error fetching cases:', error);
+      setCases([]);
     } finally {
       setLoading(false);
     }
@@ -39,11 +49,16 @@ const CaseList = () => {
   const filteredCases = cases.filter((caseItem) => {
     const matchesStatus = !filter.status || caseItem.status === filter.status;
     const matchesSeverity = !filter.severity || caseItem.severity === filter.severity;
+    const employeeName = caseItem.employeeName || caseItem.name || '';
+    const employeeId = caseItem.employeeId || '';
+    const description = caseItem.description || '';
+    const fileNumber = caseItem.fileNumber || '';
     const matchesSearch =
       !searchTerm ||
-      caseItem.employeeName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      caseItem.employeeId.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      caseItem.description.toLowerCase().includes(searchTerm.toLowerCase());
+      employeeName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      employeeId.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      description.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      fileNumber.toLowerCase().includes(searchTerm.toLowerCase());
 
     return matchesStatus && matchesSeverity && matchesSearch;
   });
@@ -141,84 +156,114 @@ const CaseList = () => {
       {/* Cases Table */}
       <div className="bg-white rounded-lg shadow overflow-hidden">
         <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-gray-50">
+          <table className="min-w-full divide-y divide-gray-200 border border-gray-300">
+            <thead className="bg-blue-200">
               <tr>
-                <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Employee
+                <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider border border-gray-300">
+                  S.No
                 </th>
-                <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Incident Date
+                <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider border border-gray-300">
+                  File Number
                 </th>
-                <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Severity
+                <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider border border-gray-300">
+                  Employee ID
                 </th>
-                <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider border border-gray-300">
+                  Name
+                </th>
+                <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider border border-gray-300">
+                  Category
+                </th>
+                <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider border border-gray-300">
+                  Sub Category
+                </th>
+                <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider border border-gray-300">
+                  Date of Incident
+                </th>
+                <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider border border-gray-300">
                   Status
                 </th>
-                <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-4 sm:px-6 py-3 text-center text-xs font-medium text-gray-700 uppercase tracking-wider border border-gray-300">
                   Actions
                 </th>
               </tr>
             </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
+            <tbody className="bg-gray-50 divide-y divide-gray-200">
               {filteredCases.length === 0 ? (
                 <tr>
-                  <td colSpan="5" className="px-4 sm:px-6 py-4 text-center text-gray-500">
+                  <td colSpan="9" className="px-4 sm:px-6 py-4 text-center text-gray-500 border border-gray-300">
                     No cases found
                   </td>
                 </tr>
               ) : (
-                filteredCases.map((caseItem) => (
-                  <tr key={caseItem.id} className="hover:bg-gray-50">
-                    <td className="px-4 sm:px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm font-medium text-gray-900">
-                        {caseItem.employeeName}
+                filteredCases.map((caseItem, index) => (
+                  <tr key={caseItem.id} className="hover:bg-blue-100">
+                    <td className="px-4 sm:px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 border border-gray-300">
+                      {index + 1}
+                    </td>
+                    <td className="px-4 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-900 border border-gray-300">
+                      {caseItem.fileNumber || '-'}
+                    </td>
+                    <td className="px-4 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-900 border border-gray-300">
+                      {caseItem.employeeId || '-'}
+                    </td>
+                    <td className="px-4 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-900 border border-gray-300">
+                      {caseItem.employeeName || caseItem.name || '-'}
+                    </td>
+                    <td className="px-4 sm:px-6 py-4 text-sm text-gray-900 border border-gray-300">
+                      {caseItem.categoryOfCase || '-'}
+                    </td>
+                    <td className="px-4 sm:px-6 py-4 text-sm text-gray-900 border border-gray-300">
+                      {caseItem.subCategoryOfCase || '-'}
+                    </td>
+                    <td className="px-4 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-900 border border-gray-300">
+                      {caseItem.dateOfIncident ? (
+                        (() => {
+                          try {
+                            const date = new Date(caseItem.dateOfIncident);
+                            return isNaN(date.getTime()) ? caseItem.dateOfIncident : date.toLocaleDateString();
+                          } catch (e) {
+                            return caseItem.dateOfIncident || caseItem.incidentDate ? new Date(caseItem.incidentDate).toLocaleDateString() : '-';
+                          }
+                        })()
+                      ) : caseItem.incidentDate ? (
+                        new Date(caseItem.incidentDate).toLocaleDateString()
+                      ) : '-'}
+                    </td>
+                    <td className="px-4 sm:px-6 py-4 whitespace-nowrap border border-gray-300">
+                      {caseItem.status ? (
+                        <span
+                          className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusColor(
+                            caseItem.status
+                          )}`}
+                        >
+                          {caseItem.status}
+                        </span>
+                      ) : (
+                        '-'
+                      )}
+                    </td>
+                    <td className="px-4 sm:px-6 py-4 whitespace-nowrap text-center text-sm font-medium border border-gray-300">
+                      <div className="flex justify-center gap-2">
+                        <Link
+                          to={`/cases/${caseItem.id}`}
+                          className="px-3 py-1.5 bg-blue-600 text-white rounded-md hover:bg-blue-700 font-medium text-sm transition-colors"
+                        >
+                          View
+                        </Link>
+                        <Link
+                          to={`/cases/${caseItem.id}/edit`}
+                          className="px-3 py-1.5 bg-green-600 text-white rounded-md hover:bg-green-700 font-medium text-sm transition-colors"
+                        >
+                          Edit
+                        </Link>
+                        <button
+                          onClick={() => handleDelete(caseItem.id)}
+                          className="px-3 py-1.5 bg-red-600 text-white rounded-md hover:bg-red-700 font-medium text-sm transition-colors"
+                        >
+                          Delete
+                        </button>
                       </div>
-                      <div className="text-sm text-gray-500">
-                        {caseItem.employeeId}
-                      </div>
-                    </td>
-                    <td className="px-4 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {new Date(caseItem.incidentDate).toLocaleDateString()}
-                    </td>
-                    <td className="px-4 sm:px-6 py-4 whitespace-nowrap">
-                      <span
-                        className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${getSeverityColor(
-                          caseItem.severity
-                        )}`}
-                      >
-                        {caseItem.severity}
-                      </span>
-                    </td>
-                    <td className="px-4 sm:px-6 py-4 whitespace-nowrap">
-                      <span
-                        className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusColor(
-                          caseItem.status
-                        )}`}
-                      >
-                        {caseItem.status}
-                      </span>
-                    </td>
-                    <td className="px-4 sm:px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
-                      <Link
-                        to={`/cases/${caseItem.id}`}
-                        className="text-primary-600 hover:text-primary-900"
-                      >
-                        View
-                      </Link>
-                      <Link
-                        to={`/cases/${caseItem.id}/edit`}
-                        className="text-indigo-600 hover:text-indigo-900"
-                      >
-                        Edit
-                      </Link>
-                      <button
-                        onClick={() => handleDelete(caseItem.id)}
-                        className="text-red-600 hover:text-red-900"
-                      >
-                        Delete
-                      </button>
                     </td>
                   </tr>
                 ))

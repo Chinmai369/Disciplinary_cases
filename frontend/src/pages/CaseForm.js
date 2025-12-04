@@ -223,32 +223,31 @@ const CaseForm = () => {
   };
 
   return (
-    <div className="max-w-4xl mx-auto">
-      <h1 className="text-3xl font-bold text-gray-900 mb-6">
+    <div className="max-w-7xl mx-auto px-4">
+      <h1 className="text-xl font-bold text-gray-900 mb-4">
         {isEdit ? 'Edit Case' : 'Create New Case'}
       </h1>
 
       {showCategorySelection && (
-        <div className="bg-white rounded-lg shadow p-6">
-          <h2 className="text-xl font-semibold text-gray-900 mb-4">Category of Case</h2>
-          <div className="max-w-md">
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Please select the category of case
-            </label>
+        <div className="bg-white rounded-lg shadow-md border border-gray-200 p-5">
+          <div className="flex flex-col items-center justify-center">
+            <h2 className="text-lg font-semibold text-gray-800 mb-3">Category of Case</h2>
+            <div className="w-full max-w-[200px]">
               <select
                 name="categoryOfCase"
                 value={formData.categoryOfCase}
                 onChange={handleChange}
                 disabled={isFormSubmitted}
-                className={`w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 text-base ${
-                  isFormSubmitted ? 'bg-gray-100 cursor-not-allowed' : ''
+                className={`w-full px-2.5 py-1.5 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all ${
+                  isFormSubmitted ? 'bg-gray-100 cursor-not-allowed' : 'bg-white hover:border-gray-400'
                 }`}
               >
-              <option value="">Select Category</option>
-              <option value="Department">Department</option>
-              <option value="ACB">ACB</option>
-              <option value="Vigilance and Enforcement">Vigilance and Enforcement</option>
-            </select>
+                <option value="">Select Category</option>
+                <option value="Department">Department</option>
+                <option value="ACB">ACB</option>
+                <option value="Vigilance and Enforcement">Vigilance and Enforcement</option>
+              </select>
+            </div>
           </div>
         </div>
       )}

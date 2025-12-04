@@ -37,6 +37,7 @@ const DisciplinaryCaseForm = ({ onSubmit, initialData = {}, isEdit = false, onCa
     chargeMemoNumberAndDate: initialData.chargeMemoNumberAndDate || '',
     chargesMemoNumber: initialData.chargesMemoNumber || '',
     chargesDate: initialData.chargesDate || '',
+    chargesIssuedRemarks: initialData.chargesIssuedRemarks || '',
     endorcementDate: initialData.endorcementDate || '',
     
     // WSD fields
@@ -54,6 +55,12 @@ const DisciplinaryCaseForm = ({ onSubmit, initialData = {}, isEdit = false, onCa
     // Inquiry report fields
     inquiryReportSubmitted: initialData.inquiryReportSubmitted || '',
     inquiryReportNumber: initialData.inquiryReportNumber || '',
+    furtherActionInquiry: initialData.furtherActionInquiry || '',
+    inquiryDisagreedAction: initialData.inquiryDisagreedAction || '',
+    inquiryAppointmentProceedingNumber: initialData.inquiryAppointmentProceedingNumber || '',
+    inquiryAppointmentIOName: initialData.inquiryAppointmentIOName || '',
+    inquiryAppointmentIODate: initialData.inquiryAppointmentIODate || '',
+    inquiryAgreedEndorcementDate: initialData.inquiryAgreedEndorcementDate || '',
     inquiryReportCommunicated: initialData.inquiryReportCommunicated || '',
     inquiryEndorcementDate: initialData.inquiryEndorcementDate || '',
     
@@ -62,6 +69,7 @@ const DisciplinaryCaseForm = ({ onSubmit, initialData = {}, isEdit = false, onCa
     wrCheckbox: initialData.wrCheckbox || false,
     wrServedCopyCheckbox: initialData.wrServedCopyCheckbox || false,
     furtherActionWR: initialData.furtherActionWR || '',
+    furtherActionWRRemarks: initialData.furtherActionWRRemarks || '',
     punishmentNumber: initialData.punishmentNumber || '',
     punishmentDate: initialData.punishmentDate || '',
     
@@ -255,6 +263,43 @@ const DisciplinaryCaseForm = ({ onSubmit, initialData = {}, isEdit = false, onCa
       }));
     }
 
+    // Clear furtherActionWRRemarks when furtherActionWR changes to something other than 'others'
+    if (name === 'furtherActionWR' && value !== 'others') {
+      setFormData(prev => ({
+        ...prev,
+        furtherActionWRRemarks: ''
+      }));
+    }
+
+    // Clear inquiry dependent fields when furtherActionInquiry changes
+    if (name === 'furtherActionInquiry') {
+      if (value !== 'agreed') {
+        setFormData(prev => ({
+          ...prev,
+          inquiryAgreedEndorcementDate: ''
+        }));
+      }
+      if (value !== 'disagreed') {
+        setFormData(prev => ({
+          ...prev,
+          inquiryDisagreedAction: '',
+          inquiryAppointmentProceedingNumber: '',
+          inquiryAppointmentIOName: '',
+          inquiryAppointmentIODate: ''
+        }));
+      }
+    }
+
+    // Clear appointment fields when inquiryDisagreedAction changes to something other than 'appointment'
+    if (name === 'inquiryDisagreedAction' && value !== 'appointment') {
+      setFormData(prev => ({
+        ...prev,
+        inquiryAppointmentProceedingNumber: '',
+        inquiryAppointmentIOName: '',
+        inquiryAppointmentIODate: ''
+      }));
+    }
+
     // Clear error when user starts typing
     if (errors[name]) {
       setErrors(prev => ({
@@ -289,14 +334,17 @@ const DisciplinaryCaseForm = ({ onSubmit, initialData = {}, isEdit = false, onCa
       suspensionPeriodRegularize: ['regularisedBy', 'regularizationProceedingNumber', 'regularizationDate'],
       criminalCaseFiled: ['criminalCaseNumber', 'criminalCaseDate'],
       prosecutionSanctioned: ['prosecutionIssuedBy', 'prosecutionProceedingNumber', 'prosecutionDate'],
-      chargesIssued: ['chargeMemoNumberAndDate', 'chargesMemoNumber', 'chargesDate'],
+      chargesIssued: ['chargeMemoNumberAndDate', 'chargesMemoNumber', 'chargesDate', 'chargesIssuedRemarks'],
       wsdOrServedCopy: ['wsdCheckbox', 'servedCopyCheckbox', 'furtherActionWSD', 'furtherActionWSDOthers', 'concludeText', 'ioAppointment', 'ioGoProceedingsNumber', 'poAppointment', 'poGoProceedingsNumber'],
       furtherActionWSD: ['furtherActionWSDOthers'],
       ioAppointment: ['ioGoProceedingsNumber'],
       poAppointment: ['poGoProceedingsNumber'],
-      inquiryReportSubmitted: ['inquiryReportNumber'],
+      inquiryReportSubmitted: ['inquiryReportNumber', 'furtherActionInquiry', 'inquiryDisagreedAction', 'inquiryAppointmentProceedingNumber', 'inquiryAppointmentIOName', 'inquiryAppointmentIODate', 'inquiryAgreedEndorcementDate'],
+      furtherActionInquiry: ['inquiryDisagreedAction', 'inquiryAppointmentProceedingNumber', 'inquiryAppointmentIOName', 'inquiryAppointmentIODate', 'inquiryAgreedEndorcementDate'],
+      inquiryDisagreedAction: ['inquiryAppointmentProceedingNumber', 'inquiryAppointmentIOName', 'inquiryAppointmentIODate'],
       inquiryReportCommunicated: ['inquiryEndorcementDate'],
-      wrOrServedCopy: ['wrCheckbox', 'wrServedCopyCheckbox', 'furtherActionWR', 'punishmentNumber', 'punishmentDate']
+      wrOrServedCopy: ['wrCheckbox', 'wrServedCopyCheckbox', 'furtherActionWR', 'furtherActionWRRemarks', 'punishmentNumber', 'punishmentDate'],
+      furtherActionWR: ['furtherActionWRRemarks']
     };
     return dependencyMap[fieldName] || [];
   };
@@ -362,6 +410,7 @@ const DisciplinaryCaseForm = ({ onSubmit, initialData = {}, isEdit = false, onCa
       chargeMemoNumberAndDate: '',
       chargesMemoNumber: '',
       chargesDate: '',
+      chargesIssuedRemarks: '',
       endorcementDate: '',
       
       // Clear WSD fields
@@ -379,6 +428,12 @@ const DisciplinaryCaseForm = ({ onSubmit, initialData = {}, isEdit = false, onCa
       // Clear inquiry report fields
       inquiryReportSubmitted: '',
       inquiryReportNumber: '',
+      furtherActionInquiry: '',
+      inquiryDisagreedAction: '',
+      inquiryAppointmentProceedingNumber: '',
+      inquiryAppointmentIOName: '',
+      inquiryAppointmentIODate: '',
+      inquiryAgreedEndorcementDate: '',
       inquiryReportCommunicated: '',
       inquiryEndorcementDate: '',
       
@@ -387,6 +442,7 @@ const DisciplinaryCaseForm = ({ onSubmit, initialData = {}, isEdit = false, onCa
       wrCheckbox: false,
       wrServedCopyCheckbox: false,
       furtherActionWR: '',
+      furtherActionWRRemarks: '',
       punishmentNumber: '',
       punishmentDate: '',
       
@@ -539,35 +595,35 @@ const DisciplinaryCaseForm = ({ onSubmit, initialData = {}, isEdit = false, onCa
     clearFormExceptFileData();
   };
 
-  // Yes/No button component
+  // Yes/No radio button component
   const YesNoButtons = ({ fieldName, value, onChange, label, required = false }) => (
     <div className="space-y-2">
       <label className="block text-sm font-medium text-gray-700">
         {label} {required && <span className="text-red-500">*</span>}
       </label>
-      <div className="flex gap-4">
-        <button
-          type="button"
-          onClick={() => onChange(fieldName, 'yes')}
-          className={`px-6 py-2 rounded-md font-medium transition-colors ${
-            value === 'yes'
-              ? 'bg-green-600 text-white'
-              : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-          }`}
-        >
-          Yes
-        </button>
-        <button
-          type="button"
-          onClick={() => onChange(fieldName, 'no')}
-          className={`px-6 py-2 rounded-md font-medium transition-colors ${
-            value === 'no'
-              ? 'bg-red-600 text-white'
-              : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-          }`}
-        >
-          No
-        </button>
+      <div className="flex gap-6">
+        <label className="flex items-center cursor-pointer">
+          <input
+            type="radio"
+            name={fieldName}
+            value="yes"
+            checked={value === 'yes'}
+            onChange={(e) => onChange(fieldName, e.target.value)}
+            className="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300"
+          />
+          <span className="ml-2 text-sm text-gray-700">Yes</span>
+        </label>
+        <label className="flex items-center cursor-pointer">
+          <input
+            type="radio"
+            name={fieldName}
+            value="no"
+            checked={value === 'no'}
+            onChange={(e) => onChange(fieldName, e.target.value)}
+            className="h-4 w-4 text-red-600 focus:ring-red-500 border-gray-300"
+          />
+          <span className="ml-2 text-sm text-gray-700">No</span>
+        </label>
       </div>
     </div>
   );
@@ -593,7 +649,7 @@ const DisciplinaryCaseForm = ({ onSubmit, initialData = {}, isEdit = false, onCa
           <h2 className="text-xl font-semibold text-gray-900 mb-4 border-b pb-2">
             Basic Information
           </h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 File Number
@@ -1039,6 +1095,22 @@ const DisciplinaryCaseForm = ({ onSubmit, initialData = {}, isEdit = false, onCa
               </div>
             )}
 
+            {formData.chargesIssued === 'no' && (
+              <div className="ml-6">
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Remarks
+                </label>
+                <textarea
+                  name="chargesIssuedRemarks"
+                  value={formData.chargesIssuedRemarks}
+                  onChange={handleChange}
+                  rows="4"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
+                  placeholder="Enter remarks..."
+                />
+              </div>
+            )}
+
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 Endorcement date
@@ -1215,17 +1287,117 @@ const DisciplinaryCaseForm = ({ onSubmit, initialData = {}, isEdit = false, onCa
             />
 
             {formData.inquiryReportSubmitted === 'yes' && (
-              <div className="ml-6">
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Inquiry report number
-                </label>
-                <textarea
-                  name="inquiryReportNumber"
-                  value={formData.inquiryReportNumber}
-                  onChange={handleChange}
-                  rows="3"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
-                />
+              <div className="ml-6 space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Inquiry report number
+                    </label>
+                    <input
+                      type="text"
+                      name="inquiryReportNumber"
+                      value={formData.inquiryReportNumber}
+                      onChange={handleChange}
+                      className="w-full max-w-md px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Further Action Taken
+                    </label>
+                    <select
+                      name="furtherActionInquiry"
+                      value={formData.furtherActionInquiry}
+                      onChange={handleChange}
+                      className="w-full max-w-md px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
+                    >
+                      <option value="">Select Action</option>
+                      <option value="agreed">Agreed with Inquiry report</option>
+                      <option value="disagreed">DisAgreed with Inquiry Report</option>
+                    </select>
+                  </div>
+                </div>
+
+                {formData.furtherActionInquiry === 'agreed' && (
+                  <div className="ml-0">
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Endorcement date
+                    </label>
+                    <input
+                      type="date"
+                      name="inquiryAgreedEndorcementDate"
+                      value={formData.inquiryAgreedEndorcementDate}
+                      onChange={handleChange}
+                      max={today}
+                      className="w-full max-w-md px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
+                    />
+                  </div>
+                )}
+
+                {formData.furtherActionInquiry === 'disagreed' && (
+                  <div className="ml-0 bg-gray-50 p-4 rounded-md">
+                    <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                          If Disagreed
+                        </label>
+                        <select
+                          name="inquiryDisagreedAction"
+                          value={formData.inquiryDisagreedAction}
+                          onChange={handleChange}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
+                        >
+                          <option value="">Select Option</option>
+                          <option value="remitted">Remitted back to same IO</option>
+                          <option value="appointment">Appointment Of Another IO</option>
+                          <option value="communication">Communication</option>
+                        </select>
+                      </div>
+
+                      {formData.inquiryDisagreedAction === 'appointment' && (
+                        <>
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">
+                              Proceeding Number
+                            </label>
+                            <input
+                              type="text"
+                              name="inquiryAppointmentProceedingNumber"
+                              value={formData.inquiryAppointmentProceedingNumber}
+                              onChange={handleChange}
+                              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">
+                              Name Of The IO
+                            </label>
+                            <input
+                              type="text"
+                              name="inquiryAppointmentIOName"
+                              value={formData.inquiryAppointmentIOName}
+                              onChange={handleChange}
+                              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">
+                              Date
+                            </label>
+                            <input
+                              type="date"
+                              name="inquiryAppointmentIODate"
+                              value={formData.inquiryAppointmentIODate}
+                              onChange={handleChange}
+                              max={today}
+                              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
+                            />
+                          </div>
+                        </>
+                      )}
+                    </div>
+                  </div>
+                )}
               </div>
             )}
 
@@ -1307,9 +1479,26 @@ const DisciplinaryCaseForm = ({ onSubmit, initialData = {}, isEdit = false, onCa
                       <option value="punishment">Punishment</option>
                       <option value="dropped">Dropped</option>
                       <option value="warn">Warn</option>
+                      <option value="others">Others</option>
                     </select>
 
-                    {formData.furtherActionWR && (
+                    {formData.furtherActionWR === 'others' && (
+                      <div className="mt-4">
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                          Remarks
+                        </label>
+                        <textarea
+                          name="furtherActionWRRemarks"
+                          value={formData.furtherActionWRRemarks}
+                          onChange={handleChange}
+                          rows="4"
+                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
+                          placeholder="Enter remarks..."
+                        />
+                      </div>
+                    )}
+
+                    {formData.furtherActionWR && formData.furtherActionWR !== 'others' && (
                       <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
                           <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -1397,65 +1586,86 @@ const DisciplinaryCaseForm = ({ onSubmit, initialData = {}, isEdit = false, onCa
           <h2 className="text-xl font-semibold text-gray-900 mb-4 border-b pb-2">
             Submitted Employees ({submittedEmployees.length})
           </h2>
-          <div className="space-y-4">
-            {submittedEmployees.map((employee, index) => (
-              <div key={employee.id} className="border border-gray-200 rounded-lg overflow-hidden">
-                <div className="bg-gray-50 p-4">
-                  <div className="flex justify-between items-center">
-                    <div className="flex gap-6 flex-wrap">
-                      <div>
-                        <span className="text-xs text-gray-500">S.No</span>
-                        <p className="font-medium text-gray-900">{index + 1}</p>
+          <div className="overflow-x-auto">
+            <table className="min-w-full border border-gray-300 divide-y divide-gray-200">
+              <thead className="bg-blue-200">
+                <tr>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider border border-gray-300">
+                    S.No
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider border border-gray-300">
+                    Employee ID
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider border border-gray-300">
+                    Name
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider border border-gray-300">
+                    Designation
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider border border-gray-300">
+                    ULB
+                  </th>
+                  <th className="px-6 py-3 text-center text-xs font-medium text-gray-700 uppercase tracking-wider border border-gray-300">
+                    Actions
+                  </th>
+                </tr>
+              </thead>
+              <tbody className="bg-gray-50 divide-y divide-gray-200">
+                {submittedEmployees.map((employee, index) => (
+                  <tr key={employee.id} className="hover:bg-blue-100">
+                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 border border-gray-300">
+                      {index + 1}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 border border-gray-300">
+                      {employee.employeeId || '-'}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 border border-gray-300">
+                      {employee.name || '-'}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 border border-gray-300">
+                      {employee.designationWhenChargesIssued || '-'}
+                    </td>
+                    <td className="px-6 py-4 text-sm text-gray-900 border border-gray-300">
+                      {employee.nameOfULB || '-'}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-center text-sm font-medium border border-gray-300">
+                      <div className="flex justify-center gap-2">
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleViewEmployee(employee);
+                          }}
+                          className="px-3 py-1.5 bg-blue-600 text-white rounded-md hover:bg-blue-700 font-medium text-sm transition-colors"
+                        >
+                          View
+                        </button>
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleEditEmployee(employee);
+                          }}
+                          className="px-3 py-1.5 bg-green-600 text-white rounded-md hover:bg-green-700 font-medium text-sm transition-colors"
+                        >
+                          Edit
+                        </button>
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleDeleteEmployee(employee);
+                          }}
+                          className="px-3 py-1.5 bg-red-600 text-white rounded-md hover:bg-red-700 font-medium text-sm transition-colors"
+                        >
+                          Delete
+                        </button>
                       </div>
-                      <div>
-                        <span className="text-xs text-gray-500">Employee ID</span>
-                        <p className="font-medium text-gray-900">{employee.employeeId || '-'}</p>
-                      </div>
-                      <div>
-                        <span className="text-xs text-gray-500">Name</span>
-                        <p className="font-medium text-gray-900">{employee.name || '-'}</p>
-                      </div>
-                      <div>
-                        <span className="text-xs text-gray-500">Designation</span>
-                        <p className="font-medium text-gray-900">{employee.designationWhenChargesIssued || '-'}</p>
-                      </div>
-                    </div>
-                    <div className="flex gap-3 items-center flex-shrink-0 whitespace-nowrap">
-                      <button
-                        type="button"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleViewEmployee(employee);
-                        }}
-                        className="px-3 py-1.5 bg-blue-600 text-white rounded-md hover:bg-blue-700 font-medium text-sm transition-colors"
-                      >
-                        View
-                      </button>
-                      <button
-                        type="button"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleEditEmployee(employee);
-                        }}
-                        className="px-3 py-1.5 bg-green-600 text-white rounded-md hover:bg-green-700 font-medium text-sm transition-colors"
-                      >
-                        Edit
-                      </button>
-                      <button
-                        type="button"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleDeleteEmployee(employee);
-                        }}
-                        className="px-3 py-1.5 bg-red-600 text-white rounded-md hover:bg-red-700 font-medium text-sm transition-colors"
-                      >
-                        Delete
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            ))}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
         </div>
       )}

@@ -1,18 +1,17 @@
 import React, { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { getCases } from '../services/api';
 
 const DashboardContent = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const [stats, setStats] = useState({
     total: 0,
     pending: 0,
-    underReview: 0,
-    resolved: 0,
-    closed: 0,
+    completed: 0,
   });
-  const [recentCases, setRecentCases] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [cases, setCases] = useState([]);
   const [viewingCase, setViewingCase] = useState(null);
   const [editingCase, setEditingCase] = useState(null);
 
@@ -24,8 +23,27 @@ const DashboardContent = () => {
       fetchData();
     }, 30000);
     
-    return () => clearInterval(interval);
-  }, []);
+    // Refresh when page becomes visible (e.g., user switches back to tab)
+    const handleVisibilityChange = () => {
+      if (!document.hidden && location.pathname === '/') {
+        fetchData();
+      }
+    };
+    
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    
+    return () => {
+      clearInterval(interval);
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
+  }, [location.pathname]);
+
+  // Refresh data when navigating to dashboard (e.g., after creating a case)
+  useEffect(() => {
+    if (location.pathname === '/') {
+      fetchData();
+    }
+  }, [location.pathname]);
 
   const fetchData = async () => {
     try {
@@ -46,34 +64,23 @@ const DashboardContent = () => {
         console.log('Dashboard: Sample case:', cases[0]);
       }
       
-      setStats({
-        total: cases.length,
-        pending: cases.filter(c => c.status === 'Pending').length,
-        underReview: cases.filter(c => c.status === 'Under Review').length,
-        resolved: cases.filter(c => c.status === 'Resolved').length,
-        closed: cases.filter(c => c.status === 'Closed').length,
-      });
-
-      // Get 5 most recent cases - sort by createdAt or updatedAt
-      const sorted = [...cases].sort((a, b) => {
-        const dateA = new Date(a.createdAt || a.updatedAt || 0);
-        const dateB = new Date(b.createdAt || b.updatedAt || 0);
-        return dateB - dateA;
-      });
-      setRecentCases(sorted.slice(0, 5));
-      
-      console.log('Fetched cases:', cases.length, 'Recent cases:', sorted.slice(0, 5).length);
-    } catch (error) {
-      console.error('Error fetching data:', error);
-      console.error('Error details:', error.response?.data || error.message);
-      // Set empty arrays on error to prevent display issues
-      setRecentCases([]);
+      setCases(cases);
       setStats({
         total: 0,
         pending: 0,
-        underReview: 0,
-        resolved: 0,
-        closed: 0,
+        completed: cases.filter(c => c.remarks && c.remarks.trim() !== '').length,
+      });
+
+      console.log('Fetched cases:', cases.length);
+    } catch (error) {
+      console.error('Error fetching data:', error);
+      console.error('Error details:', error.response?.data || error.message);
+      // Set empty stats on error to prevent display issues
+      setCases([]);
+      setStats({
+        total: 0,
+        pending: 0,
+        completed: 0,
       });
     } finally {
       setLoading(false);
@@ -82,10 +89,8 @@ const DashboardContent = () => {
 
   const statCards = [
     { label: 'Total Cases', value: stats.total, color: 'bg-blue-500' },
-    { label: 'Pending', value: stats.pending, color: 'bg-yellow-500' },
-    { label: 'Under Review', value: stats.underReview, color: 'bg-orange-500' },
-    { label: 'Resolved', value: stats.resolved, color: 'bg-green-500' },
-    { label: 'Closed', value: stats.closed, color: 'bg-gray-500' },
+    { label: 'Pending Cases', value: stats.pending, color: 'bg-yellow-500' },
+    { label: 'Completed Cases', value: stats.completed, color: 'bg-green-500' },
   ];
 
   const getSeverityColor = (severity) => {
@@ -120,19 +125,31 @@ const DashboardContent = () => {
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <h1 className="text-3xl font-bold text-gray-900">Dashboard</h1>
-        <Link
-          to="/cases/new"
-          className="bg-primary-600 text-white px-4 py-2 rounded-md hover:bg-primary-700 transition-colors flex items-center space-x-2"
-        >
-          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-          </svg>
-          <span>New Case</span>
-        </Link>
+        <div className="flex items-center gap-3">
+          <button
+            onClick={() => fetchData()}
+            className="bg-gray-600 text-white px-4 py-2 rounded-md hover:bg-gray-700 transition-colors flex items-center space-x-2"
+            title="Refresh data"
+          >
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+            </svg>
+            <span>Refresh</span>
+          </button>
+          <Link
+            to="/cases/new"
+            className="bg-primary-600 text-white px-4 py-2 rounded-md hover:bg-primary-700 transition-colors flex items-center space-x-2"
+          >
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+            </svg>
+            <span>New Case</span>
+          </Link>
+        </div>
       </div>
 
       {/* Statistics Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         {statCards.map((stat) => (
           <div
             key={stat.label}
@@ -161,152 +178,6 @@ const DashboardContent = () => {
             </div>
           </div>
         ))}
-      </div>
-
-      {/* Recent Cases */}
-      <div className="bg-white rounded-lg shadow">
-        <div className="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
-          <h2 className="text-xl font-semibold text-gray-900">Recent Cases</h2>
-          <div className="flex gap-4 items-center">
-            <button
-              onClick={fetchData}
-              className="text-sm text-primary-600 hover:text-primary-700 font-medium flex items-center gap-1"
-              title="Refresh data"
-            >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-              </svg>
-              Refresh
-            </button>
-            <Link
-              to="/cases"
-              className="text-sm text-primary-600 hover:text-primary-700 font-medium"
-            >
-              View All →
-            </Link>
-          </div>
-        </div>
-        <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-gray-50">
-              <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Employee
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  File Number
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Category
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Incident Date
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Severity
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Status
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Actions
-                </th>
-              </tr>
-            </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
-              {recentCases.length === 0 ? (
-                <tr>
-                  <td colSpan="7" className="px-6 py-4 text-center text-gray-500">
-                    No cases found. 
-                    <Link to="/cases/new" className="text-primary-600 hover:text-primary-700 ml-1 font-medium">
-                      Create your first case!
-                    </Link>
-                  </td>
-                </tr>
-              ) : (
-                recentCases.map((caseItem) => (
-                  <tr key={caseItem.id} className="hover:bg-gray-50">
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm font-medium text-gray-900">
-                        {caseItem.employeeName || caseItem.name || '-'}
-                      </div>
-                      <div className="text-sm text-gray-500">
-                        {caseItem.employeeId || '-'}
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {caseItem.fileNumber || '-'}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      <div>{caseItem.categoryOfCase || '-'}</div>
-                      {caseItem.subCategoryOfCase && (
-                        <div className="text-xs text-gray-400">{caseItem.subCategoryOfCase}</div>
-                      )}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {caseItem.incidentDate ? (
-                        (() => {
-                          try {
-                            const date = new Date(caseItem.incidentDate);
-                            return isNaN(date.getTime()) ? caseItem.incidentDate : date.toLocaleDateString();
-                          } catch (e) {
-                            return caseItem.incidentDate || '-';
-                          }
-                        })()
-                      ) : '-'}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      {caseItem.severity ? (
-                        <span
-                          className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${getSeverityColor(
-                            caseItem.severity
-                          )}`}
-                        >
-                          {caseItem.severity}
-                        </span>
-                      ) : (
-                        '-'
-                      )}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      {caseItem.status ? (
-                        <span
-                          className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusColor(
-                            caseItem.status
-                          )}`}
-                        >
-                          {caseItem.status}
-                        </span>
-                      ) : (
-                        '-'
-                      )}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                      <div className="flex gap-3 items-center flex-shrink-0 whitespace-nowrap">
-                        <button
-                          onClick={() => {
-                            console.log('Clicked View - Case item:', caseItem);
-                            console.log('Case item keys:', Object.keys(caseItem));
-                            setViewingCase(caseItem);
-                          }}
-                          className="px-3 py-1.5 bg-blue-600 text-white rounded-md hover:bg-blue-700 font-medium text-sm transition-colors"
-                        >
-                          View
-                        </button>
-                        <button
-                          onClick={() => setEditingCase(caseItem)}
-                          className="px-3 py-1.5 bg-green-600 text-white rounded-md hover:bg-green-700 font-medium text-sm transition-colors"
-                        >
-                          Edit
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))
-              )}
-            </tbody>
-          </table>
-        </div>
       </div>
 
       {/* View Case Modal - Shows only disciplinary case form fields */}
