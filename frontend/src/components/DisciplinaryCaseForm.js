@@ -31,8 +31,12 @@ const DisciplinaryCaseForm = ({ onSubmit, initialData = {}, isEdit = false, onCa
     // Prosecution and charges
     prosecutionSanctioned: initialData.prosecutionSanctioned || '',
     prosecutionIssuedBy: initialData.prosecutionIssuedBy || '',
+    prosecutionProceedingNumber: initialData.prosecutionProceedingNumber || '',
+    prosecutionDate: initialData.prosecutionDate || '',
     chargesIssued: initialData.chargesIssued || '',
     chargeMemoNumberAndDate: initialData.chargeMemoNumberAndDate || '',
+    chargesMemoNumber: initialData.chargesMemoNumber || '',
+    chargesDate: initialData.chargesDate || '',
     endorcementDate: initialData.endorcementDate || '',
     
     // WSD fields
@@ -40,14 +44,12 @@ const DisciplinaryCaseForm = ({ onSubmit, initialData = {}, isEdit = false, onCa
     wsdCheckbox: initialData.wsdCheckbox || false,
     servedCopyCheckbox: initialData.servedCopyCheckbox || false,
     furtherActionWSD: initialData.furtherActionWSD || '',
+    furtherActionWSDOthers: initialData.furtherActionWSDOthers || '',
     concludeText: initialData.concludeText || '',
-    ioPoAppointment: initialData.ioPoAppointment || '',
-    goProceedingsNumber: initialData.goProceedingsNumber || '',
-    ioPoDate: initialData.ioPoDate || '',
-    nameOfIO: initialData.nameOfIO || '',
-    designationOfIO: initialData.designationOfIO || '',
-    nameOfPO: initialData.nameOfPO || '',
-    designationOfPO: initialData.designationOfPO || '',
+    ioAppointment: initialData.ioAppointment || '',
+    ioGoProceedingsNumber: initialData.ioGoProceedingsNumber || '',
+    poAppointment: initialData.poAppointment || '',
+    poGoProceedingsNumber: initialData.poGoProceedingsNumber || '',
     
     // Inquiry report fields
     inquiryReportSubmitted: initialData.inquiryReportSubmitted || '',
@@ -245,6 +247,14 @@ const DisciplinaryCaseForm = ({ onSubmit, initialData = {}, isEdit = false, onCa
       [name]: type === 'checkbox' ? checked : value
     }));
 
+    // Clear furtherActionWSDOthers when furtherActionWSD changes to something other than 'others'
+    if (name === 'furtherActionWSD' && value !== 'others') {
+      setFormData(prev => ({
+        ...prev,
+        furtherActionWSDOthers: ''
+      }));
+    }
+
     // Clear error when user starts typing
     if (errors[name]) {
       setErrors(prev => ({
@@ -278,10 +288,12 @@ const DisciplinaryCaseForm = ({ onSubmit, initialData = {}, isEdit = false, onCa
       employeeReinitiated: ['reinstatedBy', 'reinitiationProceedingNumber', 'reinitiationDate'],
       suspensionPeriodRegularize: ['regularisedBy', 'regularizationProceedingNumber', 'regularizationDate'],
       criminalCaseFiled: ['criminalCaseNumber', 'criminalCaseDate'],
-      prosecutionSanctioned: ['prosecutionIssuedBy'],
-      chargesIssued: ['chargeMemoNumberAndDate'],
-      wsdOrServedCopy: ['wsdCheckbox', 'servedCopyCheckbox', 'furtherActionWSD', 'concludeText', 'ioPoAppointment'],
-      ioPoAppointment: ['goProceedingsNumber', 'ioPoDate', 'nameOfIO', 'designationOfIO', 'nameOfPO', 'designationOfPO'],
+      prosecutionSanctioned: ['prosecutionIssuedBy', 'prosecutionProceedingNumber', 'prosecutionDate'],
+      chargesIssued: ['chargeMemoNumberAndDate', 'chargesMemoNumber', 'chargesDate'],
+      wsdOrServedCopy: ['wsdCheckbox', 'servedCopyCheckbox', 'furtherActionWSD', 'furtherActionWSDOthers', 'concludeText', 'ioAppointment', 'ioGoProceedingsNumber', 'poAppointment', 'poGoProceedingsNumber'],
+      furtherActionWSD: ['furtherActionWSDOthers'],
+      ioAppointment: ['ioGoProceedingsNumber'],
+      poAppointment: ['poGoProceedingsNumber'],
       inquiryReportSubmitted: ['inquiryReportNumber'],
       inquiryReportCommunicated: ['inquiryEndorcementDate'],
       wrOrServedCopy: ['wrCheckbox', 'wrServedCopyCheckbox', 'furtherActionWR', 'punishmentNumber', 'punishmentDate']
@@ -344,8 +356,12 @@ const DisciplinaryCaseForm = ({ onSubmit, initialData = {}, isEdit = false, onCa
       // Clear prosecution and charges
       prosecutionSanctioned: '',
       prosecutionIssuedBy: '',
+      prosecutionProceedingNumber: '',
+      prosecutionDate: '',
       chargesIssued: '',
       chargeMemoNumberAndDate: '',
+      chargesMemoNumber: '',
+      chargesDate: '',
       endorcementDate: '',
       
       // Clear WSD fields
@@ -353,14 +369,12 @@ const DisciplinaryCaseForm = ({ onSubmit, initialData = {}, isEdit = false, onCa
       wsdCheckbox: false,
       servedCopyCheckbox: false,
       furtherActionWSD: '',
+      furtherActionWSDOthers: '',
       concludeText: '',
-      ioPoAppointment: '',
-      goProceedingsNumber: '',
-      ioPoDate: '',
-      nameOfIO: '',
-      designationOfIO: '',
-      nameOfPO: '',
-      designationOfPO: '',
+      ioAppointment: '',
+      ioGoProceedingsNumber: '',
+      poAppointment: '',
+      poGoProceedingsNumber: '',
       
       // Clear inquiry report fields
       inquiryReportSubmitted: '',
@@ -931,17 +945,46 @@ const DisciplinaryCaseForm = ({ onSubmit, initialData = {}, isEdit = false, onCa
             />
 
             {formData.prosecutionSanctioned === 'yes' && (
-              <div className="ml-6">
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Issued by
-                </label>
-                <textarea
-                  name="prosecutionIssuedBy"
-                  value={formData.prosecutionIssuedBy}
-                  onChange={handleChange}
-                  rows="3"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
-                />
+              <div className="ml-6 space-y-4 bg-gray-50 p-4 rounded-md">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Issued by
+                  </label>
+                  <textarea
+                    name="prosecutionIssuedBy"
+                    value={formData.prosecutionIssuedBy}
+                    onChange={handleChange}
+                    rows="3"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
+                  />
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Proceeding Number
+                    </label>
+                    <input
+                      type="text"
+                      name="prosecutionProceedingNumber"
+                      value={formData.prosecutionProceedingNumber}
+                      onChange={handleChange}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Date
+                    </label>
+                    <input
+                      type="date"
+                      name="prosecutionDate"
+                      value={formData.prosecutionDate}
+                      onChange={handleChange}
+                      max={today}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
+                    />
+                  </div>
+                </div>
               </div>
             )}
 
@@ -953,17 +996,46 @@ const DisciplinaryCaseForm = ({ onSubmit, initialData = {}, isEdit = false, onCa
             />
 
             {formData.chargesIssued === 'yes' && (
-              <div className="ml-6">
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Charge memo number & date
-                </label>
-                <textarea
-                  name="chargeMemoNumberAndDate"
-                  value={formData.chargeMemoNumberAndDate}
-                  onChange={handleChange}
-                  rows="3"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
-                />
+              <div className="ml-6 space-y-4 bg-gray-50 p-4 rounded-md">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Issued By
+                  </label>
+                  <textarea
+                    name="chargeMemoNumberAndDate"
+                    value={formData.chargeMemoNumberAndDate}
+                    onChange={handleChange}
+                    rows="3"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
+                  />
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      ChargesMemoNumber
+                    </label>
+                    <input
+                      type="text"
+                      name="chargesMemoNumber"
+                      value={formData.chargesMemoNumber}
+                      onChange={handleChange}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Date
+                    </label>
+                    <input
+                      type="date"
+                      name="chargesDate"
+                      value={formData.chargesDate}
+                      onChange={handleChange}
+                      max={today}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
+                    />
+                  </div>
+                </div>
               </div>
             )}
 
@@ -986,7 +1058,7 @@ const DisciplinaryCaseForm = ({ onSubmit, initialData = {}, isEdit = false, onCa
         {/* WSD Section */}
         <div className="border-t pt-6">
           <h2 className="text-xl font-semibold text-gray-900 mb-4 border-b pb-2">
-            Written Statement of Defence (WSD)
+            Served Copy/Written Statement of Defence (WSD)
           </h2>
           <div className="space-y-6">
             <YesNoButtons
@@ -1035,6 +1107,7 @@ const DisciplinaryCaseForm = ({ onSubmit, initialData = {}, isEdit = false, onCa
                       <option value="">Select Action</option>
                       <option value="conclude">Conclude</option>
                       <option value="ioPoAppointment">IO&PO Appointment</option>
+                      <option value="others">Others</option>
                     </select>
 
                     {formData.furtherActionWSD === 'conclude' && (
@@ -1052,94 +1125,73 @@ const DisciplinaryCaseForm = ({ onSubmit, initialData = {}, isEdit = false, onCa
                       </div>
                     )}
 
+                    {formData.furtherActionWSD === 'others' && (
+                      <div className="mt-4">
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                          Please specify
+                        </label>
+                        <textarea
+                          name="furtherActionWSDOthers"
+                          value={formData.furtherActionWSDOthers}
+                          onChange={handleChange}
+                          rows="4"
+                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
+                          placeholder="Enter details..."
+                        />
+                      </div>
+                    )}
+
                     {formData.furtherActionWSD === 'ioPoAppointment' && (
                       <div className="mt-4 space-y-4 bg-blue-50 p-4 rounded-md">
-                        <YesNoButtons
-                          fieldName="ioPoAppointment"
-                          value={formData.ioPoAppointment}
-                          onChange={handleYesNoChange}
-                          label="IO&PO Appointment"
-                        />
+                        {/* IO Appointment Section */}
+                        <div className="space-y-4">
+                          <YesNoButtons
+                            fieldName="ioAppointment"
+                            value={formData.ioAppointment}
+                            onChange={handleYesNoChange}
+                            label="IO Appointment"
+                          />
 
-                        {formData.ioPoAppointment === 'yes' && (
-                          <div className="ml-6 space-y-4">
-                            <div>
+                          {formData.ioAppointment === 'yes' && (
+                            <div className="ml-6">
                               <label className="block text-sm font-medium text-gray-700 mb-1">
-                                GO/Proceedings number
-                              </label>
-                              <textarea
-                                name="goProceedingsNumber"
-                                value={formData.goProceedingsNumber}
-                                onChange={handleChange}
-                                rows="2"
-                                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
-                              />
-                            </div>
-                            <div>
-                              <label className="block text-sm font-medium text-gray-700 mb-1">
-                                Date
+                                IO-GO/Proceedings Number
                               </label>
                               <input
-                                type="date"
-                                name="ioPoDate"
-                                value={formData.ioPoDate}
+                                type="text"
+                                name="ioGoProceedingsNumber"
+                                value={formData.ioGoProceedingsNumber}
                                 onChange={handleChange}
-                                max={today}
                                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
                               />
                             </div>
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                              <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">
-                                  Name of the IO <span className="text-red-500">*</span>
-                                </label>
-                                <textarea
-                                  name="nameOfIO"
-                                  value={formData.nameOfIO}
-                                  onChange={handleChange}
-                                  rows="2"
-                                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
-                                />
-                              </div>
-                              <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">
-                                  Designation of IO
-                                </label>
-                                <textarea
-                                  name="designationOfIO"
-                                  value={formData.designationOfIO}
-                                  onChange={handleChange}
-                                  rows="2"
-                                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
-                                />
-                              </div>
-                              <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">
-                                  Name of the PO
-                                </label>
-                                <textarea
-                                  name="nameOfPO"
-                                  value={formData.nameOfPO}
-                                  onChange={handleChange}
-                                  rows="2"
-                                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
-                                />
-                              </div>
-                              <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">
-                                  Designation of PO
-                                </label>
-                                <textarea
-                                  name="designationOfPO"
-                                  value={formData.designationOfPO}
-                                  onChange={handleChange}
-                                  rows="2"
-                                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
-                                />
-                              </div>
+                          )}
+                        </div>
+
+                        {/* PO Appointment Section */}
+                        <div className="space-y-4 border-t pt-4">
+                          <YesNoButtons
+                            fieldName="poAppointment"
+                            value={formData.poAppointment}
+                            onChange={handleYesNoChange}
+                            label="PO Appointment"
+                          />
+
+                          {formData.poAppointment === 'yes' && (
+                            <div className="ml-6">
+                              <label className="block text-sm font-medium text-gray-700 mb-1">
+                                PO-GO/Proceedings Number
+                              </label>
+                              <input
+                                type="text"
+                                name="poGoProceedingsNumber"
+                                value={formData.poGoProceedingsNumber}
+                                onChange={handleChange}
+                                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
+                              />
                             </div>
-                          </div>
-                        )}
+                          )}
+                        </div>
                       </div>
                     )}
                   </div>
@@ -1205,7 +1257,7 @@ const DisciplinaryCaseForm = ({ onSubmit, initialData = {}, isEdit = false, onCa
         {/* WR Section */}
         <div className="border-t pt-6">
           <h2 className="text-xl font-semibold text-gray-900 mb-4 border-b pb-2">
-            Written Representation (WR)
+            Served copy / Written Representation(WR)
           </h2>
           <div className="space-y-6">
             <YesNoButtons
