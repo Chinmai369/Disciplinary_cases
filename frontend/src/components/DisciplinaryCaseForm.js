@@ -17,8 +17,13 @@ const DisciplinaryCaseForm = ({ onSubmit, initialData = {}, isEdit = false, onCa
     suspensionProceedingNumber: initialData.suspensionProceedingNumber || '',
     suspensionDate: initialData.suspensionDate || '',
     employeeReinitiated: initialData.employeeReinitiated || '',
+    reinstatedBy: initialData.reinstatedBy || '',
     reinitiationProceedingNumber: initialData.reinitiationProceedingNumber || '',
     reinitiationDate: initialData.reinitiationDate || '',
+    suspensionPeriodRegularize: initialData.suspensionPeriodRegularize || '',
+    regularisedBy: initialData.regularisedBy || '',
+    regularizationProceedingNumber: initialData.regularizationProceedingNumber || '',
+    regularizationDate: initialData.regularizationDate || '',
     criminalCaseFiled: initialData.criminalCaseFiled || '',
     criminalCaseNumber: initialData.criminalCaseNumber || '',
     criminalCaseDate: initialData.criminalCaseDate || '',
@@ -269,8 +274,9 @@ const DisciplinaryCaseForm = ({ onSubmit, initialData = {}, isEdit = false, onCa
 
   const getDependentFields = (fieldName) => {
     const dependencyMap = {
-      employeeSuspended: ['suspendedBy', 'suspensionProceedingNumber', 'suspensionDate', 'employeeReinitiated', 'reinitiationProceedingNumber', 'reinitiationDate'],
-      employeeReinitiated: ['reinitiationProceedingNumber', 'reinitiationDate'],
+      employeeSuspended: ['suspendedBy', 'suspensionProceedingNumber', 'suspensionDate', 'employeeReinitiated', 'reinitiationProceedingNumber', 'reinitiationDate', 'suspensionPeriodRegularize', 'regularisedBy', 'regularizationProceedingNumber', 'regularizationDate'],
+      employeeReinitiated: ['reinstatedBy', 'reinitiationProceedingNumber', 'reinitiationDate'],
+      suspensionPeriodRegularize: ['regularisedBy', 'regularizationProceedingNumber', 'regularizationDate'],
       criminalCaseFiled: ['criminalCaseNumber', 'criminalCaseDate'],
       prosecutionSanctioned: ['prosecutionIssuedBy'],
       chargesIssued: ['chargeMemoNumberAndDate'],
@@ -324,8 +330,13 @@ const DisciplinaryCaseForm = ({ onSubmit, initialData = {}, isEdit = false, onCa
       suspensionProceedingNumber: '',
       suspensionDate: '',
       employeeReinitiated: '',
+      reinstatedBy: '',
       reinitiationProceedingNumber: '',
       reinitiationDate: '',
+      suspensionPeriodRegularize: '',
+      regularisedBy: '',
+      regularizationProceedingNumber: '',
+      regularizationDate: '',
       criminalCaseFiled: '',
       criminalCaseNumber: '',
       criminalCaseDate: '',
@@ -769,6 +780,18 @@ const DisciplinaryCaseForm = ({ onSubmit, initialData = {}, isEdit = false, onCa
 
                   {formData.employeeReinitiated === 'yes' && (
                     <div className="ml-6 space-y-4 bg-blue-50 p-4 rounded-md">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                          Re-instated by
+                        </label>
+                        <input
+                          type="text"
+                          name="reinstatedBy"
+                          value={formData.reinstatedBy}
+                          onChange={handleChange}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
+                        />
+                      </div>
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
                           <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -790,6 +813,57 @@ const DisciplinaryCaseForm = ({ onSubmit, initialData = {}, isEdit = false, onCa
                             type="date"
                             name="reinitiationDate"
                             value={formData.reinitiationDate}
+                            onChange={handleChange}
+                            max={today}
+                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  <YesNoButtons
+                    fieldName="suspensionPeriodRegularize"
+                    value={formData.suspensionPeriodRegularize}
+                    onChange={handleYesNoChange}
+                    label="Suspension Period Regularize or not"
+                  />
+
+                  {formData.suspensionPeriodRegularize === 'yes' && (
+                    <div className="ml-6 space-y-4 bg-green-50 p-4 rounded-md">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                          Regularised by
+                        </label>
+                        <textarea
+                          name="regularisedBy"
+                          value={formData.regularisedBy}
+                          onChange={handleChange}
+                          rows="3"
+                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
+                        />
+                      </div>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-1">
+                            Proceeding Number
+                          </label>
+                          <input
+                            type="text"
+                            name="regularizationProceedingNumber"
+                            value={formData.regularizationProceedingNumber}
+                            onChange={handleChange}
+                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-1">
+                            Date
+                          </label>
+                          <input
+                            type="date"
+                            name="regularizationDate"
+                            value={formData.regularizationDate}
                             onChange={handleChange}
                             max={today}
                             className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
