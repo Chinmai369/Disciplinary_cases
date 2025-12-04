@@ -14,6 +14,7 @@ const DashboardContent = () => {
   const [cases, setCases] = useState([]);
   const [viewingCase, setViewingCase] = useState(null);
   const [editingCase, setEditingCase] = useState(null);
+  const [showTotalCasesTable, setShowTotalCasesTable] = useState(false);
 
   useEffect(() => {
     fetchData();
@@ -66,8 +67,8 @@ const DashboardContent = () => {
       
       setCases(cases);
       setStats({
-        total: 0,
-        pending: 0,
+        total: cases.length,
+        pending: cases.filter(c => c.status === 'Pending' || !c.status).length,
         completed: cases.filter(c => c.remarks && c.remarks.trim() !== '').length,
       });
 
@@ -153,7 +154,14 @@ const DashboardContent = () => {
         {statCards.map((stat) => (
           <div
             key={stat.label}
-            className="bg-white rounded-lg shadow p-6 hover:shadow-lg transition-shadow"
+            onClick={() => {
+              if (stat.label === 'Total Cases') {
+                setShowTotalCasesTable(!showTotalCasesTable);
+              }
+            }}
+            className={`bg-white rounded-lg shadow p-6 hover:shadow-lg transition-shadow ${
+              stat.label === 'Total Cases' ? 'cursor-pointer' : ''
+            }`}
           >
             <div className="flex items-center">
               <div className={`${stat.color} p-3 rounded-lg`}>
@@ -174,11 +182,153 @@ const DashboardContent = () => {
               <div className="ml-4">
                 <p className="text-sm font-medium text-gray-600">{stat.label}</p>
                 <p className="text-2xl font-semibold text-gray-900">{stat.value}</p>
+                {stat.label === 'Total Cases' && (
+                  <p className="text-xs text-gray-500 mt-1">Click to view all cases</p>
+                )}
               </div>
             </div>
           </div>
         ))}
       </div>
+
+      {/* Total Cases Table - Shows when Total Cases card is clicked */}
+      {showTotalCasesTable && (
+        <div className="bg-white rounded-lg shadow overflow-hidden">
+          <div className="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
+            <h2 className="text-xl font-semibold text-gray-900">Total Cases - All Submitted Cases</h2>
+            <button
+              onClick={() => setShowTotalCasesTable(false)}
+              className="text-gray-400 hover:text-gray-600"
+            >
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
+          <div className="overflow-x-auto">
+            <table className="min-w-full divide-y divide-gray-200 border border-gray-300">
+              <thead className="bg-blue-200">
+                <tr>
+                  <th className="px-2 sm:px-3 py-2 text-left text-xs font-medium text-gray-700 uppercase tracking-wider border border-gray-300 whitespace-nowrap">
+                    S.No
+                  </th>
+                  <th className="px-2 sm:px-3 py-2 text-left text-xs font-medium text-gray-700 uppercase tracking-wider border border-gray-300 whitespace-nowrap">
+                    File Number
+                  </th>
+                  <th className="px-2 sm:px-3 py-2 text-left text-xs font-medium text-gray-700 uppercase tracking-wider border border-gray-300 whitespace-nowrap">
+                    Employee ID
+                  </th>
+                  <th className="px-2 sm:px-3 py-2 text-left text-xs font-medium text-gray-700 uppercase tracking-wider border border-gray-300 whitespace-nowrap">
+                    Name
+                  </th>
+                  <th className="px-2 sm:px-3 py-2 text-left text-xs font-medium text-gray-700 uppercase tracking-wider border border-gray-300 whitespace-nowrap">
+                    Category
+                  </th>
+                  <th className="px-2 sm:px-3 py-2 text-left text-xs font-medium text-gray-700 uppercase tracking-wider border border-gray-300 whitespace-nowrap">
+                    Sub Category
+                  </th>
+                  <th className="px-2 sm:px-3 py-2 text-left text-xs font-medium text-gray-700 uppercase tracking-wider border border-gray-300 whitespace-nowrap">
+                    Date of Incident
+                  </th>
+                  <th className="px-2 sm:px-3 py-2 text-left text-xs font-medium text-gray-700 uppercase tracking-wider border border-gray-300 whitespace-nowrap">
+                    Designation
+                  </th>
+                  <th className="px-2 sm:px-3 py-2 text-left text-xs font-medium text-gray-700 uppercase tracking-wider border border-gray-300 whitespace-nowrap">
+                    ULB
+                  </th>
+                  <th className="px-2 sm:px-3 py-2 text-left text-xs font-medium text-gray-700 uppercase tracking-wider border border-gray-300 whitespace-nowrap">
+                    Status
+                  </th>
+                  <th className="px-2 sm:px-3 py-2 text-center text-xs font-medium text-gray-700 uppercase tracking-wider border border-gray-300 whitespace-nowrap">
+                    Actions
+                  </th>
+                </tr>
+              </thead>
+              <tbody className="bg-gray-50 divide-y divide-gray-200">
+                {cases.length === 0 ? (
+                  <tr>
+                    <td colSpan="11" className="px-4 sm:px-6 py-4 text-center text-gray-500 border border-gray-300">
+                      No cases found. Create a new case to see it here.
+                    </td>
+                  </tr>
+                ) : (
+                  cases.map((caseItem, index) => (
+                    <tr key={caseItem.id} className="hover:bg-blue-100">
+                      <td className="px-4 sm:px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 border border-gray-300">
+                        {index + 1}
+                      </td>
+                      <td className="px-4 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-900 border border-gray-300">
+                        {caseItem.fileNumber || '-'}
+                      </td>
+                      <td className="px-4 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-900 border border-gray-300">
+                        {caseItem.employeeId || '-'}
+                      </td>
+                      <td className="px-4 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-900 border border-gray-300">
+                        {caseItem.employeeName || caseItem.name || '-'}
+                      </td>
+                      <td className="px-4 sm:px-6 py-4 text-sm text-gray-900 border border-gray-300">
+                        {caseItem.categoryOfCase || '-'}
+                      </td>
+                      <td className="px-4 sm:px-6 py-4 text-sm text-gray-900 border border-gray-300">
+                        {caseItem.subCategoryOfCase || '-'}
+                      </td>
+                      <td className="px-4 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-900 border border-gray-300">
+                        {caseItem.dateOfIncident ? (
+                          (() => {
+                            try {
+                              const date = new Date(caseItem.dateOfIncident);
+                              return isNaN(date.getTime()) ? caseItem.dateOfIncident : date.toLocaleDateString();
+                            } catch (e) {
+                              return caseItem.dateOfIncident || caseItem.incidentDate ? new Date(caseItem.incidentDate).toLocaleDateString() : '-';
+                            }
+                          })()
+                        ) : caseItem.incidentDate ? (
+                          new Date(caseItem.incidentDate).toLocaleDateString()
+                        ) : '-'}
+                      </td>
+                      <td className="px-4 sm:px-6 py-4 text-sm text-gray-900 border border-gray-300">
+                        {caseItem.designationWhenChargesIssued || '-'}
+                      </td>
+                      <td className="px-4 sm:px-6 py-4 text-sm text-gray-900 border border-gray-300">
+                        {caseItem.nameOfULB || '-'}
+                      </td>
+                      <td className="px-4 sm:px-6 py-4 whitespace-nowrap border border-gray-300">
+                        {caseItem.status ? (
+                          <span
+                            className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusColor(
+                              caseItem.status
+                            )}`}
+                          >
+                            {caseItem.status}
+                          </span>
+                        ) : (
+                          '-'
+                        )}
+                      </td>
+                      <td className="px-4 sm:px-6 py-4 whitespace-nowrap text-center text-sm font-medium border border-gray-300">
+                        <div className="flex justify-center gap-2">
+                          <button
+                            onClick={() => setViewingCase(caseItem)}
+                            className="px-3 py-1.5 bg-blue-600 text-white rounded-md hover:bg-blue-700 font-medium text-sm transition-colors"
+                          >
+                            View
+                          </button>
+                          <button
+                            onClick={() => setEditingCase(caseItem)}
+                            className="px-3 py-1.5 bg-green-600 text-white rounded-md hover:bg-green-700 font-medium text-sm transition-colors"
+                          >
+                            Edit
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
 
       {/* View Case Modal - Shows only disciplinary case form fields */}
       {viewingCase && (

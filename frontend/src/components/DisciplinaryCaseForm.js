@@ -646,7 +646,7 @@ const DisciplinaryCaseForm = ({ onSubmit, initialData = {}, isEdit = false, onCa
         <div className="bg-white rounded-lg shadow-sm p-4 sm:p-6 space-y-6">
         {/* Basic Information Section */}
         <div>
-          <h2 className="text-xl font-semibold text-gray-900 mb-4 border-b pb-2">
+          <h2 className="text-lg font-semibold text-gray-900 mb-4 border-b pb-2">
             Basic Information
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -774,7 +774,7 @@ const DisciplinaryCaseForm = ({ onSubmit, initialData = {}, isEdit = false, onCa
         {/* Trap Case Section */}
         {isTrapCase && (
           <div className="border-t pt-6">
-            <h2 className="text-xl font-semibold text-gray-900 mb-4 border-b pb-2">
+            <h2 className="text-lg font-semibold text-gray-900 mb-4 border-b pb-2">
               Trap Case Details
             </h2>
             <div className="space-y-6">
@@ -989,7 +989,7 @@ const DisciplinaryCaseForm = ({ onSubmit, initialData = {}, isEdit = false, onCa
 
         {/* Prosecution and Charges Section */}
         <div className="border-t pt-6">
-          <h2 className="text-xl font-semibold text-gray-900 mb-4 border-b pb-2">
+          <h2 className="text-lg font-semibold text-gray-900 mb-4 border-b pb-2">
             Prosecution and Charges
           </h2>
           <div className="space-y-6">
@@ -1129,7 +1129,7 @@ const DisciplinaryCaseForm = ({ onSubmit, initialData = {}, isEdit = false, onCa
 
         {/* WSD Section */}
         <div className="border-t pt-6">
-          <h2 className="text-xl font-semibold text-gray-900 mb-4 border-b pb-2">
+          <h2 className="text-lg font-semibold text-gray-900 mb-4 border-b pb-2">
             Served Copy/Written Statement of Defence (WSD)
           </h2>
           <div className="space-y-6">
@@ -1275,7 +1275,7 @@ const DisciplinaryCaseForm = ({ onSubmit, initialData = {}, isEdit = false, onCa
 
         {/* Inquiry Report Section */}
         <div className="border-t pt-6">
-          <h2 className="text-xl font-semibold text-gray-900 mb-4 border-b pb-2">
+          <h2 className="text-lg font-semibold text-gray-900 mb-4 border-b pb-2">
             Inquiry Officer Report
           </h2>
           <div className="space-y-6">
@@ -1428,7 +1428,7 @@ const DisciplinaryCaseForm = ({ onSubmit, initialData = {}, isEdit = false, onCa
 
         {/* WR Section */}
         <div className="border-t pt-6">
-          <h2 className="text-xl font-semibold text-gray-900 mb-4 border-b pb-2">
+          <h2 className="text-lg font-semibold text-gray-900 mb-4 border-b pb-2">
             Served copy / Written Representation(WR)
           </h2>
           <div className="space-y-6">
@@ -1536,7 +1536,7 @@ const DisciplinaryCaseForm = ({ onSubmit, initialData = {}, isEdit = false, onCa
 
         {/* Remarks Section */}
         <div className="border-t pt-6">
-          <h2 className="text-xl font-semibold text-gray-900 mb-4 border-b pb-2">
+          <h2 className="text-lg font-semibold text-gray-900 mb-4 border-b pb-2">
             Additional Information
           </h2>
           <div>
@@ -1583,7 +1583,7 @@ const DisciplinaryCaseForm = ({ onSubmit, initialData = {}, isEdit = false, onCa
       {/* Submitted Employees Table */}
       {submittedEmployees.length > 0 && (
         <div className="bg-white rounded-lg shadow-sm p-4 sm:p-6 mt-6" data-submitted-employees-table>
-          <h2 className="text-xl font-semibold text-gray-900 mb-4 border-b pb-2">
+          <h2 className="text-lg font-semibold text-gray-900 mb-4 border-b pb-2">
             Submitted Employees ({submittedEmployees.length})
           </h2>
           <div className="overflow-x-auto">

@@ -230,15 +230,15 @@ const CaseForm = () => {
 
       {showCategorySelection && (
         <div className="bg-white rounded-lg shadow-md border border-gray-200 p-5">
-          <div className="flex flex-col items-center justify-center">
-            <h2 className="text-lg font-semibold text-gray-800 mb-3">Category of Case</h2>
-            <div className="w-full max-w-[200px]">
+          <div className="flex flex-col items-start">
+            <h2 className="text-sm font-semibold text-gray-800 mb-3">Category of Case</h2>
+            <div className="w-full max-w-[350px]">
               <select
                 name="categoryOfCase"
                 value={formData.categoryOfCase}
                 onChange={handleChange}
                 disabled={isFormSubmitted}
-                className={`w-full px-2.5 py-1.5 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all ${
+                className={`w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all ${
                   isFormSubmitted ? 'bg-gray-100 cursor-not-allowed' : 'bg-white hover:border-gray-400'
                 }`}
               >
@@ -253,10 +253,9 @@ const CaseForm = () => {
       )}
 
       {showBothDropdowns && (
-        <div className="bg-white rounded-lg shadow p-6">
-          <h2 className="text-xl font-semibold text-gray-900 mb-6">Case Category Selection</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div>
+        <div className="bg-white rounded-lg shadow-md border border-gray-200 p-5">
+          <div className="flex flex-col md:flex-row md:items-start gap-10">
+            <div className="flex flex-col">
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Category of Case
               </label>
@@ -265,8 +264,8 @@ const CaseForm = () => {
                 value={formData.categoryOfCase}
                 onChange={handleChange}
                 disabled={isFormSubmitted}
-                className={`w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 text-base bg-white ${
-                  isFormSubmitted ? 'bg-gray-100 cursor-not-allowed' : ''
+                className={`w-full max-w-[450px] px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all bg-white ${
+                  isFormSubmitted ? 'bg-gray-100 cursor-not-allowed' : 'hover:border-gray-400'
                 }`}
               >
                 <option value="">Select Category</option>
@@ -276,15 +275,15 @@ const CaseForm = () => {
               </select>
             </div>
 
-            <div>
+            <div className="flex flex-col flex-1">
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Sub Category of Case
               </label>
-              <div className="space-y-2">
+              <div className="flex flex-wrap gap-2 items-center">
                 {getSubCategories().map((subCategory) => (
                   <label
                     key={subCategory}
-                    className={`flex items-center p-3 border border-gray-300 rounded-md transition-colors ${
+                    className={`flex items-center px-4 py-2.5 min-w-[140px] border border-gray-300 rounded-md transition-colors ${
                       isFormSubmitted
                         ? 'bg-gray-100 cursor-not-allowed'
                         : 'hover:bg-gray-50 cursor-pointer'
@@ -299,7 +298,7 @@ const CaseForm = () => {
                       disabled={isFormSubmitted}
                       className="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300"
                     />
-                    <span className="ml-3 text-sm text-gray-700">{subCategory}</span>
+                    <span className="ml-3 text-sm text-gray-700 whitespace-nowrap">{subCategory}</span>
                   </label>
                 ))}
               </div>
@@ -309,10 +308,9 @@ const CaseForm = () => {
       )}
 
       {showSubCategoryWithOk && (
-        <div className="bg-white rounded-lg shadow p-6">
-          <h2 className="text-xl font-semibold text-gray-900 mb-6">Case Category Selection</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div>
+        <div className="bg-white rounded-lg shadow-md border border-gray-200 p-5">
+          <div className="flex flex-col md:flex-row md:items-start gap-10">
+            <div className="flex flex-col">
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Category of Case
               </label>
@@ -321,8 +319,8 @@ const CaseForm = () => {
                 value={formData.categoryOfCase}
                 onChange={handleChange}
                 disabled={isFormSubmitted}
-                className={`w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 text-base bg-white ${
-                  isFormSubmitted ? 'bg-gray-100 cursor-not-allowed' : ''
+                className={`w-full max-w-[450px] px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all bg-white ${
+                  isFormSubmitted ? 'bg-gray-100 cursor-not-allowed' : 'hover:border-gray-400'
                 }`}
               >
                 <option value="">Select Category</option>
@@ -332,15 +330,15 @@ const CaseForm = () => {
               </select>
             </div>
 
-            <div>
+            <div className="flex flex-col flex-1">
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Sub Category of Case
               </label>
-              <div className="space-y-2 mb-4">
+              <div className="flex flex-wrap gap-2 items-center mb-4">
                 {getSubCategories().map((subCategory) => (
                   <label
                     key={subCategory}
-                    className={`flex items-center p-3 border border-gray-300 rounded-md transition-colors ${
+                    className={`flex items-center px-4 py-2.5 min-w-[140px] border border-gray-300 rounded-md transition-colors ${
                       isFormSubmitted
                         ? 'bg-gray-100 cursor-not-allowed'
                         : 'hover:bg-gray-50 cursor-pointer'
@@ -355,7 +353,7 @@ const CaseForm = () => {
                       disabled={isFormSubmitted}
                       className="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300"
                     />
-                    <span className="ml-3 text-sm text-gray-700">{subCategory}</span>
+                    <span className="ml-3 text-sm text-gray-700 whitespace-nowrap">{subCategory}</span>
                   </label>
                 ))}
               </div>
