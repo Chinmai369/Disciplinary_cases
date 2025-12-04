@@ -29,12 +29,27 @@ const CaseForm = () => {
   const [errors, setErrors] = useState({});
   const [subCategoryConfirmed, setSubCategoryConfirmed] = useState(false);
   const [isFormSubmitted, setIsFormSubmitted] = useState(false);
+  const [preservedFileData, setPreservedFileData] = useState({ fileNumber: '', eOfficeNumber: '' });
+  const [formResetKey, setFormResetKey] = useState(0);
+  const [isSubmittingFinal, setIsSubmittingFinal] = useState(false);
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [submittedCount, setSubmittedCount] = useState(0);
 
   useEffect(() => {
     if (isEdit) {
       fetchCase();
     }
   }, [id]);
+
+  // Auto-close success modal after 5 seconds
+  useEffect(() => {
+    if (showSuccessModal) {
+      const timer = setTimeout(() => {
+        setShowSuccessModal(false);
+      }, 5000);
+      return () => clearTimeout(timer);
+    }
+  }, [showSuccessModal]);
 
   const fetchCase = async () => {
     try {
@@ -164,6 +179,11 @@ const CaseForm = () => {
         if (!isFormSubmitted) {
           // First submission - create the case
           await createCase(mergedData);
+          // Preserve file number and e-office number for future employee additions
+          setPreservedFileData({
+            fileNumber: disciplinaryFormData.fileNumber || '',
+            eOfficeNumber: disciplinaryFormData.eOfficeNumber || ''
+          });
           setIsFormSubmitted(true);
           // Don't navigate - stay on form to allow adding employees
         } else {
@@ -190,10 +210,11 @@ const CaseForm = () => {
   }
 
   // For new cases, show only category selection first
-  const showCategorySelection = !isEdit && !formData.categoryOfCase;
-  const showBothDropdowns = !isEdit && formData.categoryOfCase && !formData.subCategoryOfCase;
-  const showSubCategoryWithOk = !isEdit && formData.categoryOfCase && formData.subCategoryOfCase && !subCategoryConfirmed;
-  const showFullForm = isEdit || (formData.categoryOfCase && formData.subCategoryOfCase && subCategoryConfirmed);
+  // Hide form if final submission is in progress or completed
+  const showCategorySelection = !isEdit && (!formData.categoryOfCase || isSubmittingFinal);
+  const showBothDropdowns = !isEdit && formData.categoryOfCase && !formData.subCategoryOfCase && !isSubmittingFinal;
+  const showSubCategoryWithOk = !isEdit && formData.categoryOfCase && formData.subCategoryOfCase && !subCategoryConfirmed && !isSubmittingFinal;
+  const showFullForm = !isSubmittingFinal && (isEdit || (formData.categoryOfCase && formData.subCategoryOfCase && subCategoryConfirmed));
 
   const handleOkClick = () => {
     if (formData.subCategoryOfCase) {
@@ -608,18 +629,117 @@ const CaseForm = () => {
             </form>
           ) : (
             <DisciplinaryCaseForm
+              key={`form-${formData.categoryOfCase}-${formData.subCategoryOfCase}-${formResetKey}`}
               onSubmit={handleDisciplinaryFormSubmit}
               initialData={{
                 caseType: formData.subCategoryOfCase || 'Trap Case',
                 categoryOfCase: formData.categoryOfCase,
                 subCategoryOfCase: formData.subCategoryOfCase,
+                // Preserve file number and e-office number after first submission
+                fileNumber: isFormSubmitted ? preservedFileData.fileNumber : undefined,
+                eOfficeNumber: isFormSubmitted ? preservedFileData.eOfficeNumber : undefined,
               }}
               isEdit={isEdit}
               onCancel={() => navigate('/cases')}
               onFormSubmitted={(submitted) => setIsFormSubmitted(submitted)}
+              isFormSubmitted={isFormSubmitted}
+              onFinalSubmit={async (submittedEmployees) => {
+                // Submit all employees and reset form to show category selection
+                try {
+                  setIsSubmittingFinal(true); // Hide form immediately
+                  setLoading(true);
+                  for (const employee of submittedEmployees) {
+                    const mergedData = {
+                      ...employee, // Includes all form fields: fileNumber, eOfficeNumber, name, employeeId, etc.
+                      categoryOfCase: formData.categoryOfCase || employee.categoryOfCase || '',
+                      subCategoryOfCase: formData.subCategoryOfCase || employee.subCategoryOfCase || '',
+                      employeeName: employee.name || employee.employeeName,
+                      name: employee.name || employee.employeeName,
+                      incidentDate: employee.incidentDate || new Date().toISOString().split('T')[0],
+                      description: employee.description || employee.remarks || 'Disciplinary case',
+                      // Ensure fileNumber and eOfficeNumber are preserved from employee data or preserved data
+                      fileNumber: employee.fileNumber || preservedFileData.fileNumber || '',
+                      eOfficeNumber: employee.eOfficeNumber || preservedFileData.eOfficeNumber || '',
+                    };
+                    await createCase(mergedData);
+                  }
+                  // Show success modal
+                  setSubmittedCount(submittedEmployees.length);
+                  setShowSuccessModal(true);
+                  
+                  // Reset form state to show category selection section again
+                  setFormData((prev) => ({
+                    ...prev,
+                    categoryOfCase: '',
+                    subCategoryOfCase: '',
+                  }));
+                  setSubCategoryConfirmed(false);
+                  setIsFormSubmitted(false);
+                  setPreservedFileData({ fileNumber: '', eOfficeNumber: '' });
+                  setFormResetKey((prev) => prev + 1); // Force component remount
+                  setIsSubmittingFinal(false); // Reset flag - category selection will show naturally
+                } catch (error) {
+                  console.error('Error submitting cases:', error);
+                  alert(`Failed to submit cases: ${error.response?.data?.message || error.message || 'Unknown error'}`);
+                  setIsSubmittingFinal(false); // Re-show form if submission fails
+                } finally {
+                  setLoading(false);
+                }
+              }}
             />
           )}
         </>
+      )}
+
+      {/* Success Modal */}
+      {showSuccessModal && (
+        <div className="fixed inset-0 z-50 overflow-y-auto">
+          <div className="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:block sm:p-0">
+            <div
+              className="fixed inset-0 transition-opacity bg-gray-500 bg-opacity-75"
+              onClick={() => setShowSuccessModal(false)}
+            ></div>
+            <div className="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
+              <div className="bg-white px-4 pt-5 pb-4 sm:p-6">
+                <div className="sm:flex sm:items-start">
+                  <div className="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-green-100 sm:mx-0 sm:h-10 sm:w-10">
+                    <svg
+                      className="h-6 w-6 text-green-600"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M5 13l4 4L19 7"
+                      />
+                    </svg>
+                  </div>
+                  <div className="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left">
+                    <h3 className="text-lg leading-6 font-medium text-gray-900">
+                      Success!
+                    </h3>
+                    <div className="mt-2">
+                      <p className="text-sm text-gray-500">
+                        All {submittedCount} case{submittedCount !== 1 ? 's' : ''} {submittedCount !== 1 ? 'have' : 'has'} been submitted successfully!
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div className="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+                <button
+                  onClick={() => setShowSuccessModal(false)}
+                  className="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-green-600 text-base font-medium text-white hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 sm:ml-3 sm:w-auto sm:text-sm"
+                >
+                  OK
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );

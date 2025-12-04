@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
-const DisciplinaryCaseForm = ({ onSubmit, initialData = {}, isEdit = false, onCancel, onFormSubmitted }) => {
+const DisciplinaryCaseForm = ({ onSubmit, initialData = {}, isEdit = false, onCancel, onFormSubmitted, isFormSubmitted: parentIsFormSubmitted, onFinalSubmit }) => {
   const [formData, setFormData] = useState({
     fileNumber: initialData.fileNumber || '',
     eOfficeNumber: initialData.eOfficeNumber || '',
@@ -11,7 +11,9 @@ const DisciplinaryCaseForm = ({ onSubmit, initialData = {}, isEdit = false, onCa
     caseType: initialData.caseType || 'Trap Case',
     
     // Trap case fields
+    dateOfIncident: initialData.dateOfIncident || '',
     employeeSuspended: initialData.employeeSuspended || '',
+    suspendedBy: initialData.suspendedBy || '',
     suspensionProceedingNumber: initialData.suspensionProceedingNumber || '',
     suspensionDate: initialData.suspensionDate || '',
     employeeReinitiated: initialData.employeeReinitiated || '',
@@ -63,6 +65,22 @@ const DisciplinaryCaseForm = ({ onSubmit, initialData = {}, isEdit = false, onCa
   const [errors, setErrors] = useState({});
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submittedEmployees, setSubmittedEmployees] = useState([]);
+  const [expandedEmployeeId, setExpandedEmployeeId] = useState(null);
+  const [isFinalSubmitted, setIsFinalSubmitted] = useState(false);
+  const [viewingEmployee, setViewingEmployee] = useState(null);
+  const [editingEmployee, setEditingEmployee] = useState(null);
+  const [deleteConfirmEmployee, setDeleteConfirmEmployee] = useState(null);
+
+  // Get today's date in YYYY-MM-DD format for max date validation
+  const today = new Date().toISOString().split('T')[0];
+
+  // Sync with parent submission state
+  useEffect(() => {
+    if (parentIsFormSubmitted !== undefined) {
+      setIsSubmitted(parentIsFormSubmitted);
+    }
+  }, [parentIsFormSubmitted]);
 
   // Dummy data for dropdowns
   const designations = [
@@ -251,7 +269,7 @@ const DisciplinaryCaseForm = ({ onSubmit, initialData = {}, isEdit = false, onCa
 
   const getDependentFields = (fieldName) => {
     const dependencyMap = {
-      employeeSuspended: ['suspensionProceedingNumber', 'suspensionDate', 'employeeReinitiated', 'reinitiationProceedingNumber', 'reinitiationDate'],
+      employeeSuspended: ['suspendedBy', 'suspensionProceedingNumber', 'suspensionDate', 'employeeReinitiated', 'reinitiationProceedingNumber', 'reinitiationDate'],
       employeeReinitiated: ['reinitiationProceedingNumber', 'reinitiationDate'],
       criminalCaseFiled: ['criminalCaseNumber', 'criminalCaseDate'],
       prosecutionSanctioned: ['prosecutionIssuedBy'],
@@ -280,9 +298,82 @@ const DisciplinaryCaseForm = ({ onSubmit, initialData = {}, isEdit = false, onCa
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = async (e) => {
+  // Helper function to clear form while preserving file number and e-office number
+  const clearFormExceptFileData = () => {
+    const preservedFileNumber = formData.fileNumber;
+    const preservedEOfficeNumber = formData.eOfficeNumber;
+    const preservedCaseType = formData.caseType || initialData.caseType || 'Trap Case';
+    
+    setFormData(prev => ({
+      // Preserve file number and e-office number
+      fileNumber: preservedFileNumber,
+      eOfficeNumber: preservedEOfficeNumber,
+      // Keep case type from initialData
+      caseType: preservedCaseType,
+      
+      // Clear all other fields
+      employeeId: '',
+      name: '',
+      designationWhenChargesIssued: '',
+      nameOfULB: '',
+      
+      // Clear trap case fields
+      dateOfIncident: '',
+      employeeSuspended: '',
+      suspendedBy: '',
+      suspensionProceedingNumber: '',
+      suspensionDate: '',
+      employeeReinitiated: '',
+      reinitiationProceedingNumber: '',
+      reinitiationDate: '',
+      criminalCaseFiled: '',
+      criminalCaseNumber: '',
+      criminalCaseDate: '',
+      
+      // Clear prosecution and charges
+      prosecutionSanctioned: '',
+      prosecutionIssuedBy: '',
+      chargesIssued: '',
+      chargeMemoNumberAndDate: '',
+      endorcementDate: '',
+      
+      // Clear WSD fields
+      wsdOrServedCopy: '',
+      wsdCheckbox: false,
+      servedCopyCheckbox: false,
+      furtherActionWSD: '',
+      concludeText: '',
+      ioPoAppointment: '',
+      goProceedingsNumber: '',
+      ioPoDate: '',
+      nameOfIO: '',
+      designationOfIO: '',
+      nameOfPO: '',
+      designationOfPO: '',
+      
+      // Clear inquiry report fields
+      inquiryReportSubmitted: '',
+      inquiryReportNumber: '',
+      inquiryReportCommunicated: '',
+      inquiryEndorcementDate: '',
+      
+      // Clear WR fields
+      wrOrServedCopy: '',
+      wrCheckbox: false,
+      wrServedCopyCheckbox: false,
+      furtherActionWR: '',
+      punishmentNumber: '',
+      punishmentDate: '',
+      
+      // Clear remarks
+      remarks: '',
+    }));
+    setErrors({});
+  };
+
+  const handleNext = (e) => {
     e.preventDefault();
-    console.log('Submit button clicked');
+    console.log('Next button clicked');
     console.log('Form data:', formData);
     
     // Validate form
@@ -302,6 +393,7 @@ const DisciplinaryCaseForm = ({ onSubmit, initialData = {}, isEdit = false, onCa
     
     if (!isValid || Object.keys(currentErrors).length > 0) {
       console.log('Validation failed, showing errors');
+      setErrors(currentErrors);
       // Scroll to first error
       setTimeout(() => {
         const firstErrorField = Object.keys(currentErrors)[0];
@@ -316,42 +408,110 @@ const DisciplinaryCaseForm = ({ onSubmit, initialData = {}, isEdit = false, onCa
       return;
     }
     
-    if (!onSubmit) {
-      console.error('onSubmit prop is not provided');
-      alert('Form submission handler is not configured');
-      return;
+    // Add current employee to submitted employees list (deep copy to preserve all data)
+    const newEmployee = {
+      ...formData,
+      id: Date.now().toString(), // Unique ID for this employee entry
+      timestamp: new Date().toISOString(),
+    };
+    
+    setSubmittedEmployees(prev => [...prev, newEmployee]);
+    setIsSubmitted(true);
+    if (onFormSubmitted) {
+      onFormSubmitted(true);
     }
     
-    setIsSubmitting(true);
-    try {
-      console.log('Calling onSubmit with form data');
-      await onSubmit(formData);
-      console.log('onSubmit completed successfully');
-      setIsSubmitted(true);
-      if (onFormSubmitted) {
-        onFormSubmitted(true);
+    // Clear form except file number and e-office number
+    clearFormExceptFileData();
+    
+    // Scroll to table view
+    setTimeout(() => {
+      const tableElement = document.querySelector('[data-submitted-employees-table]');
+      if (tableElement) {
+        tableElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
       }
-      alert('Case submitted successfully!');
+    }, 100);
+  };
+
+  const handleFinalSubmit = async () => {
+    if (submittedEmployees.length === 0) {
+      alert('Please add at least one employee before submitting.');
+      return;
+    }
+
+    setIsSubmitting(true);
+    setIsFinalSubmitted(true); // Disable form immediately when submit starts
+    try {
+      // Call final submit callback to submit all employees and handle redirect
+      if (onFinalSubmit) {
+        await onFinalSubmit(submittedEmployees);
+      } else {
+        // Fallback: submit all employees here if callback not provided
+        for (const employee of submittedEmployees) {
+          if (onSubmit) {
+            await onSubmit(employee);
+          }
+        }
+        alert('All cases submitted successfully!');
+        window.location.href = '/cases/new';
+      }
     } catch (error) {
-      // Error is handled in parent component
-      console.error('Form submission error:', error);
-      // Re-throw to let parent handle it
-      throw error;
+      console.error('Error submitting cases:', error);
+      setIsFinalSubmitted(false); // Re-enable form if submission fails
+      alert(`Failed to submit cases: ${error.response?.data?.message || error.message || 'Unknown error'}`);
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  const handleAddEmployee = () => {
-    // Reset employee-specific fields while keeping file number and e-office number
-    setFormData(prev => ({
-      ...prev,
-      employeeId: '',
-      name: '',
-      designationWhenChargesIssued: '',
-      // Keep file number and e-office number unchanged
-    }));
+  // Handle view employee
+  const handleViewEmployee = (employee) => {
+    setViewingEmployee(employee);
+    setExpandedEmployeeId(null); // Close any expanded view
+  };
+
+  // Handle edit employee
+  const handleEditEmployee = (employee) => {
+    setEditingEmployee(employee);
+    // Create a copy without id and timestamp fields for form
+    const { id, timestamp, ...employeeFormData } = employee;
+    // Load employee data into form
+    setFormData(employeeFormData);
     setErrors({});
+    // Remove from submitted employees list
+    setSubmittedEmployees(prev => prev.filter(emp => emp.id !== employee.id));
+    // Reset submission state to allow editing
+    setIsSubmitted(false);
+    if (onFormSubmitted) {
+      onFormSubmitted(false);
+    }
+    // Scroll to top of form
+    setTimeout(() => {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }, 100);
+    setExpandedEmployeeId(null);
+  };
+
+  // Handle delete confirmation
+  const handleDeleteEmployee = (employee) => {
+    setDeleteConfirmEmployee(employee);
+  };
+
+  // Confirm delete
+  const confirmDelete = () => {
+    if (deleteConfirmEmployee) {
+      setSubmittedEmployees(prev => prev.filter(emp => emp.id !== deleteConfirmEmployee.id));
+      setDeleteConfirmEmployee(null);
+    }
+  };
+
+  // Cancel delete
+  const cancelDelete = () => {
+    setDeleteConfirmEmployee(null);
+  };
+
+  const handleAddEmployee = () => {
+    clearFormExceptFileData();
   };
 
   // Yes/No button component
@@ -396,25 +556,13 @@ const DisciplinaryCaseForm = ({ onSubmit, initialData = {}, isEdit = false, onCa
   // Check if WR further action should be shown (if WR checkbox is selected, or both checkboxes are selected)
   const showWRFurtherAction = formData.wrOrServedCopy === 'yes' && formData.wrCheckbox;
 
-  return (
-    <form onSubmit={handleSubmit} className="space-y-6">
-      <div className="bg-white rounded-lg shadow-sm p-4 sm:p-6 space-y-6">
-        {/* Add Employee Button */}
-        <div className="flex justify-end mb-4">
-          <button
-            type="button"
-            onClick={handleAddEmployee}
-            disabled={!isSubmitted}
-            className={`px-6 py-2 rounded-md font-medium transition-colors ${
-              isSubmitted
-                ? 'bg-green-600 text-white hover:bg-green-700'
-                : 'bg-gray-300 text-gray-500 cursor-not-allowed'
-            }`}
-          >
-            Add Employee
-          </button>
-        </div>
+  // Determine if form should be disabled (after final submit)
+  const isFormDisabled = isFinalSubmitted;
 
+  return (
+    <form onSubmit={handleNext} className="space-y-6">
+      <fieldset disabled={isFormDisabled} className={isFormDisabled ? 'opacity-75' : ''}>
+        <div className="bg-white rounded-lg shadow-sm p-4 sm:p-6 space-y-6">
         {/* Basic Information Section */}
         <div>
           <h2 className="text-xl font-semibold text-gray-900 mb-4 border-b pb-2">
@@ -430,9 +578,9 @@ const DisciplinaryCaseForm = ({ onSubmit, initialData = {}, isEdit = false, onCa
                 name="fileNumber"
                 value={formData.fileNumber}
                 onChange={handleChange}
-                disabled={isSubmitted}
+                disabled={isSubmitted || isFinalSubmitted}
                 className={`w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 ${
-                  isSubmitted ? 'bg-gray-100 cursor-not-allowed' : ''
+                  isSubmitted || isFinalSubmitted ? 'bg-gray-100 cursor-not-allowed' : ''
                 }`}
               />
             </div>
@@ -446,9 +594,9 @@ const DisciplinaryCaseForm = ({ onSubmit, initialData = {}, isEdit = false, onCa
                 name="eOfficeNumber"
                 value={formData.eOfficeNumber}
                 onChange={handleChange}
-                disabled={isSubmitted}
+                disabled={isSubmitted || isFinalSubmitted}
                 className={`w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 ${
-                  isSubmitted ? 'bg-gray-100 cursor-not-allowed' : ''
+                  isSubmitted || isFinalSubmitted ? 'bg-gray-100 cursor-not-allowed' : ''
                 }`}
               />
             </div>
@@ -549,6 +697,20 @@ const DisciplinaryCaseForm = ({ onSubmit, initialData = {}, isEdit = false, onCa
               Trap Case Details
             </h2>
             <div className="space-y-6">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Date of Incident
+                </label>
+                <input
+                  type="date"
+                  name="dateOfIncident"
+                  value={formData.dateOfIncident}
+                  onChange={handleChange}
+                  max={today}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
+                />
+              </div>
+
               <YesNoButtons
                 fieldName="employeeSuspended"
                 value={formData.employeeSuspended}
@@ -558,6 +720,18 @@ const DisciplinaryCaseForm = ({ onSubmit, initialData = {}, isEdit = false, onCa
 
               {formData.employeeSuspended === 'yes' && (
                 <div className="ml-6 space-y-4 bg-gray-50 p-4 rounded-md">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Suspended by
+                    </label>
+                    <input
+                      type="text"
+                      name="suspendedBy"
+                      value={formData.suspendedBy}
+                      onChange={handleChange}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
+                    />
+                  </div>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -580,6 +754,7 @@ const DisciplinaryCaseForm = ({ onSubmit, initialData = {}, isEdit = false, onCa
                         name="suspensionDate"
                         value={formData.suspensionDate}
                         onChange={handleChange}
+                        max={today}
                         className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
                       />
                     </div>
@@ -616,6 +791,7 @@ const DisciplinaryCaseForm = ({ onSubmit, initialData = {}, isEdit = false, onCa
                             name="reinitiationDate"
                             value={formData.reinitiationDate}
                             onChange={handleChange}
+                            max={today}
                             className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
                           />
                         </div>
@@ -656,6 +832,7 @@ const DisciplinaryCaseForm = ({ onSubmit, initialData = {}, isEdit = false, onCa
                         name="criminalCaseDate"
                         value={formData.criminalCaseDate}
                         onChange={handleChange}
+                        max={today}
                         className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
                       />
                     </div>
@@ -725,6 +902,7 @@ const DisciplinaryCaseForm = ({ onSubmit, initialData = {}, isEdit = false, onCa
                 name="endorcementDate"
                 value={formData.endorcementDate}
                 onChange={handleChange}
+                max={today}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
               />
             </div>
@@ -832,6 +1010,7 @@ const DisciplinaryCaseForm = ({ onSubmit, initialData = {}, isEdit = false, onCa
                                 name="ioPoDate"
                                 value={formData.ioPoDate}
                                 onChange={handleChange}
+                                max={today}
                                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
                               />
                             </div>
@@ -862,7 +1041,7 @@ const DisciplinaryCaseForm = ({ onSubmit, initialData = {}, isEdit = false, onCa
                               </div>
                               <div>
                                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                                  Name of the PO <span className="text-red-500">*</span>
+                                  Name of the PO
                                 </label>
                                 <textarea
                                   name="nameOfPO"
@@ -941,6 +1120,7 @@ const DisciplinaryCaseForm = ({ onSubmit, initialData = {}, isEdit = false, onCa
                   name="inquiryEndorcementDate"
                   value={formData.inquiryEndorcementDate}
                   onChange={handleChange}
+                  max={today}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
                 />
               </div>
@@ -1026,6 +1206,7 @@ const DisciplinaryCaseForm = ({ onSubmit, initialData = {}, isEdit = false, onCa
                             name="punishmentDate"
                             value={formData.punishmentDate}
                             onChange={handleChange}
+                            max={today}
                             className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
                           />
                         </div>
@@ -1071,17 +1252,213 @@ const DisciplinaryCaseForm = ({ onSubmit, initialData = {}, isEdit = false, onCa
           )}
           <button
             type="submit"
-            disabled={isSubmitting}
+            disabled={isSubmitting || isFormDisabled}
             className={`px-6 py-2 rounded-md font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-primary-500 ${
-              isSubmitting
+              isSubmitting || isFormDisabled
                 ? 'bg-gray-400 text-white cursor-not-allowed'
                 : 'bg-primary-600 text-white hover:bg-primary-700'
+            }`}
+          >
+            Next
+          </button>
+        </div>
+        </div>
+      </fieldset>
+
+      {/* Submitted Employees Table */}
+      {submittedEmployees.length > 0 && (
+        <div className="bg-white rounded-lg shadow-sm p-4 sm:p-6 mt-6" data-submitted-employees-table>
+          <h2 className="text-xl font-semibold text-gray-900 mb-4 border-b pb-2">
+            Submitted Employees ({submittedEmployees.length})
+          </h2>
+          <div className="space-y-4">
+            {submittedEmployees.map((employee, index) => (
+              <div key={employee.id} className="border border-gray-200 rounded-lg overflow-hidden">
+                <div className="bg-gray-50 p-4">
+                  <div className="flex justify-between items-center">
+                    <div className="flex gap-6 flex-wrap">
+                      <div>
+                        <span className="text-xs text-gray-500">S.No</span>
+                        <p className="font-medium text-gray-900">{index + 1}</p>
+                      </div>
+                      <div>
+                        <span className="text-xs text-gray-500">Employee ID</span>
+                        <p className="font-medium text-gray-900">{employee.employeeId || '-'}</p>
+                      </div>
+                      <div>
+                        <span className="text-xs text-gray-500">Name</span>
+                        <p className="font-medium text-gray-900">{employee.name || '-'}</p>
+                      </div>
+                      <div>
+                        <span className="text-xs text-gray-500">Designation</span>
+                        <p className="font-medium text-gray-900">{employee.designationWhenChargesIssued || '-'}</p>
+                      </div>
+                    </div>
+                    <div className="flex gap-3 items-center flex-shrink-0 whitespace-nowrap">
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleViewEmployee(employee);
+                        }}
+                        className="px-3 py-1.5 bg-blue-600 text-white rounded-md hover:bg-blue-700 font-medium text-sm transition-colors"
+                      >
+                        View
+                      </button>
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleEditEmployee(employee);
+                        }}
+                        className="px-3 py-1.5 bg-green-600 text-white rounded-md hover:bg-green-700 font-medium text-sm transition-colors"
+                      >
+                        Edit
+                      </button>
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleDeleteEmployee(employee);
+                        }}
+                        className="px-3 py-1.5 bg-red-600 text-white rounded-md hover:bg-red-700 font-medium text-sm transition-colors"
+                      >
+                        Delete
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Final Submit Button - Centered at Bottom */}
+      {submittedEmployees.length > 0 && (
+        <div className="flex justify-center mt-6">
+          <button
+            type="button"
+            onClick={handleFinalSubmit}
+            disabled={isSubmitting || isFinalSubmitted}
+            className={`px-8 py-3 rounded-md font-medium text-lg transition-colors focus:outline-none focus:ring-2 focus:ring-primary-500 ${
+              isSubmitting || isFinalSubmitted
+                ? 'bg-gray-400 text-white cursor-not-allowed'
+                : 'bg-green-600 text-white hover:bg-green-700'
             }`}
           >
             {isSubmitting ? 'Submitting...' : 'Submit'}
           </button>
         </div>
-      </div>
+      )}
+
+      {/* View Employee Modal */}
+      {viewingEmployee && (
+        <div className="fixed inset-0 z-50 overflow-y-auto">
+          <div className="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:block sm:p-0">
+            <div
+              className="fixed inset-0 transition-opacity bg-gray-500 bg-opacity-75"
+              onClick={() => setViewingEmployee(null)}
+            ></div>
+            <div className="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-4xl sm:w-full">
+              <div className="bg-white px-4 pt-5 pb-4 sm:p-6">
+                <div className="flex justify-between items-center mb-4">
+                  <h3 className="text-xl font-semibold text-gray-900">Employee Details</h3>
+                  <button
+                    onClick={() => setViewingEmployee(null)}
+                    className="text-gray-400 hover:text-gray-600"
+                  >
+                    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  </button>
+                </div>
+                <div className="max-h-96 overflow-y-auto">
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 text-sm">
+                    {Object.entries(viewingEmployee).filter(([key]) => 
+                      !['id', 'timestamp'].includes(key)
+                    ).map(([key, value]) => (
+                      <div key={key} className="border-b border-gray-100 pb-2">
+                        <span className="text-gray-500 font-medium capitalize">
+                          {key.replace(/([A-Z])/g, ' $1').trim()}:
+                        </span>
+                        <p className="text-gray-900 mt-1 break-words">
+                          {typeof value === 'boolean' ? (value ? 'Yes' : 'No') : (value || '-')}
+                        </p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+              <div className="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+                <button
+                  onClick={() => setViewingEmployee(null)}
+                  className="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-primary-600 text-base font-medium text-white hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 sm:ml-3 sm:w-auto sm:text-sm"
+                >
+                  Close
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Delete Confirmation Modal */}
+      {deleteConfirmEmployee && (
+        <div className="fixed inset-0 z-50 overflow-y-auto">
+          <div className="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:block sm:p-0">
+            <div
+              className="fixed inset-0 transition-opacity bg-gray-500 bg-opacity-75"
+              onClick={cancelDelete}
+            ></div>
+            <div className="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
+              <div className="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+                <div className="sm:flex sm:items-start">
+                  <div className="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-red-100 sm:mx-0 sm:h-10 sm:w-10">
+                    <svg
+                      className="h-6 w-6 text-red-600"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+                      />
+                    </svg>
+                  </div>
+                  <div className="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left">
+                    <h3 className="text-lg leading-6 font-medium text-gray-900">
+                      Are you sure you want to delete?
+                    </h3>
+                    <div className="mt-2">
+                      <p className="text-sm text-gray-500">
+                        This will permanently remove the employee "{deleteConfirmEmployee.name || deleteConfirmEmployee.employeeId}" from the list. This action cannot be undone.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div className="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+                <button
+                  onClick={confirmDelete}
+                  className="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-red-600 text-base font-medium text-white hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 sm:ml-3 sm:w-auto sm:text-sm"
+                >
+                  Delete
+                </button>
+                <button
+                  onClick={cancelDelete}
+                  className="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm"
+                >
+                  Cancel
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </form>
   );
 };

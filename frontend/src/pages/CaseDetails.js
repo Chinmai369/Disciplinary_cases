@@ -16,7 +16,9 @@ const CaseDetails = () => {
     try {
       setLoading(true);
       const response = await getCaseById(id);
-      setCaseData(response.data);
+      // Handle API response structure: response.data.data or response.data
+      const caseDataFromAPI = response.data?.data || response.data;
+      setCaseData(caseDataFromAPI);
     } catch (error) {
       console.error('Error fetching case:', error);
       alert('Failed to load case');
@@ -132,99 +134,102 @@ const CaseDetails = () => {
           </div>
         </div>
 
-        {/* Content Section */}
-        <div className="px-6 py-6 space-y-6">
-          {/* Employee Information */}
-          <div>
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">Employee Information</h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-500">Email</label>
-                <p className="mt-1 text-sm text-gray-900">
-                  {caseData.employeeEmail || 'N/A'}
-                </p>
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-500">Department</label>
-                <p className="mt-1 text-sm text-gray-900">
-                  {caseData.department || 'N/A'}
-                </p>
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-500">Position</label>
-                <p className="mt-1 text-sm text-gray-900">
-                  {caseData.position || 'N/A'}
-                </p>
-              </div>
-            </div>
-          </div>
-
-          {/* Incident Information */}
-          <div>
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">Incident Information</h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-500">Incident Date</label>
-                <p className="mt-1 text-sm text-gray-900">
-                  {new Date(caseData.incidentDate).toLocaleDateString()}
-                </p>
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-500">Reported Date</label>
-                <p className="mt-1 text-sm text-gray-900">
-                  {caseData.reportedDate
-                    ? new Date(caseData.reportedDate).toLocaleDateString()
-                    : 'N/A'}
-                </p>
-              </div>
-            </div>
-          </div>
-
-          {/* Description */}
-          <div>
-            <label className="block text-sm font-medium text-gray-500 mb-2">
-              Description
-            </label>
-            <p className="text-sm text-gray-900 whitespace-pre-wrap bg-gray-50 p-4 rounded-md">
-              {caseData.description}
-            </p>
-          </div>
-
-          {/* Action Taken */}
-          {caseData.actionTaken && (
-            <div>
-              <label className="block text-sm font-medium text-gray-500 mb-2">
-                Action Taken
-              </label>
-              <p className="text-sm text-gray-900 whitespace-pre-wrap bg-gray-50 p-4 rounded-md">
-                {caseData.actionTaken}
-              </p>
-            </div>
-          )}
-
-          {/* Notes */}
-          {caseData.notes && (
-            <div>
-              <label className="block text-sm font-medium text-gray-500 mb-2">
-                Notes
-              </label>
-              <p className="text-sm text-gray-900 whitespace-pre-wrap bg-gray-50 p-4 rounded-md">
-                {caseData.notes}
-              </p>
-            </div>
-          )}
-
-          {/* Metadata */}
-          <div className="pt-4 border-t border-gray-200">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-gray-500">
-              <div>
-                <span className="font-medium">Created:</span>{' '}
-                {new Date(caseData.createdAt).toLocaleString()}
-              </div>
-              <div>
-                <span className="font-medium">Last Updated:</span>{' '}
-                {new Date(caseData.updatedAt).toLocaleString()}
-              </div>
+        {/* Content Section - Shows only disciplinary case form fields */}
+        <div className="px-6 py-6">
+          <div className="max-h-[70vh] overflow-y-auto">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 text-sm">
+              {/* Define all form fields from DisciplinaryCaseForm */}
+              {[
+                // Basic fields
+                { key: 'fileNumber', label: 'File Number' },
+                { key: 'eOfficeNumber', label: 'E-Office Number' },
+                { key: 'employeeId', label: 'Employee ID' },
+                { key: 'name', label: 'Name', altKey: 'employeeName' },
+                { key: 'designationWhenChargesIssued', label: 'Designation When Charges Issued' },
+                { key: 'nameOfULB', label: 'Name of ULB' },
+                { key: 'caseType', label: 'Case Type' },
+                { key: 'categoryOfCase', label: 'Category of Case' },
+                { key: 'subCategoryOfCase', label: 'Sub Category of Case' },
+                
+                // Trap case fields
+                { key: 'employeeSuspended', label: 'Employee Suspended' },
+                { key: 'suspensionProceedingNumber', label: 'Suspension Proceeding Number' },
+                { key: 'suspensionDate', label: 'Suspension Date', isDate: true },
+                { key: 'employeeReinitiated', label: 'Employee Re-initiated' },
+                { key: 'reinitiationProceedingNumber', label: 'Re-initiation Proceeding Number' },
+                { key: 'reinitiationDate', label: 'Re-initiation Date', isDate: true },
+                { key: 'criminalCaseFiled', label: 'Criminal Case Filed' },
+                { key: 'criminalCaseNumber', label: 'Criminal Case Number' },
+                { key: 'criminalCaseDate', label: 'Criminal Case Date', isDate: true },
+                
+                // Prosecution and charges
+                { key: 'prosecutionSanctioned', label: 'Prosecution Sanctioned' },
+                { key: 'prosecutionIssuedBy', label: 'Prosecution Issued By' },
+                { key: 'chargesIssued', label: 'Charges Issued' },
+                { key: 'chargeMemoNumberAndDate', label: 'Charge Memo Number & Date' },
+                { key: 'endorcementDate', label: 'Endorcement Date', isDate: true },
+                
+                // WSD fields
+                { key: 'wsdOrServedCopy', label: 'WSD or Served Copy' },
+                { key: 'wsdCheckbox', label: 'WSD', isBoolean: true },
+                { key: 'servedCopyCheckbox', label: 'Served Copy', isBoolean: true },
+                { key: 'furtherActionWSD', label: 'Further Action (WSD)' },
+                { key: 'concludeText', label: 'Conclude Text' },
+                { key: 'ioPoAppointment', label: 'IO & PO Appointment' },
+                { key: 'goProceedingsNumber', label: 'GO/Proceedings Number' },
+                { key: 'ioPoDate', label: 'IO & PO Date', isDate: true },
+                { key: 'nameOfIO', label: 'Name of IO' },
+                { key: 'designationOfIO', label: 'Designation of IO' },
+                { key: 'nameOfPO', label: 'Name of PO' },
+                { key: 'designationOfPO', label: 'Designation of PO' },
+                
+                // Inquiry report fields
+                { key: 'inquiryReportSubmitted', label: 'Inquiry Report Submitted' },
+                { key: 'inquiryReportNumber', label: 'Inquiry Report Number' },
+                { key: 'inquiryReportCommunicated', label: 'Inquiry Report Communicated' },
+                { key: 'inquiryEndorcementDate', label: 'Inquiry Endorcement Date', isDate: true },
+                
+                // WR fields
+                { key: 'wrOrServedCopy', label: 'WR or Served Copy' },
+                { key: 'wrCheckbox', label: 'WR', isBoolean: true },
+                { key: 'wrServedCopyCheckbox', label: 'WR Served Copy', isBoolean: true },
+                { key: 'furtherActionWR', label: 'Further Action (WR)' },
+                { key: 'punishmentNumber', label: 'Punishment Number' },
+                { key: 'punishmentDate', label: 'Punishment Date', isDate: true },
+                
+                // Remarks
+                { key: 'remarks', label: 'Remarks' },
+              ].map(({ key, label, altKey, isDate, isBoolean }) => {
+                const value = caseData[key] !== undefined ? caseData[key] : (altKey && caseData[altKey] !== undefined ? caseData[altKey] : null);
+                
+                let displayValue;
+                
+                if (isBoolean) {
+                  displayValue = value === true || value === 'yes' || value === 'Yes' ? 'Yes' : 'No';
+                } else if (isDate && value) {
+                  try {
+                    const date = new Date(value);
+                    displayValue = isNaN(date.getTime()) ? value : date.toLocaleDateString();
+                  } catch {
+                    displayValue = value;
+                  }
+                } else if (value === null || value === undefined || value === '') {
+                  displayValue = '-';
+                } else {
+                  displayValue = String(value);
+                }
+                
+                return (
+                  <div key={key} className="border-b border-gray-100 pb-2">
+                    <span className="text-gray-500 font-medium capitalize block mb-1">
+                      {label}:
+                    </span>
+                    <p className="text-gray-900 break-words">
+                      {displayValue}
+                    </p>
+                  </div>
+                );
+              })}
             </div>
           </div>
         </div>
