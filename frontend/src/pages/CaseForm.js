@@ -232,7 +232,7 @@ const CaseForm = () => {
         <div className="bg-white rounded-lg shadow-md border border-gray-200 p-5">
           <div className="flex flex-col items-start">
             <h2 className="text-sm font-semibold text-gray-800 mb-3">Category of Case</h2>
-            <div className="w-full max-w-[350px]">
+            <div className="w-full max-w-[550px]">
               <select
                 name="categoryOfCase"
                 value={formData.categoryOfCase}
@@ -264,7 +264,7 @@ const CaseForm = () => {
                 value={formData.categoryOfCase}
                 onChange={handleChange}
                 disabled={isFormSubmitted}
-                className={`w-full max-w-[450px] px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all bg-white ${
+                className={`w-full max-w-[550px] px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all bg-white ${
                   isFormSubmitted ? 'bg-gray-100 cursor-not-allowed' : 'hover:border-gray-400'
                 }`}
               >
@@ -319,7 +319,7 @@ const CaseForm = () => {
                 value={formData.categoryOfCase}
                 onChange={handleChange}
                 disabled={isFormSubmitted}
-                className={`w-full max-w-[450px] px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all bg-white ${
+                className={`w-full max-w-[550px] px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all bg-white ${
                   isFormSubmitted ? 'bg-gray-100 cursor-not-allowed' : 'hover:border-gray-400'
                 }`}
               >
