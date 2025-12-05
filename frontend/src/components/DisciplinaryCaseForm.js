@@ -27,6 +27,7 @@ const DisciplinaryCaseForm = ({ onSubmit, initialData = {}, isEdit = false, onCa
     criminalCaseFiled: initialData.criminalCaseFiled || '',
     criminalCaseNumber: initialData.criminalCaseNumber || '',
     criminalCaseDate: initialData.criminalCaseDate || '',
+    criminalCaseIssuedBy: initialData.criminalCaseIssuedBy || '',
     
     // Prosecution and charges
     prosecutionSanctioned: initialData.prosecutionSanctioned || '',
@@ -70,6 +71,7 @@ const DisciplinaryCaseForm = ({ onSubmit, initialData = {}, isEdit = false, onCa
     wrServedCopyCheckbox: initialData.wrServedCopyCheckbox || false,
     furtherActionWR: initialData.furtherActionWR || '',
     furtherActionWRRemarks: initialData.furtherActionWRRemarks || '',
+    wrIssuedBy: initialData.wrIssuedBy || '',
     punishmentNumber: initialData.punishmentNumber || '',
     punishmentDate: initialData.punishmentDate || '',
     
@@ -96,6 +98,22 @@ const DisciplinaryCaseForm = ({ onSubmit, initialData = {}, isEdit = false, onCa
       setIsSubmitted(parentIsFormSubmitted);
     }
   }, [parentIsFormSubmitted]);
+
+  // Sync caseType when initialData changes
+  useEffect(() => {
+    if (initialData.caseType && initialData.caseType !== formData.caseType) {
+      setFormData(prev => ({
+        ...prev,
+        caseType: initialData.caseType
+      }));
+    }
+    if (initialData.subCategoryOfCase && initialData.subCategoryOfCase !== formData.caseType) {
+      setFormData(prev => ({
+        ...prev,
+        caseType: initialData.subCategoryOfCase
+      }));
+    }
+  }, [initialData.caseType, initialData.subCategoryOfCase]);
 
   // Dummy data for dropdowns
   const designations = [
@@ -270,6 +288,13 @@ const DisciplinaryCaseForm = ({ onSubmit, initialData = {}, isEdit = false, onCa
         furtherActionWRRemarks: ''
       }));
     }
+    // Clear wrIssuedBy when furtherActionWR is cleared or set to 'others'
+    if (name === 'furtherActionWR' && (!value || value === 'others')) {
+      setFormData(prev => ({
+        ...prev,
+        wrIssuedBy: ''
+      }));
+    }
 
     // Clear inquiry dependent fields when furtherActionInquiry changes
     if (name === 'furtherActionInquiry') {
@@ -332,7 +357,7 @@ const DisciplinaryCaseForm = ({ onSubmit, initialData = {}, isEdit = false, onCa
       employeeSuspended: ['suspendedBy', 'suspensionProceedingNumber', 'suspensionDate', 'employeeReinitiated', 'reinitiationProceedingNumber', 'reinitiationDate', 'suspensionPeriodRegularize', 'regularisedBy', 'regularizationProceedingNumber', 'regularizationDate'],
       employeeReinitiated: ['reinstatedBy', 'reinitiationProceedingNumber', 'reinitiationDate'],
       suspensionPeriodRegularize: ['regularisedBy', 'regularizationProceedingNumber', 'regularizationDate'],
-      criminalCaseFiled: ['criminalCaseNumber', 'criminalCaseDate'],
+      criminalCaseFiled: ['criminalCaseNumber', 'criminalCaseDate', 'criminalCaseIssuedBy'],
       prosecutionSanctioned: ['prosecutionIssuedBy', 'prosecutionProceedingNumber', 'prosecutionDate'],
       chargesIssued: ['chargeMemoNumberAndDate', 'chargesMemoNumber', 'chargesDate', 'chargesIssuedRemarks'],
       wsdOrServedCopy: ['wsdCheckbox', 'servedCopyCheckbox', 'furtherActionWSD', 'furtherActionWSDOthers', 'concludeText', 'ioAppointment', 'ioGoProceedingsNumber', 'poAppointment', 'poGoProceedingsNumber'],
@@ -343,8 +368,8 @@ const DisciplinaryCaseForm = ({ onSubmit, initialData = {}, isEdit = false, onCa
       furtherActionInquiry: ['inquiryDisagreedAction', 'inquiryAppointmentProceedingNumber', 'inquiryAppointmentIOName', 'inquiryAppointmentIODate', 'inquiryAgreedEndorcementDate'],
       inquiryDisagreedAction: ['inquiryAppointmentProceedingNumber', 'inquiryAppointmentIOName', 'inquiryAppointmentIODate'],
       inquiryReportCommunicated: ['inquiryEndorcementDate'],
-      wrOrServedCopy: ['wrCheckbox', 'wrServedCopyCheckbox', 'furtherActionWR', 'furtherActionWRRemarks', 'punishmentNumber', 'punishmentDate'],
-      furtherActionWR: ['furtherActionWRRemarks']
+      wrOrServedCopy: ['wrCheckbox', 'wrServedCopyCheckbox', 'furtherActionWR', 'furtherActionWRRemarks', 'wrIssuedBy', 'punishmentNumber', 'punishmentDate'],
+      furtherActionWR: ['furtherActionWRRemarks', 'wrIssuedBy']
     };
     return dependencyMap[fieldName] || [];
   };
@@ -400,6 +425,7 @@ const DisciplinaryCaseForm = ({ onSubmit, initialData = {}, isEdit = false, onCa
       criminalCaseFiled: '',
       criminalCaseNumber: '',
       criminalCaseDate: '',
+      criminalCaseIssuedBy: '',
       
       // Clear prosecution and charges
       prosecutionSanctioned: '',
@@ -443,6 +469,7 @@ const DisciplinaryCaseForm = ({ onSubmit, initialData = {}, isEdit = false, onCa
       wrServedCopyCheckbox: false,
       furtherActionWR: '',
       furtherActionWRRemarks: '',
+      wrIssuedBy: '',
       punishmentNumber: '',
       punishmentDate: '',
       
@@ -628,8 +655,9 @@ const DisciplinaryCaseForm = ({ onSubmit, initialData = {}, isEdit = false, onCa
     </div>
   );
 
-  // Check if trap case specific fields should be shown
-  const isTrapCase = formData.caseType === 'Trap Case';
+  // Get subcategory name for section title
+  // Priority: initialData.subCategoryOfCase > initialData.caseType > formData.caseType > default
+  const subCategoryName = initialData.subCategoryOfCase || initialData.caseType || formData.caseType || 'Case';
 
   // Check if WSD further action should be shown (if WSD checkbox is selected, or both checkboxes are selected)
   const showWSDFurtherAction = formData.wsdOrServedCopy === 'yes' && formData.wsdCheckbox;
@@ -771,13 +799,12 @@ const DisciplinaryCaseForm = ({ onSubmit, initialData = {}, isEdit = false, onCa
           </div>
         </div>
 
-        {/* Trap Case Section */}
-        {isTrapCase && (
-          <div className="border-t pt-6">
-            <h2 className="text-lg font-semibold text-gray-900 mb-4 border-b pb-2">
-              Trap Case Details
-            </h2>
-            <div className="space-y-6">
+        {/* Subcategory Details Section - Always show for all subcategories */}
+        <div className="border-t pt-6">
+          <h2 className="text-lg font-semibold text-gray-900 mb-4 border-b pb-2">
+            {subCategoryName} Details
+          </h2>
+          <div className="space-y-6">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   Date of Incident
@@ -788,7 +815,7 @@ const DisciplinaryCaseForm = ({ onSubmit, initialData = {}, isEdit = false, onCa
                   value={formData.dateOfIncident}
                   onChange={handleChange}
                   max={today}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
+                  className="w-full max-w-xs px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
                 />
               </div>
 
@@ -954,7 +981,7 @@ const DisciplinaryCaseForm = ({ onSubmit, initialData = {}, isEdit = false, onCa
 
               {formData.criminalCaseFiled === 'yes' && (
                 <div className="ml-6 space-y-4 bg-gray-50 p-4 rounded-md">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-1">
                         Case Number
@@ -980,12 +1007,23 @@ const DisciplinaryCaseForm = ({ onSubmit, initialData = {}, isEdit = false, onCa
                         className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
                       />
                     </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Issued by
+                      </label>
+                      <input
+                        type="text"
+                        name="criminalCaseIssuedBy"
+                        value={formData.criminalCaseIssuedBy}
+                        onChange={handleChange}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
+                      />
+                    </div>
                   </div>
                 </div>
               )}
             </div>
           </div>
-        )}
 
         {/* Prosecution and Charges Section */}
         <div className="border-t pt-6">
@@ -1121,7 +1159,7 @@ const DisciplinaryCaseForm = ({ onSubmit, initialData = {}, isEdit = false, onCa
                 value={formData.endorcementDate}
                 onChange={handleChange}
                 max={today}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
+                className="w-full max-w-xs px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
               />
             </div>
           </div>
@@ -1329,7 +1367,7 @@ const DisciplinaryCaseForm = ({ onSubmit, initialData = {}, isEdit = false, onCa
                       value={formData.inquiryAgreedEndorcementDate}
                       onChange={handleChange}
                       max={today}
-                      className="w-full max-w-md px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
+                      className="w-full max-w-xs px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
                     />
                   </div>
                 )}
@@ -1419,7 +1457,7 @@ const DisciplinaryCaseForm = ({ onSubmit, initialData = {}, isEdit = false, onCa
                   value={formData.inquiryEndorcementDate}
                   onChange={handleChange}
                   max={today}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
+                  className="w-full max-w-xs px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
                 />
               </div>
             )}
@@ -1473,7 +1511,7 @@ const DisciplinaryCaseForm = ({ onSubmit, initialData = {}, isEdit = false, onCa
                       name="furtherActionWR"
                       value={formData.furtherActionWR}
                       onChange={handleChange}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
+                      className="w-full max-w-xs px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
                     >
                       <option value="">Select Action</option>
                       <option value="punishment">Punishment</option>
@@ -1481,6 +1519,22 @@ const DisciplinaryCaseForm = ({ onSubmit, initialData = {}, isEdit = false, onCa
                       <option value="warn">Warn</option>
                       <option value="others">Others</option>
                     </select>
+
+                    {formData.furtherActionWR && formData.furtherActionWR !== 'others' && (
+                      <div className="mt-4">
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                          Issued By
+                        </label>
+                        <textarea
+                          name="wrIssuedBy"
+                          value={formData.wrIssuedBy}
+                          onChange={handleChange}
+                          rows="4"
+                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
+                          placeholder="Enter issued by details..."
+                        />
+                      </div>
+                    )}
 
                     {formData.furtherActionWR === 'others' && (
                       <div className="mt-4">
