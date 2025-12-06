@@ -27,7 +27,6 @@ const DisciplinaryCaseForm = ({ onSubmit, initialData = {}, isEdit = false, onCa
     criminalCaseFiled: initialData.criminalCaseFiled || '',
     criminalCaseNumber: initialData.criminalCaseNumber || '',
     criminalCaseDate: initialData.criminalCaseDate || '',
-    criminalCaseIssuedBy: initialData.criminalCaseIssuedBy || '',
     
     // Prosecution and charges
     prosecutionSanctioned: initialData.prosecutionSanctioned || '',
@@ -48,6 +47,9 @@ const DisciplinaryCaseForm = ({ onSubmit, initialData = {}, isEdit = false, onCa
     furtherActionWSD: initialData.furtherActionWSD || '',
     furtherActionWSDOthers: initialData.furtherActionWSDOthers || '',
     concludeText: initialData.concludeText || '',
+    wsdIssuedBy: initialData.wsdIssuedBy || '',
+    wsdNumber: initialData.wsdNumber || '',
+    wsdDate: initialData.wsdDate || '',
     ioAppointment: initialData.ioAppointment || '',
     ioGoProceedingsNumber: initialData.ioGoProceedingsNumber || '',
     ioAppointmentDate: initialData.ioAppointmentDate || '',
@@ -62,14 +64,16 @@ const DisciplinaryCaseForm = ({ onSubmit, initialData = {}, isEdit = false, onCa
     // Inquiry report fields
     inquiryReportSubmitted: initialData.inquiryReportSubmitted || '',
     inquiryReportNumber: initialData.inquiryReportNumber || '',
+    inquiryReportDate: initialData.inquiryReportDate || '',
+    inquiryReportName: initialData.inquiryReportName || '',
     furtherActionInquiry: initialData.furtherActionInquiry || '',
     inquiryDisagreedAction: initialData.inquiryDisagreedAction || '',
     inquiryAppointmentProceedingNumber: initialData.inquiryAppointmentProceedingNumber || '',
     inquiryAppointmentIOName: initialData.inquiryAppointmentIOName || '',
     inquiryAppointmentIODate: initialData.inquiryAppointmentIODate || '',
-    inquiryAgreedEndorcementDate: initialData.inquiryAgreedEndorcementDate || '',
-    inquiryReportCommunicated: initialData.inquiryReportCommunicated || '',
-    inquiryEndorcementDate: initialData.inquiryEndorcementDate || '',
+    inquiryRemittedNumber: initialData.inquiryRemittedNumber || '',
+    inquiryRemittedDate: initialData.inquiryRemittedDate || '',
+    inquiryCommunicationEndorsementDate: initialData.inquiryCommunicationEndorsementDate || '',
     
     // WR fields
     wrOrServedCopy: initialData.wrOrServedCopy || '',
@@ -279,12 +283,35 @@ const DisciplinaryCaseForm = ({ onSubmit, initialData = {}, isEdit = false, onCa
       [name]: type === 'checkbox' ? checked : value
     }));
 
-    // Clear furtherActionWSDOthers when furtherActionWSD changes to something other than 'others'
-    if (name === 'furtherActionWSD' && value !== 'others') {
-      setFormData(prev => ({
-        ...prev,
-        furtherActionWSDOthers: ''
-      }));
+    // Clear furtherActionWSD fields when furtherActionWSD changes
+    if (name === 'furtherActionWSD') {
+      if (value !== 'others') {
+        setFormData(prev => ({
+          ...prev,
+          furtherActionWSDOthers: ''
+        }));
+      }
+      if (value !== 'conclude' && value !== 'others') {
+        setFormData(prev => ({
+          ...prev,
+          concludeText: '',
+          wsdIssuedBy: '',
+          wsdNumber: '',
+          wsdDate: ''
+        }));
+      }
+      if (value === 'conclude') {
+        setFormData(prev => ({
+          ...prev,
+          furtherActionWSDOthers: ''
+        }));
+      }
+      if (value === 'others') {
+        setFormData(prev => ({
+          ...prev,
+          concludeText: ''
+        }));
+      }
     }
 
     // Clear furtherActionWRRemarks when furtherActionWR changes to something other than 'others'
@@ -304,31 +331,43 @@ const DisciplinaryCaseForm = ({ onSubmit, initialData = {}, isEdit = false, onCa
 
     // Clear inquiry dependent fields when furtherActionInquiry changes
     if (name === 'furtherActionInquiry') {
-      if (value !== 'agreed') {
-        setFormData(prev => ({
-          ...prev,
-          inquiryAgreedEndorcementDate: ''
-        }));
-      }
       if (value !== 'disagreed') {
         setFormData(prev => ({
           ...prev,
           inquiryDisagreedAction: '',
           inquiryAppointmentProceedingNumber: '',
           inquiryAppointmentIOName: '',
-          inquiryAppointmentIODate: ''
+          inquiryAppointmentIODate: '',
+          inquiryRemittedNumber: '',
+          inquiryRemittedDate: '',
+          inquiryCommunicationEndorsementDate: ''
         }));
       }
     }
 
-    // Clear appointment fields when inquiryDisagreedAction changes to something other than 'appointment'
-    if (name === 'inquiryDisagreedAction' && value !== 'appointment') {
-      setFormData(prev => ({
-        ...prev,
-        inquiryAppointmentProceedingNumber: '',
-        inquiryAppointmentIOName: '',
-        inquiryAppointmentIODate: ''
-      }));
+    // Clear inquiry disagreed action fields when inquiryDisagreedAction changes
+    if (name === 'inquiryDisagreedAction') {
+      if (value !== 'appointment') {
+        setFormData(prev => ({
+          ...prev,
+          inquiryAppointmentProceedingNumber: '',
+          inquiryAppointmentIOName: '',
+          inquiryAppointmentIODate: ''
+        }));
+      }
+      if (value !== 'remitted') {
+        setFormData(prev => ({
+          ...prev,
+          inquiryRemittedNumber: '',
+          inquiryRemittedDate: ''
+        }));
+      }
+      if (value !== 'communication') {
+        setFormData(prev => ({
+          ...prev,
+          inquiryCommunicationEndorsementDate: ''
+        }));
+      }
     }
 
     // Clear error when user starts typing
@@ -361,19 +400,18 @@ const DisciplinaryCaseForm = ({ onSubmit, initialData = {}, isEdit = false, onCa
   const getDependentFields = (fieldName) => {
     const dependencyMap = {
       employeeSuspended: ['suspendedBy', 'suspensionProceedingNumber', 'suspensionDate', 'employeeReinitiated', 'reinitiationProceedingNumber', 'reinitiationDate', 'suspensionPeriodRegularize', 'regularisedBy', 'regularizationProceedingNumber', 'regularizationDate'],
-      employeeReinitiated: ['reinstatedBy', 'reinitiationProceedingNumber', 'reinitiationDate'],
+      employeeReinitiated: ['reinstatedBy', 'reinitiationProceedingNumber', 'reinitiationDate', 'suspensionPeriodRegularize', 'regularisedBy', 'regularizationProceedingNumber', 'regularizationDate'],
       suspensionPeriodRegularize: ['regularisedBy', 'regularizationProceedingNumber', 'regularizationDate'],
-      criminalCaseFiled: ['criminalCaseNumber', 'criminalCaseDate', 'criminalCaseIssuedBy'],
+      criminalCaseFiled: ['criminalCaseNumber', 'criminalCaseDate'],
       prosecutionSanctioned: ['prosecutionIssuedBy', 'prosecutionProceedingNumber', 'prosecutionDate'],
       chargesIssued: ['chargeMemoNumberAndDate', 'chargesMemoNumber', 'chargesDate', 'chargesIssuedRemarks'],
       wsdOrServedCopy: ['wsdCheckbox', 'servedCopyCheckbox', 'furtherActionWSD', 'furtherActionWSDOthers', 'concludeText', 'ioAppointment', 'ioGoProceedingsNumber', 'ioAppointmentDate', 'ioAppointmentIOName', 'ioAppointmentIODesignation', 'poAppointment', 'poGoProceedingsNumber', 'poAppointmentDate', 'poAppointmentIOName', 'poAppointmentIODesignation'],
-      furtherActionWSD: ['furtherActionWSDOthers'],
+      furtherActionWSD: ['furtherActionWSDOthers', 'concludeText', 'wsdIssuedBy', 'wsdNumber', 'wsdDate'],
       ioAppointment: ['ioGoProceedingsNumber', 'ioAppointmentDate', 'ioAppointmentIOName', 'ioAppointmentIODesignation'],
       poAppointment: ['poGoProceedingsNumber', 'poAppointmentDate', 'poAppointmentIOName', 'poAppointmentIODesignation'],
-      inquiryReportSubmitted: ['inquiryReportNumber', 'furtherActionInquiry', 'inquiryDisagreedAction', 'inquiryAppointmentProceedingNumber', 'inquiryAppointmentIOName', 'inquiryAppointmentIODate', 'inquiryAgreedEndorcementDate'],
-      furtherActionInquiry: ['inquiryDisagreedAction', 'inquiryAppointmentProceedingNumber', 'inquiryAppointmentIOName', 'inquiryAppointmentIODate', 'inquiryAgreedEndorcementDate'],
-      inquiryDisagreedAction: ['inquiryAppointmentProceedingNumber', 'inquiryAppointmentIOName', 'inquiryAppointmentIODate'],
-      inquiryReportCommunicated: ['inquiryEndorcementDate'],
+      inquiryReportSubmitted: ['inquiryReportNumber', 'inquiryReportDate', 'inquiryReportName', 'furtherActionInquiry', 'inquiryDisagreedAction', 'inquiryAppointmentProceedingNumber', 'inquiryAppointmentIOName', 'inquiryAppointmentIODate'],
+      furtherActionInquiry: ['inquiryDisagreedAction', 'inquiryAppointmentProceedingNumber', 'inquiryAppointmentIOName', 'inquiryAppointmentIODate'],
+      inquiryDisagreedAction: ['inquiryAppointmentProceedingNumber', 'inquiryAppointmentIOName', 'inquiryAppointmentIODate', 'inquiryRemittedNumber', 'inquiryRemittedDate', 'inquiryCommunicationEndorsementDate'],
       wrOrServedCopy: ['wrCheckbox', 'wrServedCopyCheckbox', 'furtherActionWR', 'furtherActionWRRemarks', 'wrIssuedBy', 'punishmentNumber', 'punishmentDate'],
       furtherActionWR: ['furtherActionWRRemarks', 'wrIssuedBy']
     };
@@ -431,7 +469,6 @@ const DisciplinaryCaseForm = ({ onSubmit, initialData = {}, isEdit = false, onCa
       criminalCaseFiled: '',
       criminalCaseNumber: '',
       criminalCaseDate: '',
-      criminalCaseIssuedBy: '',
       
       // Clear prosecution and charges
       prosecutionSanctioned: '',
@@ -452,6 +489,9 @@ const DisciplinaryCaseForm = ({ onSubmit, initialData = {}, isEdit = false, onCa
       furtherActionWSD: '',
       furtherActionWSDOthers: '',
       concludeText: '',
+      wsdIssuedBy: '',
+      wsdNumber: '',
+      wsdDate: '',
       ioAppointment: '',
       ioGoProceedingsNumber: '',
       ioAppointmentDate: '',
@@ -466,15 +506,16 @@ const DisciplinaryCaseForm = ({ onSubmit, initialData = {}, isEdit = false, onCa
       // Clear inquiry report fields
       inquiryReportSubmitted: '',
       inquiryReportNumber: '',
+      inquiryReportDate: '',
+      inquiryReportName: '',
       furtherActionInquiry: '',
       inquiryDisagreedAction: '',
       inquiryAppointmentProceedingNumber: '',
       inquiryAppointmentIOName: '',
       inquiryAppointmentIODate: '',
-      inquiryAgreedEndorcementDate: '',
-      inquiryReportCommunicated: '',
-      inquiryEndorcementDate: '',
-      
+      inquiryRemittedNumber: '',
+      inquiryRemittedDate: '',
+      inquiryCommunicationEndorsementDate: '',
       // Clear WR fields
       wrOrServedCopy: '',
       wrCheckbox: false,
@@ -931,14 +972,16 @@ const DisciplinaryCaseForm = ({ onSubmit, initialData = {}, isEdit = false, onCa
                     </div>
                   )}
 
-                  <YesNoButtons
-                    fieldName="suspensionPeriodRegularize"
-                    value={formData.suspensionPeriodRegularize}
-                    onChange={handleYesNoChange}
-                    label="Suspension Period Regularize or not"
-                  />
+                  {formData.employeeReinitiated === 'yes' && (
+                    <>
+                      <YesNoButtons
+                        fieldName="suspensionPeriodRegularize"
+                        value={formData.suspensionPeriodRegularize}
+                        onChange={handleYesNoChange}
+                        label="Suspension Period Regularize or not"
+                      />
 
-                  {formData.suspensionPeriodRegularize === 'yes' && (
+                      {formData.suspensionPeriodRegularize === 'yes' && (
                     <div className="ml-6 space-y-4 bg-green-50 p-4 rounded-md">
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -980,6 +1023,8 @@ const DisciplinaryCaseForm = ({ onSubmit, initialData = {}, isEdit = false, onCa
                         </div>
                       </div>
                     </div>
+                      )}
+                    </>
                   )}
                 </div>
               )}
@@ -993,7 +1038,7 @@ const DisciplinaryCaseForm = ({ onSubmit, initialData = {}, isEdit = false, onCa
 
               {formData.criminalCaseFiled === 'yes' && (
                 <div className="ml-6 space-y-4 bg-gray-50 p-4 rounded-md">
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-1">
                         Case Number
@@ -1016,18 +1061,6 @@ const DisciplinaryCaseForm = ({ onSubmit, initialData = {}, isEdit = false, onCa
                         value={formData.criminalCaseDate}
                         onChange={handleChange}
                         max={today}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Issued by
-                      </label>
-                      <input
-                        type="text"
-                        name="criminalCaseIssuedBy"
-                        value={formData.criminalCaseIssuedBy}
-                        onChange={handleChange}
                         className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
                       />
                     </div>
@@ -1161,23 +1194,26 @@ const DisciplinaryCaseForm = ({ onSubmit, initialData = {}, isEdit = false, onCa
               </div>
             )}
 
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Endorcement date
-              </label>
-              <input
-                type="date"
-                name="endorcementDate"
-                value={formData.endorcementDate}
-                onChange={handleChange}
-                max={today}
-                className="w-full max-w-xs px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
-              />
-            </div>
+            {formData.chargesIssued === 'yes' && (
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Endorcement date
+                </label>
+                <input
+                  type="date"
+                  name="endorcementDate"
+                  value={formData.endorcementDate}
+                  onChange={handleChange}
+                  max={today}
+                  className="w-full max-w-xs px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
+                />
+              </div>
+            )}
           </div>
         </div>
 
-        {/* WSD Section */}
+        {/* WSD Section - Only show if charges issued is yes */}
+        {formData.chargesIssued === 'yes' && (
         <div className="border-t pt-6">
           <h2 className="text-lg font-semibold text-gray-900 mb-4 border-b pb-2">
             Served Copy/Written Statement of Defence (WSD)
@@ -1233,33 +1269,115 @@ const DisciplinaryCaseForm = ({ onSubmit, initialData = {}, isEdit = false, onCa
                     </select>
 
                     {formData.furtherActionWSD === 'conclude' && (
-                      <div className="mt-4">
-                        <label className="block text-sm font-medium text-gray-700 mb-1">
-                          Conclusion (One paragraph)
-                        </label>
-                        <textarea
-                          name="concludeText"
-                          value={formData.concludeText}
-                          onChange={handleChange}
-                          rows="4"
-                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
-                        />
+                      <div className="mt-4 space-y-4">
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-1">
+                            Conclusion (One paragraph)
+                          </label>
+                          <textarea
+                            name="concludeText"
+                            value={formData.concludeText}
+                            onChange={handleChange}
+                            rows="4"
+                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
+                          />
+                        </div>
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">
+                              Issued by
+                            </label>
+                            <input
+                              type="text"
+                              name="wsdIssuedBy"
+                              value={formData.wsdIssuedBy}
+                              onChange={handleChange}
+                              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">
+                              Number
+                            </label>
+                            <input
+                              type="text"
+                              name="wsdNumber"
+                              value={formData.wsdNumber}
+                              onChange={handleChange}
+                              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">
+                              Date
+                            </label>
+                            <input
+                              type="date"
+                              name="wsdDate"
+                              value={formData.wsdDate}
+                              onChange={handleChange}
+                              max={today}
+                              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
+                            />
+                          </div>
+                        </div>
                       </div>
                     )}
 
                     {formData.furtherActionWSD === 'others' && (
-                      <div className="mt-4">
-                        <label className="block text-sm font-medium text-gray-700 mb-1">
-                          Please specify
-                        </label>
-                        <textarea
-                          name="furtherActionWSDOthers"
-                          value={formData.furtherActionWSDOthers}
-                          onChange={handleChange}
-                          rows="4"
-                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
-                          placeholder="Enter details..."
-                        />
+                      <div className="mt-4 space-y-4">
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-1">
+                            Please specify
+                          </label>
+                          <textarea
+                            name="furtherActionWSDOthers"
+                            value={formData.furtherActionWSDOthers}
+                            onChange={handleChange}
+                            rows="4"
+                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
+                            placeholder="Enter details..."
+                          />
+                        </div>
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">
+                              Issued by
+                            </label>
+                            <input
+                              type="text"
+                              name="wsdIssuedBy"
+                              value={formData.wsdIssuedBy}
+                              onChange={handleChange}
+                              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">
+                              Number
+                            </label>
+                            <input
+                              type="text"
+                              name="wsdNumber"
+                              value={formData.wsdNumber}
+                              onChange={handleChange}
+                              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">
+                              Date
+                            </label>
+                            <input
+                              type="date"
+                              name="wsdDate"
+                              value={formData.wsdDate}
+                              onChange={handleChange}
+                              max={today}
+                              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
+                            />
+                          </div>
+                        </div>
                       </div>
                     )}
 
@@ -1408,8 +1526,10 @@ const DisciplinaryCaseForm = ({ onSubmit, initialData = {}, isEdit = false, onCa
             )}
           </div>
         </div>
+        )}
 
-        {/* Inquiry Report Section */}
+        {/* Inquiry Report Section - Only show if charges issued is yes, WSD is yes, and WSD further action is not conclude/others */}
+        {formData.chargesIssued === 'yes' && formData.wsdOrServedCopy === 'yes' && formData.furtherActionWSD !== 'conclude' && formData.furtherActionWSD !== 'others' && (
         <div className="border-t pt-6">
           <h2 className="text-lg font-semibold text-gray-900 mb-4 border-b pb-2">
             Inquiry Officer Report
@@ -1424,7 +1544,7 @@ const DisciplinaryCaseForm = ({ onSubmit, initialData = {}, isEdit = false, onCa
 
             {formData.inquiryReportSubmitted === 'yes' && (
               <div className="ml-6 space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
                       Inquiry report number
@@ -1434,41 +1554,50 @@ const DisciplinaryCaseForm = ({ onSubmit, initialData = {}, isEdit = false, onCa
                       name="inquiryReportNumber"
                       value={formData.inquiryReportNumber}
                       onChange={handleChange}
-                      className="w-full max-w-md px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
                     />
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Further Action Taken
-                    </label>
-                    <select
-                      name="furtherActionInquiry"
-                      value={formData.furtherActionInquiry}
-                      onChange={handleChange}
-                      className="w-full max-w-md px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
-                    >
-                      <option value="">Select Action</option>
-                      <option value="agreed">Agreed with Inquiry report</option>
-                      <option value="disagreed">DisAgreed with Inquiry Report</option>
-                    </select>
-                  </div>
-                </div>
-
-                {formData.furtherActionInquiry === 'agreed' && (
-                  <div className="ml-0">
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Endorcement date
+                      Date
                     </label>
                     <input
                       type="date"
-                      name="inquiryAgreedEndorcementDate"
-                      value={formData.inquiryAgreedEndorcementDate}
+                      name="inquiryReportDate"
+                      value={formData.inquiryReportDate}
                       onChange={handleChange}
                       max={today}
-                      className="w-full max-w-xs px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
                     />
                   </div>
-                )}
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Name
+                    </label>
+                    <input
+                      type="text"
+                      name="inquiryReportName"
+                      value={formData.inquiryReportName}
+                      onChange={handleChange}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
+                    />
+                  </div>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Further Action Taken
+                  </label>
+                  <select
+                    name="furtherActionInquiry"
+                    value={formData.furtherActionInquiry}
+                    onChange={handleChange}
+                    className="w-full max-w-md px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
+                  >
+                    <option value="">Select Action</option>
+                    <option value="agreed">Agreed with Inquiry report</option>
+                    <option value="disagreed">DisAgreed with Inquiry Report</option>
+                  </select>
+                </div>
 
                 {formData.furtherActionInquiry === 'disagreed' && (
                   <div className="ml-0 bg-gray-50 p-4 rounded-md">
@@ -1489,6 +1618,36 @@ const DisciplinaryCaseForm = ({ onSubmit, initialData = {}, isEdit = false, onCa
                           <option value="communication">Communication</option>
                         </select>
                       </div>
+
+                      {formData.inquiryDisagreedAction === 'remitted' && (
+                        <>
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">
+                              Number
+                            </label>
+                            <input
+                              type="text"
+                              name="inquiryRemittedNumber"
+                              value={formData.inquiryRemittedNumber}
+                              onChange={handleChange}
+                              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">
+                              Date
+                            </label>
+                            <input
+                              type="date"
+                              name="inquiryRemittedDate"
+                              value={formData.inquiryRemittedDate}
+                              onChange={handleChange}
+                              max={today}
+                              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
+                            />
+                          </div>
+                        </>
+                      )}
 
                       {formData.inquiryDisagreedAction === 'appointment' && (
                         <>
@@ -1531,38 +1690,33 @@ const DisciplinaryCaseForm = ({ onSubmit, initialData = {}, isEdit = false, onCa
                           </div>
                         </>
                       )}
+
+                      {formData.inquiryDisagreedAction === 'communication' && (
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-1">
+                            Endorsement date
+                          </label>
+                          <input
+                            type="date"
+                            name="inquiryCommunicationEndorsementDate"
+                            value={formData.inquiryCommunicationEndorsementDate}
+                            onChange={handleChange}
+                            max={today}
+                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
+                          />
+                        </div>
+                      )}
                     </div>
                   </div>
                 )}
               </div>
             )}
-
-            <YesNoButtons
-              fieldName="inquiryReportCommunicated"
-              value={formData.inquiryReportCommunicated}
-              onChange={handleYesNoChange}
-              label="Inquiry report communicated or not"
-            />
-
-            {formData.inquiryReportCommunicated === 'yes' && (
-              <div className="ml-6">
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Endorcement date
-                </label>
-                <input
-                  type="date"
-                  name="inquiryEndorcementDate"
-                  value={formData.inquiryEndorcementDate}
-                  onChange={handleChange}
-                  max={today}
-                  className="w-full max-w-xs px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
-                />
-              </div>
-            )}
           </div>
         </div>
+        )}
 
-        {/* WR Section */}
+        {/* WR Section - Only show if charges issued is yes, WSD is yes, inquiry report submitted is yes, WSD further action is not conclude/others, and further action inquiry is agreed or (disagreed with communication) */}
+        {formData.chargesIssued === 'yes' && formData.wsdOrServedCopy === 'yes' && formData.inquiryReportSubmitted === 'yes' && formData.furtherActionWSD !== 'conclude' && formData.furtherActionWSD !== 'others' && (formData.furtherActionInquiry === 'agreed' || (formData.furtherActionInquiry === 'disagreed' && formData.inquiryDisagreedAction === 'communication')) && (
         <div className="border-t pt-6">
           <h2 className="text-lg font-semibold text-gray-900 mb-4 border-b pb-2">
             Served copy / Written Representation(WR)
@@ -1685,8 +1839,9 @@ const DisciplinaryCaseForm = ({ onSubmit, initialData = {}, isEdit = false, onCa
             )}
           </div>
         </div>
+        )}
 
-        {/* Remarks Section */}
+        {/* Remarks Section - Always visible */}
         <div className="border-t pt-6">
           <h2 className="text-lg font-semibold text-gray-900 mb-4 border-b pb-2">
             Additional Information

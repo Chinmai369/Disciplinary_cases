@@ -51,6 +51,13 @@ const CaseForm = () => {
     }
   }, [showSuccessModal]);
 
+  // Automatically enable form when both category and subcategory are selected
+  useEffect(() => {
+    if (!isEdit && formData.categoryOfCase && formData.subCategoryOfCase) {
+      setSubCategoryConfirmed(true);
+    }
+  }, [formData.categoryOfCase, formData.subCategoryOfCase]);
+
   const fetchCase = async () => {
     try {
       setLoading(true);
@@ -88,7 +95,7 @@ const CaseForm = () => {
         ...prev,
         [name]: value,
       }));
-      setSubCategoryConfirmed(false); // Reset confirmation when subcategory changes
+      // Confirmation will be set automatically by useEffect when both are selected
     } else {
       setFormData((prev) => ({
         ...prev,
@@ -213,14 +220,7 @@ const CaseForm = () => {
   // Hide form if final submission is in progress or completed
   const showCategorySelection = !isEdit && (!formData.categoryOfCase || isSubmittingFinal);
   const showBothDropdowns = !isEdit && formData.categoryOfCase && !formData.subCategoryOfCase && !isSubmittingFinal;
-  const showSubCategoryWithOk = !isEdit && formData.categoryOfCase && formData.subCategoryOfCase && !subCategoryConfirmed && !isSubmittingFinal;
-  const showFullForm = !isSubmittingFinal && (isEdit || (formData.categoryOfCase && formData.subCategoryOfCase && subCategoryConfirmed));
-
-  const handleOkClick = () => {
-    if (formData.subCategoryOfCase) {
-      setSubCategoryConfirmed(true);
-    }
-  };
+  const showFullForm = !isSubmittingFinal && (isEdit || (formData.categoryOfCase && formData.subCategoryOfCase));
 
   return (
     <div className="max-w-7xl mx-auto px-4">
@@ -232,7 +232,7 @@ const CaseForm = () => {
         <div className="bg-white rounded-lg shadow-md border border-gray-200 p-5">
           <div className="flex flex-col items-start">
             <h2 className="text-sm font-semibold text-gray-800 mb-3">Category of Case</h2>
-            <div className="w-full max-w-[550px]">
+            <div className="w-full max-w-[300px]">
               <select
                 name="categoryOfCase"
                 value={formData.categoryOfCase}
@@ -264,7 +264,7 @@ const CaseForm = () => {
                 value={formData.categoryOfCase}
                 onChange={handleChange}
                 disabled={isFormSubmitted}
-                className={`w-full max-w-[550px] px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all bg-white ${
+                className={`w-full max-w-[300px] px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all bg-white ${
                   isFormSubmitted ? 'bg-gray-100 cursor-not-allowed' : 'hover:border-gray-400'
                 }`}
               >
@@ -301,75 +301,6 @@ const CaseForm = () => {
                     <span className="ml-3 text-sm text-gray-700 whitespace-nowrap">{subCategory}</span>
                   </label>
                 ))}
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {showSubCategoryWithOk && (
-        <div className="bg-white rounded-lg shadow-md border border-gray-200 p-5">
-          <div className="flex flex-col md:flex-row md:items-start gap-10">
-            <div className="flex flex-col">
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Category of Case
-              </label>
-              <select
-                name="categoryOfCase"
-                value={formData.categoryOfCase}
-                onChange={handleChange}
-                disabled={isFormSubmitted}
-                className={`w-full max-w-[550px] px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all bg-white ${
-                  isFormSubmitted ? 'bg-gray-100 cursor-not-allowed' : 'hover:border-gray-400'
-                }`}
-              >
-                <option value="">Select Category</option>
-                <option value="Department">Department</option>
-                <option value="ACB">ACB</option>
-                <option value="Vigilance and Enforcement">Vigilance and Enforcement</option>
-              </select>
-            </div>
-
-            <div className="flex flex-col flex-1">
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Sub Category of Case
-              </label>
-              <div className="flex flex-wrap gap-2 items-center mb-4">
-                {getSubCategories().map((subCategory) => (
-                  <label
-                    key={subCategory}
-                    className={`flex items-center px-4 py-2.5 min-w-[140px] border border-gray-300 rounded-md transition-colors ${
-                      isFormSubmitted
-                        ? 'bg-gray-100 cursor-not-allowed'
-                        : 'hover:bg-gray-50 cursor-pointer'
-                    }`}
-                  >
-                    <input
-                      type="radio"
-                      name="subCategoryOfCase"
-                      value={subCategory}
-                      checked={formData.subCategoryOfCase === subCategory}
-                      onChange={handleChange}
-                      disabled={isFormSubmitted}
-                      className="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300"
-                    />
-                    <span className="ml-3 text-sm text-gray-700 whitespace-nowrap">{subCategory}</span>
-                  </label>
-                ))}
-              </div>
-              <div className="flex justify-end mt-4">
-                <button
-                  type="button"
-                  onClick={handleOkClick}
-                  disabled={isFormSubmitted}
-                  className={`px-6 py-2 rounded-md font-medium transition-colors ${
-                    isFormSubmitted
-                      ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                      : 'bg-primary-600 text-white hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500'
-                  }`}
-                >
-                  OK
-                </button>
               </div>
             </div>
           </div>

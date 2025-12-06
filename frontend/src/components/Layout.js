@@ -34,7 +34,7 @@ const Layout = ({ children }) => {
       {/* Main Content Area */}
       <div className="flex-1 lg:pl-56">
         {/* Header Navigation */}
-        <nav className="bg-blue-100 shadow-md sticky top-0 z-20">
+        <nav className="bg-yellow-100 shadow-md sticky top-0 z-20">
           <div className="px-4 sm:px-6 lg:px-8">
             <div className="flex justify-between items-center h-16 relative">
               {/* Centered Heading and Username */}

@@ -40,14 +40,14 @@ const Menu = () => {
   ];
 
   return (
-    <div className={`bg-blue-100 shadow-lg h-full transition-all duration-300 ${isCollapsed ? 'w-16' : 'w-56'}`}>
-      <div className="p-3 border-b border-blue-200 flex items-center justify-between">
+    <div className={`bg-yellow-100 shadow-lg h-full transition-all duration-300 ${isCollapsed ? 'w-16' : 'w-56'}`}>
+      <div className="p-3 border-b border-yellow-200 flex items-center justify-between">
         {!isCollapsed && (
-          <h2 className="text-base font-semibold text-gray-900">Menu</h2>
+          <h2 className="text-base font-semibold text-black">Menu</h2>
         )}
         <button
           onClick={() => setIsCollapsed(!isCollapsed)}
-          className="p-1.5 rounded-md hover:bg-blue-100 text-gray-700 hover:text-gray-900"
+          className="p-1.5 rounded-md hover:bg-yellow-200 text-black hover:text-black"
           title={isCollapsed ? 'Expand Menu' : 'Collapse Menu'}
         >
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -77,8 +77,8 @@ const Menu = () => {
                   ${item.path === '#' ? 'cursor-not-allowed opacity-60' : 'cursor-pointer'}
                   ${
                     active
-                      ? 'bg-blue-600 text-white shadow-md'
-                      : 'text-gray-800 hover:bg-white hover:text-gray-900 hover:shadow-sm'
+                      ? 'bg-yellow-500 text-black shadow-md'
+                      : 'text-black hover:bg-yellow-200 hover:text-black hover:shadow-sm'
                   }
                 `}
                 title={isCollapsed ? item.label : ''}
