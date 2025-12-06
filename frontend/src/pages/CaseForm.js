@@ -380,7 +380,7 @@ const CaseForm = () => {
         <>
           {/* Show category info if it's a new case */}
           {!isEdit && (
-            <div className="bg-primary-50 border border-primary-200 rounded-lg p-4 mb-6">
+            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm text-gray-600">Category</p>

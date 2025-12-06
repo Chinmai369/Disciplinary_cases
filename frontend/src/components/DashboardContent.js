@@ -6,15 +6,16 @@ const DashboardContent = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const [stats, setStats] = useState({
-    total: 0,
-    pending: 0,
-    completed: 0,
+    department: 0,
+    acb: 0,
+    vigilance: 0,
   });
   const [loading, setLoading] = useState(true);
   const [cases, setCases] = useState([]);
   const [viewingCase, setViewingCase] = useState(null);
   const [editingCase, setEditingCase] = useState(null);
   const [showTotalCasesTable, setShowTotalCasesTable] = useState(false);
+  const [selectedCategory, setSelectedCategory] = useState(null);
 
   useEffect(() => {
     fetchData();
@@ -67,9 +68,9 @@ const DashboardContent = () => {
       
       setCases(cases);
       setStats({
-        total: cases.length,
-        pending: cases.filter(c => c.status === 'Pending' || !c.status).length,
-        completed: cases.filter(c => c.remarks && c.remarks.trim() !== '').length,
+        department: cases.filter(c => c.categoryOfCase === 'Department').length,
+        acb: cases.filter(c => c.categoryOfCase === 'ACB').length,
+        vigilance: cases.filter(c => c.categoryOfCase === 'Vigilance and Enforcement').length,
       });
 
       console.log('Fetched cases:', cases.length);
@@ -79,9 +80,9 @@ const DashboardContent = () => {
       // Set empty stats on error to prevent display issues
       setCases([]);
       setStats({
-        total: 0,
-        pending: 0,
-        completed: 0,
+        department: 0,
+        acb: 0,
+        vigilance: 0,
       });
     } finally {
       setLoading(false);
@@ -89,9 +90,9 @@ const DashboardContent = () => {
   };
 
   const statCards = [
-    { label: 'Total Cases', value: stats.total, color: 'bg-blue-500' },
-    { label: 'Pending Cases', value: stats.pending, color: 'bg-yellow-500' },
-    { label: 'Completed Cases', value: stats.completed, color: 'bg-green-500' },
+    { label: 'Department Cases', value: stats.department, color: 'bg-blue-200', category: 'Department' },
+    { label: 'ACB Cases', value: stats.acb, color: 'bg-orange-200', category: 'ACB' },
+    { label: 'Vigilance & Enforcement Cases', value: stats.vigilance, color: 'bg-purple-200', category: 'Vigilance and Enforcement' },
   ];
 
   const getSeverityColor = (severity) => {
@@ -125,7 +126,7 @@ const DashboardContent = () => {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-3xl font-bold text-gray-900">Dashboard</h1>
+        <h1 className="text-2xl font-bold text-gray-900">Dashboard</h1>
       </div>
 
       {/* Statistics Cards */}
@@ -134,18 +135,17 @@ const DashboardContent = () => {
           <div
             key={stat.label}
             onClick={() => {
-              if (stat.label === 'Total Cases') {
-                setShowTotalCasesTable(!showTotalCasesTable);
+              if (stat.category) {
+                setSelectedCategory(stat.category);
+                setShowTotalCasesTable(true);
               }
             }}
-            className={`bg-white rounded-lg shadow p-6 hover:shadow-lg transition-shadow ${
-              stat.label === 'Total Cases' ? 'cursor-pointer' : ''
-            }`}
+            className={`bg-white rounded-lg shadow p-6 hover:shadow-lg transition-shadow cursor-pointer`}
           >
             <div className="flex items-center">
               <div className={`${stat.color} p-3 rounded-lg`}>
                 <svg
-                  className="w-6 h-6 text-white"
+                  className="w-6 h-6 text-gray-700"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -159,11 +159,9 @@ const DashboardContent = () => {
                 </svg>
               </div>
               <div className="ml-4">
-                <p className="text-sm font-medium text-gray-600">{stat.label}</p>
-                <p className="text-2xl font-semibold text-gray-900">{stat.value}</p>
-                {stat.label === 'Total Cases' && (
-                  <p className="text-xs text-gray-500 mt-1">Click to view all cases</p>
-                )}
+                <p className="text-xs font-medium text-gray-600">{stat.label}</p>
+                <p className="text-xl font-semibold text-gray-900">{stat.value}</p>
+                <p className="text-xs text-gray-500 mt-1">Click to view cases</p>
               </div>
             </div>
           </div>
@@ -174,9 +172,14 @@ const DashboardContent = () => {
       {showTotalCasesTable && (
         <div className="bg-white rounded-lg shadow overflow-hidden">
           <div className="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
-            <h2 className="text-xl font-semibold text-gray-900">Total Cases - All Submitted Cases</h2>
+            <h2 className="text-lg font-semibold text-gray-900">
+              {selectedCategory ? `${selectedCategory} Cases` : 'Total Cases - All Submitted Cases'}
+            </h2>
             <button
-              onClick={() => setShowTotalCasesTable(false)}
+              onClick={() => {
+                setShowTotalCasesTable(false);
+                setSelectedCategory(null);
+              }}
               className="text-gray-400 hover:text-gray-600"
             >
               <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -224,34 +227,39 @@ const DashboardContent = () => {
                 </tr>
               </thead>
               <tbody className="bg-gray-50 divide-y divide-gray-200">
-                {cases.length === 0 ? (
-                  <tr>
-                    <td colSpan="11" className="px-4 sm:px-6 py-4 text-center text-gray-500 border border-gray-300">
-                      No cases found. Create a new case to see it here.
-                    </td>
-                  </tr>
-                ) : (
-                  cases.map((caseItem, index) => (
+                {(() => {
+                  const filteredCases = selectedCategory 
+                    ? cases.filter(c => c.categoryOfCase === selectedCategory)
+                    : cases;
+                  
+                  return filteredCases.length === 0 ? (
+                    <tr>
+                      <td colSpan="11" className="px-4 sm:px-6 py-4 text-center text-xs text-gray-500 border border-gray-300">
+                        No cases found. Create a new case to see it here.
+                      </td>
+                    </tr>
+                  ) : (
+                    filteredCases.map((caseItem, index) => (
                     <tr key={caseItem.id} className="hover:bg-blue-100">
-                      <td className="px-4 sm:px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 border border-gray-300">
+                      <td className="px-4 sm:px-6 py-4 whitespace-nowrap text-xs font-medium text-gray-900 border border-gray-300">
                         {index + 1}
                       </td>
-                      <td className="px-4 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-900 border border-gray-300">
+                      <td className="px-4 sm:px-6 py-4 whitespace-nowrap text-xs text-gray-900 border border-gray-300">
                         {caseItem.fileNumber || '-'}
                       </td>
-                      <td className="px-4 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-900 border border-gray-300">
+                      <td className="px-4 sm:px-6 py-4 whitespace-nowrap text-xs text-gray-900 border border-gray-300">
                         {caseItem.employeeId || '-'}
                       </td>
-                      <td className="px-4 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-900 border border-gray-300">
+                      <td className="px-4 sm:px-6 py-4 whitespace-nowrap text-xs text-gray-900 border border-gray-300">
                         {caseItem.employeeName || caseItem.name || '-'}
                       </td>
-                      <td className="px-4 sm:px-6 py-4 text-sm text-gray-900 border border-gray-300">
+                      <td className="px-4 sm:px-6 py-4 text-xs text-gray-900 border border-gray-300">
                         {caseItem.categoryOfCase || '-'}
                       </td>
-                      <td className="px-4 sm:px-6 py-4 text-sm text-gray-900 border border-gray-300">
+                      <td className="px-4 sm:px-6 py-4 text-xs text-gray-900 border border-gray-300">
                         {caseItem.subCategoryOfCase || '-'}
                       </td>
-                      <td className="px-4 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-900 border border-gray-300">
+                      <td className="px-4 sm:px-6 py-4 whitespace-nowrap text-xs text-gray-900 border border-gray-300">
                         {caseItem.dateOfIncident ? (
                           (() => {
                             try {
@@ -265,10 +273,10 @@ const DashboardContent = () => {
                           new Date(caseItem.incidentDate).toLocaleDateString()
                         ) : '-'}
                       </td>
-                      <td className="px-4 sm:px-6 py-4 text-sm text-gray-900 border border-gray-300">
+                      <td className="px-4 sm:px-6 py-4 text-xs text-gray-900 border border-gray-300">
                         {caseItem.designationWhenChargesIssued || '-'}
                       </td>
-                      <td className="px-4 sm:px-6 py-4 text-sm text-gray-900 border border-gray-300">
+                      <td className="px-4 sm:px-6 py-4 text-xs text-gray-900 border border-gray-300">
                         {caseItem.nameOfULB || '-'}
                       </td>
                       <td className="px-4 sm:px-6 py-4 whitespace-nowrap border border-gray-300">
@@ -284,25 +292,26 @@ const DashboardContent = () => {
                           '-'
                         )}
                       </td>
-                      <td className="px-4 sm:px-6 py-4 whitespace-nowrap text-center text-sm font-medium border border-gray-300">
+                      <td className="px-4 sm:px-6 py-4 whitespace-nowrap text-center text-xs font-medium border border-gray-300">
                         <div className="flex justify-center gap-2">
                           <button
                             onClick={() => setViewingCase(caseItem)}
-                            className="px-3 py-1.5 bg-blue-600 text-white rounded-md hover:bg-blue-700 font-medium text-sm transition-colors"
+                            className="px-3 py-1.5 bg-blue-600 text-white rounded-md hover:bg-blue-700 font-medium text-xs transition-colors"
                           >
                             View
                           </button>
                           <button
                             onClick={() => setEditingCase(caseItem)}
-                            className="px-3 py-1.5 bg-green-600 text-white rounded-md hover:bg-green-700 font-medium text-sm transition-colors"
+                            className="px-3 py-1.5 bg-green-600 text-white rounded-md hover:bg-green-700 font-medium text-xs transition-colors"
                           >
                             Edit
                           </button>
                         </div>
                       </td>
                     </tr>
-                  ))
-                )}
+                    ))
+                  );
+                })()}
               </tbody>
             </table>
           </div>
@@ -320,7 +329,7 @@ const DashboardContent = () => {
             <div className="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-4xl sm:w-full">
               <div className="bg-white px-4 pt-5 pb-4 sm:p-6">
                 <div className="flex justify-between items-center mb-4">
-                  <h3 className="text-xl font-semibold text-gray-900">
+                  <h3 className="text-lg font-semibold text-gray-900">
                     Employee Details
                   </h3>
                   <button

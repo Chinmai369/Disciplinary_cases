@@ -23,16 +23,13 @@ api.interceptors.request.use(
   }
 );
 
-// Handle 401 errors (unauthorized)
+// Handle 401 errors (unauthorized) - but don't redirect immediately
+// Let the AuthContext handle logout and navigation
 api.interceptors.response.use(
   (response) => response,
   (error) => {
-    if (error.response?.status === 401) {
-      // Token expired or invalid
-      localStorage.removeItem('token');
-      localStorage.removeItem('user');
-      window.location.href = '/login';
-    }
+    // Don't redirect here - let React Router handle it through AuthContext
+    // The AuthContext will handle logout and ProtectedRoute will redirect
     return Promise.reject(error);
   }
 );

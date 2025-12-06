@@ -50,8 +50,14 @@ const DisciplinaryCaseForm = ({ onSubmit, initialData = {}, isEdit = false, onCa
     concludeText: initialData.concludeText || '',
     ioAppointment: initialData.ioAppointment || '',
     ioGoProceedingsNumber: initialData.ioGoProceedingsNumber || '',
+    ioAppointmentDate: initialData.ioAppointmentDate || '',
+    ioAppointmentIOName: initialData.ioAppointmentIOName || '',
+    ioAppointmentIODesignation: initialData.ioAppointmentIODesignation || '',
     poAppointment: initialData.poAppointment || '',
     poGoProceedingsNumber: initialData.poGoProceedingsNumber || '',
+    poAppointmentDate: initialData.poAppointmentDate || '',
+    poAppointmentIOName: initialData.poAppointmentIOName || '',
+    poAppointmentIODesignation: initialData.poAppointmentIODesignation || '',
     
     // Inquiry report fields
     inquiryReportSubmitted: initialData.inquiryReportSubmitted || '',
@@ -127,10 +133,10 @@ const DisciplinaryCaseForm = ({ onSubmit, initialData = {}, isEdit = false, onCa
 
   const ulbOptions = [
     // 4 RDMA offices
-    'RDMA Office 1',
-    'RDMA Office 2',
-    'RDMA Office 3',
-    'RDMA Office 4',
+    'RDMA Rajahmundry',
+    'RDMA Vishakapatnam',
+    'RDMA Guntur',
+    'RDMA Ananthapuram',
     // C&DMA office
     'C&DMA Office',
     // Urban development authorities
@@ -360,10 +366,10 @@ const DisciplinaryCaseForm = ({ onSubmit, initialData = {}, isEdit = false, onCa
       criminalCaseFiled: ['criminalCaseNumber', 'criminalCaseDate', 'criminalCaseIssuedBy'],
       prosecutionSanctioned: ['prosecutionIssuedBy', 'prosecutionProceedingNumber', 'prosecutionDate'],
       chargesIssued: ['chargeMemoNumberAndDate', 'chargesMemoNumber', 'chargesDate', 'chargesIssuedRemarks'],
-      wsdOrServedCopy: ['wsdCheckbox', 'servedCopyCheckbox', 'furtherActionWSD', 'furtherActionWSDOthers', 'concludeText', 'ioAppointment', 'ioGoProceedingsNumber', 'poAppointment', 'poGoProceedingsNumber'],
+      wsdOrServedCopy: ['wsdCheckbox', 'servedCopyCheckbox', 'furtherActionWSD', 'furtherActionWSDOthers', 'concludeText', 'ioAppointment', 'ioGoProceedingsNumber', 'ioAppointmentDate', 'ioAppointmentIOName', 'ioAppointmentIODesignation', 'poAppointment', 'poGoProceedingsNumber', 'poAppointmentDate', 'poAppointmentIOName', 'poAppointmentIODesignation'],
       furtherActionWSD: ['furtherActionWSDOthers'],
-      ioAppointment: ['ioGoProceedingsNumber'],
-      poAppointment: ['poGoProceedingsNumber'],
+      ioAppointment: ['ioGoProceedingsNumber', 'ioAppointmentDate', 'ioAppointmentIOName', 'ioAppointmentIODesignation'],
+      poAppointment: ['poGoProceedingsNumber', 'poAppointmentDate', 'poAppointmentIOName', 'poAppointmentIODesignation'],
       inquiryReportSubmitted: ['inquiryReportNumber', 'furtherActionInquiry', 'inquiryDisagreedAction', 'inquiryAppointmentProceedingNumber', 'inquiryAppointmentIOName', 'inquiryAppointmentIODate', 'inquiryAgreedEndorcementDate'],
       furtherActionInquiry: ['inquiryDisagreedAction', 'inquiryAppointmentProceedingNumber', 'inquiryAppointmentIOName', 'inquiryAppointmentIODate', 'inquiryAgreedEndorcementDate'],
       inquiryDisagreedAction: ['inquiryAppointmentProceedingNumber', 'inquiryAppointmentIOName', 'inquiryAppointmentIODate'],
@@ -448,8 +454,14 @@ const DisciplinaryCaseForm = ({ onSubmit, initialData = {}, isEdit = false, onCa
       concludeText: '',
       ioAppointment: '',
       ioGoProceedingsNumber: '',
+      ioAppointmentDate: '',
+      ioAppointmentIOName: '',
+      ioAppointmentIODesignation: '',
       poAppointment: '',
       poGoProceedingsNumber: '',
+      poAppointmentDate: '',
+      poAppointmentIOName: '',
+      poAppointmentIODesignation: '',
       
       // Clear inquiry report fields
       inquiryReportSubmitted: '',
@@ -1263,17 +1275,60 @@ const DisciplinaryCaseForm = ({ onSubmit, initialData = {}, isEdit = false, onCa
                           />
 
                           {formData.ioAppointment === 'yes' && (
-                            <div className="ml-6">
-                              <label className="block text-sm font-medium text-gray-700 mb-1">
-                                IO-GO/Proceedings Number
-                              </label>
-                              <input
-                                type="text"
-                                name="ioGoProceedingsNumber"
-                                value={formData.ioGoProceedingsNumber}
-                                onChange={handleChange}
-                                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
-                              />
+                            <div className="ml-6 space-y-4">
+                              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                                    IO-GO/Proceedings Number
+                                  </label>
+                                  <input
+                                    type="text"
+                                    name="ioGoProceedingsNumber"
+                                    value={formData.ioGoProceedingsNumber}
+                                    onChange={handleChange}
+                                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
+                                  />
+                                </div>
+                                <div>
+                                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                                    Date
+                                  </label>
+                                  <input
+                                    type="date"
+                                    name="ioAppointmentDate"
+                                    value={formData.ioAppointmentDate}
+                                    onChange={handleChange}
+                                    max={today}
+                                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
+                                  />
+                                </div>
+                              </div>
+                              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                                    Name of the Inquiry Officer
+                                  </label>
+                                  <input
+                                    type="text"
+                                    name="ioAppointmentIOName"
+                                    value={formData.ioAppointmentIOName}
+                                    onChange={handleChange}
+                                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
+                                  />
+                                </div>
+                                <div>
+                                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                                    Designation
+                                  </label>
+                                  <input
+                                    type="text"
+                                    name="ioAppointmentIODesignation"
+                                    value={formData.ioAppointmentIODesignation}
+                                    onChange={handleChange}
+                                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
+                                  />
+                                </div>
+                              </div>
                             </div>
                           )}
                         </div>
@@ -1288,17 +1343,60 @@ const DisciplinaryCaseForm = ({ onSubmit, initialData = {}, isEdit = false, onCa
                           />
 
                           {formData.poAppointment === 'yes' && (
-                            <div className="ml-6">
-                              <label className="block text-sm font-medium text-gray-700 mb-1">
-                                PO-GO/Proceedings Number
-                              </label>
-                              <input
-                                type="text"
-                                name="poGoProceedingsNumber"
-                                value={formData.poGoProceedingsNumber}
-                                onChange={handleChange}
-                                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
-                              />
+                            <div className="ml-6 space-y-4">
+                              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                                    PO-GO/Proceedings Number
+                                  </label>
+                                  <input
+                                    type="text"
+                                    name="poGoProceedingsNumber"
+                                    value={formData.poGoProceedingsNumber}
+                                    onChange={handleChange}
+                                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
+                                  />
+                                </div>
+                                <div>
+                                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                                    Date
+                                  </label>
+                                  <input
+                                    type="date"
+                                    name="poAppointmentDate"
+                                    value={formData.poAppointmentDate}
+                                    onChange={handleChange}
+                                    max={today}
+                                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
+                                  />
+                                </div>
+                              </div>
+                              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                                    Name of the Inquiry Officer
+                                  </label>
+                                  <input
+                                    type="text"
+                                    name="poAppointmentIOName"
+                                    value={formData.poAppointmentIOName}
+                                    onChange={handleChange}
+                                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
+                                  />
+                                </div>
+                                <div>
+                                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                                    Designation
+                                  </label>
+                                  <input
+                                    type="text"
+                                    name="poAppointmentIODesignation"
+                                    value={formData.poAppointmentIODesignation}
+                                    onChange={handleChange}
+                                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
+                                  />
+                                </div>
+                              </div>
                             </div>
                           )}
                         </div>

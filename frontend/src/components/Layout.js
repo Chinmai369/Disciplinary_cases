@@ -32,19 +32,19 @@ const Layout = ({ children }) => {
       </aside>
 
       {/* Main Content Area */}
-      <div className="flex-1 lg:pl-48">
+      <div className="flex-1 lg:pl-56">
         {/* Header Navigation */}
-        <nav className="bg-white shadow-md sticky top-0 z-20">
+        <nav className="bg-blue-100 shadow-md sticky top-0 z-20">
           <div className="px-4 sm:px-6 lg:px-8">
             <div className="flex justify-between items-center h-16 relative">
               {/* Centered Heading and Username */}
               <div className="absolute left-1/2 transform -translate-x-1/2">
                 <div className="text-center">
                   <Link to="/" className="block">
-                    <h1 className="text-xl font-bold text-primary-600">
+                    <h1 className="text-xl font-bold text-gray-900">
                       Disciplinary Cases Management
                     </h1>
-                    <p className="text-sm text-gray-600 mt-1">
+                    <p className="text-sm text-gray-700 mt-1">
                       {user?.username || 'User'}
                     </p>
                   </Link>
