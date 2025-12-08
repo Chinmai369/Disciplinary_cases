@@ -168,14 +168,22 @@ const CaseForm = () => {
       setLoading(true);
       // Merge disciplinary form data with category/subcategory data
       // Map form fields to backend expected format
+      const employeeName = disciplinaryFormData.name || disciplinaryFormData.employeeName || '';
+      // Send empty string for employeeId if not provided (backend may accept empty string but not null)
+      const employeeId = disciplinaryFormData.employeeId && disciplinaryFormData.employeeId.trim() !== '' 
+        ? disciplinaryFormData.employeeId.trim() 
+        : '';
+      
       const mergedData = {
         ...disciplinaryFormData,
         categoryOfCase: formData.categoryOfCase,
         subCategoryOfCase: formData.subCategoryOfCase,
         // Map name to employeeName for backend compatibility
-        employeeName: disciplinaryFormData.name || disciplinaryFormData.employeeName,
+        employeeName: employeeName,
+        name: employeeName,
+        employeeId: employeeId, // Send null if empty, otherwise send the trimmed value
         // Set default values for required backend fields if not present
-        incidentDate: disciplinaryFormData.incidentDate || new Date().toISOString().split('T')[0],
+        incidentDate: disciplinaryFormData.incidentDate || disciplinaryFormData.dateOfIncident || new Date().toISOString().split('T')[0],
         description: disciplinaryFormData.description || disciplinaryFormData.remarks || 'Disciplinary case',
       };
 
@@ -577,18 +585,35 @@ const CaseForm = () => {
                   setIsSubmittingFinal(true); // Hide form immediately
                   setLoading(true);
                   for (const employee of submittedEmployees) {
+                    // Build merged data, handling optional employeeId
+                    const employeeName = employee.name || employee.employeeName || '';
+                    // Send empty string for employeeId if not provided
+                    const employeeId = employee.employeeId && employee.employeeId.trim() !== '' 
+                      ? employee.employeeId.trim() 
+                      : '';
+                    
                     const mergedData = {
                       ...employee, // Includes all form fields: fileNumber, eOfficeNumber, name, employeeId, etc.
                       categoryOfCase: formData.categoryOfCase || employee.categoryOfCase || '',
                       subCategoryOfCase: formData.subCategoryOfCase || employee.subCategoryOfCase || '',
-                      employeeName: employee.name || employee.employeeName,
-                      name: employee.name || employee.employeeName,
-                      incidentDate: employee.incidentDate || new Date().toISOString().split('T')[0],
+                      employeeName: employeeName,
+                      name: employeeName,
+                      employeeId: employeeId, // Empty string if not provided
+                      incidentDate: employee.incidentDate || employee.dateOfIncident || new Date().toISOString().split('T')[0],
                       description: employee.description || employee.remarks || 'Disciplinary case',
                       // Ensure fileNumber and eOfficeNumber are preserved from employee data or preserved data
                       fileNumber: employee.fileNumber || preservedFileData.fileNumber || '',
                       eOfficeNumber: employee.eOfficeNumber || preservedFileData.eOfficeNumber || '',
                     };
+                    
+                    // Debug logging
+                    console.log('Submitting case data:', {
+                      employeeName,
+                      employeeId: employeeId || '(empty)',
+                      hasName: !!employeeName,
+                      hasEmployeeId: !!employeeId
+                    });
+                    
                     await createCase(mergedData);
                   }
                   // Show success modal

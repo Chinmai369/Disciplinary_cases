@@ -27,8 +27,9 @@ class DisciplinaryCase {
   validate() {
     const errors = [];
     
-    if (!this.employeeId) errors.push('Employee ID is required');
-    if (!this.employeeName) errors.push('Employee Name is required');
+    // Note: employeeId is optional, not required
+    // if (!this.employeeId) errors.push('Employee ID is required');
+    if (!this.employeeName || this.employeeName.trim() === '') errors.push('Employee Name is required');
     if (!this.incidentDate) errors.push('Incident Date is required');
     if (!this.description) errors.push('Description is required');
     

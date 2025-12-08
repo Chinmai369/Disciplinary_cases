@@ -10,9 +10,10 @@ const getCaseById = async (id) => {
 
 const createCase = async (caseData) => {
   // Validate required fields - support both old and new form structure
+  // Note: employeeId is optional, only name is required
   const employeeName = caseData.employeeName || caseData.name;
-  if (!caseData.employeeId || !employeeName) {
-    throw new Error('Missing required fields: employeeId and name are required');
+  if (!employeeName || employeeName.trim() === '') {
+    throw new Error('Missing required fields: name is required');
   }
 
   // Create case with all fields from the form (supporting both old and new structure)
@@ -20,7 +21,8 @@ const createCase = async (caseData) => {
   const newCase = {
     ...caseData, // Include all form fields first
     id: Date.now().toString(),
-    employeeId: caseData.employeeId,
+    // employeeId is optional - use provided value or empty string
+    employeeId: caseData.employeeId && caseData.employeeId.trim() !== '' ? caseData.employeeId.trim() : '',
     employeeName: employeeName, // Map name to employeeName for compatibility
     name: caseData.name || employeeName, // Keep name field too
     // Ensure backward compatibility fields have defaults
