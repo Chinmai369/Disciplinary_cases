@@ -421,6 +421,7 @@ const DisciplinaryCaseForm = ({ onSubmit, initialData = {}, isEdit = false, onCa
   const validate = () => {
     const newErrors = {};
     
+    // Note: employeeId is optional and not validated
     if (!formData.name.trim()) {
       newErrors.name = 'Name is required';
     }
