@@ -74,6 +74,7 @@ const DisciplinaryCaseForm = ({ onSubmit, initialData = {}, isEdit = false, onCa
     inquiryRemittedNumber: initialData.inquiryRemittedNumber || '',
     inquiryRemittedDate: initialData.inquiryRemittedDate || '',
     inquiryCommunicationEndorsementDate: initialData.inquiryCommunicationEndorsementDate || '',
+    inquiryAgreedEndorsementDate: initialData.inquiryAgreedEndorsementDate || '',
     
     // WR fields
     wrOrServedCopy: initialData.wrOrServedCopy || '',
@@ -343,6 +344,12 @@ const DisciplinaryCaseForm = ({ onSubmit, initialData = {}, isEdit = false, onCa
           inquiryCommunicationEndorsementDate: ''
         }));
       }
+      if (value !== 'agreed') {
+        setFormData(prev => ({
+          ...prev,
+          inquiryAgreedEndorsementDate: ''
+        }));
+      }
     }
 
     // Clear inquiry disagreed action fields when inquiryDisagreedAction changes
@@ -517,6 +524,7 @@ const DisciplinaryCaseForm = ({ onSubmit, initialData = {}, isEdit = false, onCa
       inquiryRemittedNumber: '',
       inquiryRemittedDate: '',
       inquiryCommunicationEndorsementDate: '',
+      inquiryAgreedEndorsementDate: '',
       // Clear WR fields
       wrOrServedCopy: '',
       wrCheckbox: false,
@@ -882,19 +890,19 @@ const DisciplinaryCaseForm = ({ onSubmit, initialData = {}, isEdit = false, onCa
 
               {formData.employeeSuspended === 'yes' && (
                 <div className="ml-6 space-y-4 bg-gray-50 p-4 rounded-md">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Suspended by
-                    </label>
-                    <input
-                      type="text"
-                      name="suspendedBy"
-                      value={formData.suspendedBy}
-                      onChange={handleChange}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
-                    />
-                  </div>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="grid grid-cols-3 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Suspended by
+                      </label>
+                      <input
+                        type="text"
+                        name="suspendedBy"
+                        value={formData.suspendedBy}
+                        onChange={handleChange}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
+                      />
+                    </div>
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-1">
                         Proceeding Number
@@ -931,19 +939,19 @@ const DisciplinaryCaseForm = ({ onSubmit, initialData = {}, isEdit = false, onCa
 
                   {formData.employeeReinitiated === 'yes' && (
                     <div className="ml-6 space-y-4 bg-blue-50 p-4 rounded-md">
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">
-                          Re-instated by
-                        </label>
-                        <input
-                          type="text"
-                          name="reinstatedBy"
-                          value={formData.reinstatedBy}
-                          onChange={handleChange}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
-                        />
-                      </div>
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="grid grid-cols-3 gap-4">
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-1">
+                            Re-instated by
+                          </label>
+                          <input
+                            type="text"
+                            name="reinstatedBy"
+                            value={formData.reinstatedBy}
+                            onChange={handleChange}
+                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
+                          />
+                        </div>
                         <div>
                           <label className="block text-sm font-medium text-gray-700 mb-1">
                             Proceeding Number
@@ -984,19 +992,19 @@ const DisciplinaryCaseForm = ({ onSubmit, initialData = {}, isEdit = false, onCa
 
                       {formData.suspensionPeriodRegularize === 'yes' && (
                     <div className="ml-6 space-y-4 bg-green-50 p-4 rounded-md">
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">
-                          Regularised by
-                        </label>
-                        <textarea
-                          name="regularisedBy"
-                          value={formData.regularisedBy}
-                          onChange={handleChange}
-                          rows="3"
-                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
-                        />
-                      </div>
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="grid grid-cols-3 gap-4">
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-1">
+                            Regularised by
+                          </label>
+                          <input
+                            type="text"
+                            name="regularisedBy"
+                            value={formData.regularisedBy}
+                            onChange={handleChange}
+                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
+                          />
+                        </div>
                         <div>
                           <label className="block text-sm font-medium text-gray-700 mb-1">
                             Proceeding Number
@@ -1584,20 +1592,38 @@ const DisciplinaryCaseForm = ({ onSubmit, initialData = {}, isEdit = false, onCa
                     />
                   </div>
                 </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Further Action Taken
-                  </label>
-                  <select
-                    name="furtherActionInquiry"
-                    value={formData.furtherActionInquiry}
-                    onChange={handleChange}
-                    className="w-full max-w-md px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
-                  >
-                    <option value="">Select Action</option>
-                    <option value="agreed">Agreed with Inquiry report</option>
-                    <option value="disagreed">DisAgreed with Inquiry Report</option>
-                  </select>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Further Action Taken
+                    </label>
+                    <select
+                      name="furtherActionInquiry"
+                      value={formData.furtherActionInquiry}
+                      onChange={handleChange}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
+                    >
+                      <option value="">Select Action</option>
+                      <option value="agreed">Agreed with Inquiry report</option>
+                      <option value="disagreed">DisAgreed with Inquiry Report</option>
+                    </select>
+                  </div>
+                  
+                  {formData.furtherActionInquiry === 'agreed' && (
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Endorcement Date
+                      </label>
+                      <input
+                        type="date"
+                        name="inquiryAgreedEndorsementDate"
+                        value={formData.inquiryAgreedEndorsementDate}
+                        onChange={handleChange}
+                        max={today}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
+                      />
+                    </div>
+                  )}
                 </div>
 
                 {formData.furtherActionInquiry === 'disagreed' && (
@@ -1773,22 +1799,6 @@ const DisciplinaryCaseForm = ({ onSubmit, initialData = {}, isEdit = false, onCa
                       <option value="others">Others</option>
                     </select>
 
-                    {formData.furtherActionWR && formData.furtherActionWR !== 'others' && (
-                      <div className="mt-4">
-                        <label className="block text-sm font-medium text-gray-700 mb-1">
-                          Issued By
-                        </label>
-                        <textarea
-                          name="wrIssuedBy"
-                          value={formData.wrIssuedBy}
-                          onChange={handleChange}
-                          rows="4"
-                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
-                          placeholder="Enter issued by details..."
-                        />
-                      </div>
-                    )}
-
                     {formData.furtherActionWR === 'others' && (
                       <div className="mt-4">
                         <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -1806,7 +1816,20 @@ const DisciplinaryCaseForm = ({ onSubmit, initialData = {}, isEdit = false, onCa
                     )}
 
                     {formData.furtherActionWR && formData.furtherActionWR !== 'others' && (
-                      <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="mt-4 grid grid-cols-3 gap-4">
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-1">
+                            Issued By
+                          </label>
+                          <input
+                            type="text"
+                            name="wrIssuedBy"
+                            value={formData.wrIssuedBy}
+                            onChange={handleChange}
+                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
+                            placeholder="Enter issued by details..."
+                          />
+                        </div>
                         <div>
                           <label className="block text-sm font-medium text-gray-700 mb-1">
                             Number
