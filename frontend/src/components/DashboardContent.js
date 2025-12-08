@@ -90,9 +90,33 @@ const DashboardContent = () => {
   };
 
   const statCards = [
-    { label: 'Department Cases', value: stats.department, color: 'bg-blue-200', category: 'Department' },
-    { label: 'ACB Cases', value: stats.acb, color: 'bg-orange-200', category: 'ACB' },
-    { label: 'Vigilance & Enforcement Cases', value: stats.vigilance, color: 'bg-purple-200', category: 'Vigilance and Enforcement' },
+    { 
+      label: 'Department Cases', 
+      value: stats.department, 
+      headerGradient: 'linear-gradient(to right, #eff6ff 0%, #dbeafe 50%, #bfdbfe 100%)',
+      iconBg: 'bg-blue-500',
+      textColor: 'text-blue-600',
+      numberColor: 'text-blue-600',
+      category: 'Department' 
+    },
+    { 
+      label: 'ACB Cases', 
+      value: stats.acb, 
+      headerGradient: 'linear-gradient(to right, #fff7ed 0%, #ffedd5 50%, #fed7aa 100%)',
+      iconBg: 'bg-orange-500',
+      textColor: 'text-orange-600',
+      numberColor: 'text-orange-600',
+      category: 'ACB' 
+    },
+    { 
+      label: 'Vigilance & Enforcement Cases', 
+      value: stats.vigilance, 
+      headerGradient: 'linear-gradient(to right, #faf5ff 0%, #f3e8ff 50%, #e9d5ff 100%)',
+      iconBg: 'bg-purple-500',
+      textColor: 'text-purple-600',
+      numberColor: 'text-purple-600',
+      category: 'Vigilance and Enforcement' 
+    },
   ];
 
   const getSeverityColor = (severity) => {
@@ -130,7 +154,7 @@ const DashboardContent = () => {
       </div>
 
       {/* Statistics Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
         {statCards.map((stat) => (
           <div
             key={stat.label}
@@ -140,12 +164,16 @@ const DashboardContent = () => {
                 setShowTotalCasesTable(true);
               }
             }}
-            className={`bg-white rounded-lg shadow p-6 hover:shadow-lg transition-shadow cursor-pointer`}
+            className="group bg-white rounded-lg shadow-md hover:shadow-lg transition-all duration-300 cursor-pointer overflow-hidden border border-gray-100 hover:border-gray-200 max-w-xs"
           >
-            <div className="flex items-center">
-              <div className={`${stat.color} p-3 rounded-lg`}>
+            {/* Header Section with Icon and Label */}
+            <div 
+              className="px-2.5 py-2 flex items-center gap-2"
+              style={{ background: stat.headerGradient }}
+            >
+              <div className={`${stat.iconBg} w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0`}>
                 <svg
-                  className="w-6 h-6 text-gray-700"
+                  className="w-4 h-4 text-white"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -158,11 +186,23 @@ const DashboardContent = () => {
                   />
                 </svg>
               </div>
-              <div className="ml-4">
-                <p className="text-xs font-medium text-gray-600">{stat.label}</p>
-                <p className="text-xl font-semibold text-gray-900">{stat.value}</p>
-                <p className="text-xs text-gray-500 mt-1">Click to view cases</p>
-              </div>
+              <p className={`${stat.textColor} font-semibold text-sm`}>
+                {stat.label}
+              </p>
+            </div>
+            
+            {/* Main Content Section */}
+            <div className="px-2.5 py-3">
+              <p className={`${stat.numberColor} text-3xl font-bold mb-1`}>
+                {stat.value}
+              </p>
+              <p className="text-xs text-gray-500 mt-2 flex items-center">
+                <svg className="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                </svg>
+                Click to view cases
+              </p>
             </div>
           </div>
         ))}
