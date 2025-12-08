@@ -1085,19 +1085,19 @@ const DisciplinaryCaseForm = ({ onSubmit, initialData = {}, isEdit = false, onCa
 
             {formData.prosecutionSanctioned === 'yes' && (
               <div className="ml-6 space-y-4 bg-gray-50 p-4 rounded-md">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Issued by
-                  </label>
-                  <textarea
-                    name="prosecutionIssuedBy"
-                    value={formData.prosecutionIssuedBy}
-                    onChange={handleChange}
-                    rows="3"
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
-                  />
-                </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Issued by
+                    </label>
+                    <input
+                      type="text"
+                      name="prosecutionIssuedBy"
+                      value={formData.prosecutionIssuedBy}
+                      onChange={handleChange}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
+                    />
+                  </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
                       Proceeding Number
@@ -1136,19 +1136,19 @@ const DisciplinaryCaseForm = ({ onSubmit, initialData = {}, isEdit = false, onCa
 
             {formData.chargesIssued === 'yes' && (
               <div className="ml-6 space-y-4 bg-gray-50 p-4 rounded-md">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Issued By
-                  </label>
-                  <textarea
-                    name="chargeMemoNumberAndDate"
-                    value={formData.chargeMemoNumberAndDate}
-                    onChange={handleChange}
-                    rows="3"
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
-                  />
-                </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Issued By
+                    </label>
+                    <input
+                      type="text"
+                      name="chargeMemoNumberAndDate"
+                      value={formData.chargeMemoNumberAndDate}
+                      onChange={handleChange}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
+                    />
+                  </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
                       ChargesMemoNumber
