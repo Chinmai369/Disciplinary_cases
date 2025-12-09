@@ -147,24 +147,22 @@ const DashboardContent = () => {
   }
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-6 max-w-7xl mx-auto">
       {/* Dashboard Header */}
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-        <div className="flex items-center gap-4">
-          <div className="bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg p-3 shadow-md">
-            <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-            </svg>
-          </div>
-          <div>
-            <h1 className="text-2xl md:text-3xl font-bold text-gray-900">Dashboard</h1>
-            <p className="text-gray-600 text-sm md:text-base mt-1">Overview of all disciplinary cases</p>
-          </div>
+      <div className="flex items-center gap-4">
+        <div className="bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg p-3 shadow-md">
+          <svg className="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+          </svg>
+        </div>
+        <div>
+          <h1 className="text-xl md:text-2xl font-bold text-gray-900">Dashboard</h1>
+          <p className="text-gray-600 text-sm mt-0.5">Overview of all disciplinary cases</p>
         </div>
       </div>
 
       {/* Statistics Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {statCards.map((stat) => (
           <div
             key={stat.label}
@@ -174,18 +172,18 @@ const DashboardContent = () => {
                 setShowTotalCasesTable(true);
               }
             }}
-            className="group bg-white rounded-xl shadow-lg hover:shadow-2xl transition-all duration-300 cursor-pointer overflow-hidden border border-gray-200 hover:border-blue-300 transform hover:-translate-y-1"
+            className="group bg-white rounded-lg shadow-md hover:shadow-xl transition-all duration-300 cursor-pointer overflow-hidden border border-gray-200 hover:border-blue-300 transform hover:-translate-y-0.5"
           >
             {/* Card Header with Gradient */}
             <div 
-              className="px-6 py-4 relative overflow-hidden"
+              className="px-5 py-3 relative overflow-hidden"
               style={{ background: stat.headerGradient }}
             >
               <div className="flex items-center justify-between relative z-10">
                 <div className="flex items-center gap-3">
-                  <div className={`${stat.iconBg} w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0 shadow-lg transform group-hover:scale-110 transition-transform duration-300`}>
+                  <div className={`${stat.iconBg} w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0 shadow-md transform group-hover:scale-110 transition-transform duration-300`}>
                     <svg
-                      className="w-6 h-6 text-white"
+                      className="w-5 h-5 text-white"
                       fill="none"
                       stroke="currentColor"
                       viewBox="0 0 24 24"
@@ -199,7 +197,7 @@ const DashboardContent = () => {
                     </svg>
                   </div>
                   <div>
-                    <p className={`${stat.textColor} font-bold text-base leading-tight`}>
+                    <p className={`${stat.textColor} font-bold text-sm leading-tight`}>
                       {stat.label}
                     </p>
                   </div>
@@ -208,23 +206,23 @@ const DashboardContent = () => {
             </div>
             
             {/* Card Body */}
-            <div className="px-6 py-6 bg-gradient-to-br from-white to-gray-50">
+            <div className="px-5 py-4 bg-gradient-to-br from-white to-gray-50">
               <div className="flex items-baseline justify-between">
                 <div>
-                  <p className={`${stat.numberColor} text-4xl md:text-5xl font-extrabold mb-2 tracking-tight`}>
+                  <p className={`${stat.numberColor} text-3xl md:text-4xl font-extrabold mb-1.5 tracking-tight`}>
                     {stat.value}
                   </p>
-                  <p className="text-sm text-gray-600 font-medium flex items-center gap-1.5">
-                    <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <p className="text-xs text-gray-600 font-medium flex items-center gap-1.5">
+                    <svg className="w-3.5 h-3.5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                     </svg>
                     <span className="group-hover:text-gray-800 transition-colors">Click to view cases</span>
                   </p>
                 </div>
-                <div className={`${stat.iconBg} opacity-10 rounded-full p-3 transform group-hover:scale-125 transition-transform duration-300`}>
+                <div className={`${stat.iconBg} opacity-10 rounded-lg p-2 transform group-hover:scale-125 transition-transform duration-300`}>
                   <svg
-                    className="w-8 h-8 text-white"
+                    className="w-6 h-6 text-white"
                     fill="none"
                     stroke="currentColor"
                     viewBox="0 0 24 24"
@@ -245,8 +243,8 @@ const DashboardContent = () => {
 
       {/* Total Cases Table - Shows when Total Cases card is clicked */}
       {showTotalCasesTable && (
-        <div className="bg-white rounded-xl shadow-xl overflow-hidden border border-gray-200">
-          <div className="bg-gradient-to-r from-gray-50 to-gray-100 px-6 py-5 border-b border-gray-200 flex justify-between items-center">
+        <div className="bg-white rounded-lg shadow-lg overflow-hidden border border-gray-200">
+          <div className="bg-gradient-to-r from-gray-50 to-gray-100 px-5 py-4 border-b border-gray-200 flex justify-between items-center">
             <div>
               <h2 className="text-xl md:text-2xl font-bold text-gray-900">
                 {selectedCategory ? `${selectedCategory} Cases` : 'Total Cases - All Submitted Cases'}
