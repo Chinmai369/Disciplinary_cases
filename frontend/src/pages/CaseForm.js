@@ -231,48 +231,72 @@ const CaseForm = () => {
   const showFullForm = !isSubmittingFinal && (isEdit || (formData.categoryOfCase && formData.subCategoryOfCase));
 
   return (
-    <div className="max-w-7xl mx-auto px-4">
-      <h1 className="text-xl font-bold text-gray-900 mb-4">
-        {isEdit ? 'Edit Case' : 'Create New Case'}
-      </h1>
+    <div className="max-w-7xl mx-auto px-4 space-y-6">
+      {/* Page Header */}
+      <div className="flex items-center gap-4">
+        <div className="bg-gradient-to-br from-green-500 to-green-600 rounded-lg p-3 shadow-md">
+          <svg className="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+          </svg>
+        </div>
+        <div>
+          <h1 className="text-xl md:text-2xl font-bold text-gray-900">
+            {isEdit ? 'Edit Case' : 'Create New Case'}
+          </h1>
+          <p className="text-gray-600 text-sm mt-0.5">
+            {isEdit ? 'Update case information' : 'Add a new disciplinary case to the system'}
+          </p>
+        </div>
+      </div>
 
       {showCategorySelection && (
-        <div className="bg-white rounded-lg shadow-md border border-gray-200 p-5">
-          <div className="flex flex-col items-start">
-            <h2 className="text-sm font-semibold text-gray-800 mb-3">Category of Case</h2>
-            <div className="w-full max-w-[300px]">
-              <select
-                name="categoryOfCase"
-                value={formData.categoryOfCase}
-                onChange={handleChange}
-                disabled={isFormSubmitted}
-                className={`w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all ${
-                  isFormSubmitted ? 'bg-gray-100 cursor-not-allowed' : 'bg-white hover:border-gray-400'
-                }`}
-              >
-                <option value="">Select Category</option>
-                <option value="Department">Department</option>
-                <option value="ACB">ACB</option>
-                <option value="Vigilance and Enforcement">Vigilance and Enforcement</option>
-              </select>
+        <div className="flex flex-col">
+          <div className="flex items-center gap-3 mb-4">
+            <div className="bg-blue-100 rounded-lg p-2">
+              <svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+              </svg>
             </div>
+            <h2 className="text-lg font-bold text-gray-900">Category of Case</h2>
+          </div>
+          <div className="w-full max-w-xs">
+            <select
+              name="categoryOfCase"
+              value={formData.categoryOfCase}
+              onChange={handleChange}
+              disabled={isFormSubmitted}
+              className={`w-full px-4 py-3 text-base border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all ${
+                isFormSubmitted ? 'bg-gray-100 cursor-not-allowed' : 'bg-white hover:border-gray-400'
+              }`}
+            >
+              <option value="">Select Category</option>
+              <option value="Department">Department</option>
+              <option value="ACB">ACB</option>
+              <option value="Vigilance and Enforcement">Vigilance and Enforcement</option>
+            </select>
           </div>
         </div>
       )}
 
       {showBothDropdowns && (
-        <div className="bg-white rounded-lg shadow-md border border-gray-200 p-5">
-          <div className="flex flex-col md:flex-row md:items-start gap-10">
-            <div className="flex flex-col">
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Category of Case
-              </label>
+        <div className="flex flex-col md:flex-row md:items-start gap-6">
+            <div className="flex flex-col flex-1">
+              <div className="flex items-center gap-2 mb-3">
+                <div className="bg-blue-100 rounded-lg p-2">
+                  <svg className="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                  </svg>
+                </div>
+                <label className="block text-sm font-semibold text-gray-900">
+                  Category of Case
+                </label>
+              </div>
               <select
                 name="categoryOfCase"
                 value={formData.categoryOfCase}
                 onChange={handleChange}
                 disabled={isFormSubmitted}
-                className={`w-full max-w-[300px] px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all bg-white ${
+                className={`w-full px-4 py-3 text-base border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all bg-white ${
                   isFormSubmitted ? 'bg-gray-100 cursor-not-allowed' : 'hover:border-gray-400'
                 }`}
               >
@@ -284,17 +308,28 @@ const CaseForm = () => {
             </div>
 
             <div className="flex flex-col flex-1">
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Sub Category of Case
-              </label>
-              <div className="flex flex-wrap gap-2 items-center">
+              <div className="flex items-center gap-2 mb-3">
+                <div className="bg-purple-100 rounded-lg p-2">
+                  <svg className="w-4 h-4 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
+                  </svg>
+                </div>
+                <label className="block text-sm font-semibold text-gray-900">
+                  Sub Category of Case
+                </label>
+              </div>
+              <div className="flex flex-wrap gap-3 items-center">
                 {getSubCategories().map((subCategory) => (
                   <label
                     key={subCategory}
-                    className={`flex items-center px-4 py-2.5 min-w-[140px] border border-gray-300 rounded-md transition-colors ${
+                    className={`flex items-center px-5 py-3 min-w-[160px] border-2 rounded-lg transition-all ${
+                      formData.subCategoryOfCase === subCategory
+                        ? 'border-purple-500 bg-purple-50 shadow-md'
+                        : 'border-gray-300 hover:border-purple-300 hover:bg-purple-50'
+                    } ${
                       isFormSubmitted
-                        ? 'bg-gray-100 cursor-not-allowed'
-                        : 'hover:bg-gray-50 cursor-pointer'
+                        ? 'bg-gray-100 cursor-not-allowed opacity-60'
+                        : 'cursor-pointer'
                     }`}
                   >
                     <input
@@ -304,30 +339,48 @@ const CaseForm = () => {
                       checked={formData.subCategoryOfCase === subCategory}
                       onChange={handleChange}
                       disabled={isFormSubmitted}
-                      className="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300"
+                      className="h-5 w-5 text-purple-600 focus:ring-purple-500 border-gray-300"
                     />
-                    <span className="ml-3 text-sm text-gray-700 whitespace-nowrap">{subCategory}</span>
+                    <span className={`ml-3 text-sm font-medium whitespace-nowrap ${
+                      formData.subCategoryOfCase === subCategory ? 'text-purple-700' : 'text-gray-700'
+                    }`}>{subCategory}</span>
                   </label>
                 ))}
               </div>
             </div>
           </div>
-        </div>
       )}
 
       {showFullForm && (
         <>
           {/* Show category info if it's a new case */}
           {!isEdit && (
-            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-gray-600">Category</p>
-                  <p className="font-medium text-gray-900">{formData.categoryOfCase}</p>
-                </div>
-                <div>
-                  <p className="text-sm text-gray-600">Sub Category</p>
-                  <p className="font-medium text-gray-900">{formData.subCategoryOfCase}</p>
+            <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg border-2 border-blue-200 p-4 mb-6 shadow-sm max-w-xl">
+              <div className="flex items-center justify-between gap-3">
+                <div className="flex gap-4 flex-1">
+                  <div className="flex items-center gap-2">
+                    <div className="bg-blue-500 rounded-lg p-1.5">
+                      <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                      </svg>
+                    </div>
+                    <div>
+                      <p className="text-xs font-semibold text-gray-600 uppercase tracking-wide mb-0.5">Category</p>
+                      <p className="text-sm font-bold text-gray-900">{formData.categoryOfCase}</p>
+                    </div>
+                  </div>
+                  <div className="h-10 w-px bg-blue-300"></div>
+                  <div className="flex items-center gap-2">
+                    <div className="bg-purple-500 rounded-lg p-1.5">
+                      <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
+                      </svg>
+                    </div>
+                    <div>
+                      <p className="text-xs font-semibold text-gray-600 uppercase tracking-wide mb-0.5">Sub Category</p>
+                      <p className="text-sm font-bold text-gray-900">{formData.subCategoryOfCase}</p>
+                    </div>
+                  </div>
                 </div>
                 <button
                   type="button"
@@ -335,8 +388,11 @@ const CaseForm = () => {
                     setFormData(prev => ({ ...prev, categoryOfCase: '', subCategoryOfCase: '' }));
                     setSubCategoryConfirmed(false);
                   }}
-                  className="text-sm text-primary-600 hover:text-primary-700 font-medium"
+                  className="bg-white hover:bg-gray-50 text-blue-600 hover:text-blue-700 font-semibold px-3 py-1.5 rounded-lg border-2 border-blue-300 hover:border-blue-400 transition-all shadow-sm hover:shadow-md flex items-center gap-1.5 text-sm"
                 >
+                  <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                  </svg>
                   Change
                 </button>
               </div>

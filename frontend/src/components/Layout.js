@@ -8,6 +8,7 @@ import useBackButtonBlocker from '../hooks/useBackButtonBlocker';
 
 const Layout = ({ children }) => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isMenuCollapsed, setIsMenuCollapsed] = useState(false);
   const navigate = useNavigate();
   const { user, logout, isAuthenticated } = useContext(AuthContext);
   
@@ -23,11 +24,11 @@ const Layout = ({ children }) => {
     <div className="min-h-screen bg-gray-50 flex">
       {/* Sidebar Menu */}
       <aside className="hidden lg:block fixed left-0 top-0 bottom-0 z-30">
-        <Menu />
+        <Menu isCollapsed={isMenuCollapsed} onCollapseChange={setIsMenuCollapsed} />
       </aside>
 
       {/* Main Content Area */}
-      <div className="flex-1 lg:pl-56">
+      <div className={`flex-1 transition-all duration-300 ${isMenuCollapsed ? 'lg:pl-16' : 'lg:pl-56'}`}>
         {/* Header Navigation */}
         <Header user={user} onLogout={handleLogout} />
 
