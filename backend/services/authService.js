@@ -1,5 +1,10 @@
+const jwt = require('jsonwebtoken');
 const userRepository = require('../repositories/userRepository');
 const User = require('../models/User');
+
+// JWT Secret - should be in environment variables in production
+const JWT_SECRET = process.env.JWT_SECRET || 'your-super-secret-jwt-key-change-this-in-production';
+const JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN || '7d'; // Token expires in 7 days
 
 // Simple password comparison (in production, use bcrypt)
 const comparePassword = (plainPassword, hashedPassword) => {
@@ -13,6 +18,20 @@ const hashPassword = (password) => {
   // For now, return as is (NOT for production!)
   // In production, use: bcrypt.hash(password, 10)
   return password;
+};
+
+// Generate JWT token
+const generateToken = (user) => {
+  const payload = {
+    id: user.id,
+    username: user.username,
+    email: user.email,
+    role: user.role
+  };
+  
+  return jwt.sign(payload, JWT_SECRET, {
+    expiresIn: JWT_EXPIRES_IN
+  });
 };
 
 const login = async (username, password) => {
@@ -65,18 +84,27 @@ const register = async (userData) => {
 };
 
 const verifyToken = async (token) => {
-  // For now, we'll use a simple token system
-  // In production, use JWT tokens
   try {
-    // Simple token verification (in production, use JWT.verify)
-    const users = await userRepository.findAll();
-    const user = users.find(u => u.id === token);
-    if (user) {
-      const { password: _, ...userWithoutPassword } = user;
-      return userWithoutPassword;
+    // Verify JWT token
+    const decoded = jwt.verify(token, JWT_SECRET);
+    
+    // Get user from database using decoded user ID
+    const user = await userRepository.findById(decoded.id);
+    
+    if (!user) {
+      return null;
     }
-    return null;
+    
+    // Return user without password
+    const { password: _, ...userWithoutPassword } = user;
+    return userWithoutPassword;
   } catch (error) {
+    // Token is invalid or expired
+    if (error.name === 'TokenExpiredError') {
+      throw new Error('Token has expired');
+    } else if (error.name === 'JsonWebTokenError') {
+      throw new Error('Invalid token');
+    }
     return null;
   }
 };
@@ -84,6 +112,7 @@ const verifyToken = async (token) => {
 module.exports = {
   login,
   register,
-  verifyToken
+  verifyToken,
+  generateToken
 };
 

@@ -13,9 +13,8 @@ const login = async (req, res) => {
 
     const user = await authService.login(username, password);
     
-    // In production, generate JWT token here
-    // For now, we'll return user ID as token
-    const token = user.id;
+    // Generate JWT token
+    const token = authService.generateToken(user);
 
     res.json({ 
       success: true, 
@@ -46,8 +45,8 @@ const register = async (req, res) => {
 
     const user = await authService.register({ username, email, password, role });
     
-    // In production, generate JWT token here
-    const token = user.id;
+    // Generate JWT token
+    const token = authService.generateToken(user);
 
     res.status(201).json({ 
       success: true, 
