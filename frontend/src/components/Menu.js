@@ -67,10 +67,7 @@ const Menu = ({ isCollapsed: externalIsCollapsed, onCollapseChange }) => {
                 <div className="w-5 h-0.5 bg-gray-600"></div>
                 <div className="w-5 h-0.5 bg-gray-600"></div>
               </div>
-              <div>
-                <h2 className="text-lg font-bold text-gray-900">Menu</h2>
-                <p className="text-xs text-gray-500 mt-0.5">Navigation</p>
-              </div>
+              <h2 className="text-lg font-bold text-gray-900">Menu</h2>
             </div>
           ) : (
             <div className="w-full flex justify-center">
