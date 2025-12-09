@@ -147,13 +147,24 @@ const DashboardContent = () => {
   }
 
   return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold text-gray-900">Dashboard</h1>
+    <div className="space-y-8">
+      {/* Dashboard Header */}
+      <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+        <div className="flex items-center gap-4">
+          <div className="bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg p-3 shadow-md">
+            <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+            </svg>
+          </div>
+          <div>
+            <h1 className="text-2xl md:text-3xl font-bold text-gray-900">Dashboard</h1>
+            <p className="text-gray-600 text-sm md:text-base mt-1">Overview of all disciplinary cases</p>
+          </div>
+        </div>
       </div>
 
       {/* Statistics Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {statCards.map((stat) => (
           <div
             key={stat.label}
@@ -163,45 +174,70 @@ const DashboardContent = () => {
                 setShowTotalCasesTable(true);
               }
             }}
-            className="group bg-white rounded-lg shadow-md hover:shadow-lg transition-all duration-300 cursor-pointer overflow-hidden border border-gray-100 hover:border-gray-200 max-w-xs"
+            className="group bg-white rounded-xl shadow-lg hover:shadow-2xl transition-all duration-300 cursor-pointer overflow-hidden border border-gray-200 hover:border-blue-300 transform hover:-translate-y-1"
           >
-            {/* Header Section with Icon and Label */}
+            {/* Card Header with Gradient */}
             <div 
-              className="px-2.5 py-2 flex items-center gap-2"
+              className="px-6 py-4 relative overflow-hidden"
               style={{ background: stat.headerGradient }}
             >
-              <div className={`${stat.iconBg} w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0`}>
-                <svg
-                  className="w-4 h-4 text-white"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-                  />
-                </svg>
+              <div className="flex items-center justify-between relative z-10">
+                <div className="flex items-center gap-3">
+                  <div className={`${stat.iconBg} w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0 shadow-lg transform group-hover:scale-110 transition-transform duration-300`}>
+                    <svg
+                      className="w-6 h-6 text-white"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2.5}
+                        d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                      />
+                    </svg>
+                  </div>
+                  <div>
+                    <p className={`${stat.textColor} font-bold text-base leading-tight`}>
+                      {stat.label}
+                    </p>
+                  </div>
+                </div>
               </div>
-              <p className={`${stat.textColor} font-semibold text-sm`}>
-                {stat.label}
-              </p>
             </div>
             
-            {/* Main Content Section */}
-            <div className="px-2.5 py-3">
-              <p className={`${stat.numberColor} text-3xl font-bold mb-1`}>
-                {stat.value}
-              </p>
-              <p className="text-xs text-gray-500 mt-2 flex items-center">
-                <svg className="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                </svg>
-                Click to view cases
-              </p>
+            {/* Card Body */}
+            <div className="px-6 py-6 bg-gradient-to-br from-white to-gray-50">
+              <div className="flex items-baseline justify-between">
+                <div>
+                  <p className={`${stat.numberColor} text-4xl md:text-5xl font-extrabold mb-2 tracking-tight`}>
+                    {stat.value}
+                  </p>
+                  <p className="text-sm text-gray-600 font-medium flex items-center gap-1.5">
+                    <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                    </svg>
+                    <span className="group-hover:text-gray-800 transition-colors">Click to view cases</span>
+                  </p>
+                </div>
+                <div className={`${stat.iconBg} opacity-10 rounded-full p-3 transform group-hover:scale-125 transition-transform duration-300`}>
+                  <svg
+                    className="w-8 h-8 text-white"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                    />
+                  </svg>
+                </div>
+              </div>
             </div>
           </div>
         ))}
@@ -209,17 +245,20 @@ const DashboardContent = () => {
 
       {/* Total Cases Table - Shows when Total Cases card is clicked */}
       {showTotalCasesTable && (
-        <div className="bg-white rounded-lg shadow overflow-hidden">
-          <div className="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
-            <h2 className="text-lg font-semibold text-gray-900">
-              {selectedCategory ? `${selectedCategory} Cases` : 'Total Cases - All Submitted Cases'}
-            </h2>
+        <div className="bg-white rounded-xl shadow-xl overflow-hidden border border-gray-200">
+          <div className="bg-gradient-to-r from-gray-50 to-gray-100 px-6 py-5 border-b border-gray-200 flex justify-between items-center">
+            <div>
+              <h2 className="text-xl md:text-2xl font-bold text-gray-900">
+                {selectedCategory ? `${selectedCategory} Cases` : 'Total Cases - All Submitted Cases'}
+              </h2>
+              <p className="text-sm text-gray-600 mt-1">View and manage all cases in this category</p>
+            </div>
             <button
               onClick={() => {
                 setShowTotalCasesTable(false);
                 setSelectedCategory(null);
               }}
-              className="text-gray-400 hover:text-gray-600"
+              className="text-gray-400 hover:text-gray-600 hover:bg-gray-200 rounded-lg p-2 transition-colors"
             >
               <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -227,45 +266,45 @@ const DashboardContent = () => {
             </button>
           </div>
           <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-gray-200 border border-gray-300">
-              <thead className="bg-blue-200">
+            <table className="min-w-full divide-y divide-gray-200">
+              <thead className="bg-gradient-to-r from-blue-600 to-blue-700">
                 <tr>
-                  <th className="px-2 sm:px-3 py-2 text-left text-xs font-medium text-gray-700 uppercase tracking-wider border border-gray-300 whitespace-nowrap">
+                  <th className="px-4 sm:px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider whitespace-nowrap">
                     S.No
                   </th>
-                  <th className="px-2 sm:px-3 py-2 text-left text-xs font-medium text-gray-700 uppercase tracking-wider border border-gray-300 whitespace-nowrap">
+                  <th className="px-4 sm:px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider whitespace-nowrap">
                     File Number
                   </th>
-                  <th className="px-2 sm:px-3 py-2 text-left text-xs font-medium text-gray-700 uppercase tracking-wider border border-gray-300 whitespace-nowrap">
+                  <th className="px-4 sm:px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider whitespace-nowrap">
                     Employee ID
                   </th>
-                  <th className="px-2 sm:px-3 py-2 text-left text-xs font-medium text-gray-700 uppercase tracking-wider border border-gray-300 whitespace-nowrap">
+                  <th className="px-4 sm:px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider whitespace-nowrap">
                     Name
                   </th>
-                  <th className="px-2 sm:px-3 py-2 text-left text-xs font-medium text-gray-700 uppercase tracking-wider border border-gray-300 whitespace-nowrap">
+                  <th className="px-4 sm:px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider whitespace-nowrap">
                     Category
                   </th>
-                  <th className="px-2 sm:px-3 py-2 text-left text-xs font-medium text-gray-700 uppercase tracking-wider border border-gray-300 whitespace-nowrap">
+                  <th className="px-4 sm:px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider whitespace-nowrap">
                     Sub Category
                   </th>
-                  <th className="px-2 sm:px-3 py-2 text-left text-xs font-medium text-gray-700 uppercase tracking-wider border border-gray-300 whitespace-nowrap">
+                  <th className="px-4 sm:px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider whitespace-nowrap">
                     Date of Incident
                   </th>
-                  <th className="px-2 sm:px-3 py-2 text-left text-xs font-medium text-gray-700 uppercase tracking-wider border border-gray-300 whitespace-nowrap">
+                  <th className="px-4 sm:px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider whitespace-nowrap">
                     Designation
                   </th>
-                  <th className="px-2 sm:px-3 py-2 text-left text-xs font-medium text-gray-700 uppercase tracking-wider border border-gray-300 whitespace-nowrap">
+                  <th className="px-4 sm:px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider whitespace-nowrap">
                     ULB
                   </th>
-                  <th className="px-2 sm:px-3 py-2 text-left text-xs font-medium text-gray-700 uppercase tracking-wider border border-gray-300 whitespace-nowrap">
+                  <th className="px-4 sm:px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider whitespace-nowrap">
                     Status
                   </th>
-                  <th className="px-2 sm:px-3 py-2 text-center text-xs font-medium text-gray-700 uppercase tracking-wider border border-gray-300 whitespace-nowrap">
+                  <th className="px-4 sm:px-6 py-4 text-center text-xs font-bold text-white uppercase tracking-wider whitespace-nowrap">
                     Actions
                   </th>
                 </tr>
               </thead>
-              <tbody className="bg-gray-50 divide-y divide-gray-200">
+              <tbody className="bg-white divide-y divide-gray-200">
                 {(() => {
                   const filteredCases = selectedCategory 
                     ? cases.filter(c => c.categoryOfCase === selectedCategory)
@@ -273,32 +312,38 @@ const DashboardContent = () => {
                   
                   return filteredCases.length === 0 ? (
                     <tr>
-                      <td colSpan="11" className="px-4 sm:px-6 py-4 text-center text-xs text-gray-500 border border-gray-300">
-                        No cases found. Create a new case to see it here.
+                      <td colSpan="11" className="px-6 py-12 text-center">
+                        <div className="flex flex-col items-center justify-center">
+                          <svg className="w-16 h-16 text-gray-300 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                          </svg>
+                          <p className="text-gray-500 font-medium text-sm">No cases found</p>
+                          <p className="text-gray-400 text-xs mt-1">Create a new case to see it here</p>
+                        </div>
                       </td>
                     </tr>
                   ) : (
                     filteredCases.map((caseItem, index) => (
-                    <tr key={caseItem.id} className="hover:bg-blue-100">
-                      <td className="px-4 sm:px-6 py-4 whitespace-nowrap text-xs font-medium text-gray-900 border border-gray-300">
+                    <tr key={caseItem.id} className="hover:bg-blue-50 transition-colors duration-150 even:bg-gray-50">
+                      <td className="px-4 sm:px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-900">
                         {index + 1}
                       </td>
-                      <td className="px-4 sm:px-6 py-4 whitespace-nowrap text-xs text-gray-900 border border-gray-300">
+                      <td className="px-4 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-700">
                         {caseItem.fileNumber || '-'}
                       </td>
-                      <td className="px-4 sm:px-6 py-4 whitespace-nowrap text-xs text-gray-900 border border-gray-300">
+                      <td className="px-4 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-700">
                         {caseItem.employeeId || '-'}
                       </td>
-                      <td className="px-4 sm:px-6 py-4 whitespace-nowrap text-xs text-gray-900 border border-gray-300">
+                      <td className="px-4 sm:px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                         {caseItem.employeeName || caseItem.name || '-'}
                       </td>
-                      <td className="px-4 sm:px-6 py-4 text-xs text-gray-900 border border-gray-300">
+                      <td className="px-4 sm:px-6 py-4 text-sm text-gray-700">
                         {caseItem.categoryOfCase || '-'}
                       </td>
-                      <td className="px-4 sm:px-6 py-4 text-xs text-gray-900 border border-gray-300">
+                      <td className="px-4 sm:px-6 py-4 text-sm text-gray-700">
                         {caseItem.subCategoryOfCase || '-'}
                       </td>
-                      <td className="px-4 sm:px-6 py-4 whitespace-nowrap text-xs text-gray-900 border border-gray-300">
+                      <td className="px-4 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-700">
                         {caseItem.dateOfIncident ? (
                           (() => {
                             try {
@@ -312,16 +357,16 @@ const DashboardContent = () => {
                           new Date(caseItem.incidentDate).toLocaleDateString()
                         ) : '-'}
                       </td>
-                      <td className="px-4 sm:px-6 py-4 text-xs text-gray-900 border border-gray-300">
+                      <td className="px-4 sm:px-6 py-4 text-sm text-gray-700">
                         {caseItem.designationWhenChargesIssued || '-'}
                       </td>
-                      <td className="px-4 sm:px-6 py-4 text-xs text-gray-900 border border-gray-300">
+                      <td className="px-4 sm:px-6 py-4 text-sm text-gray-700">
                         {caseItem.nameOfULB || '-'}
                       </td>
-                      <td className="px-4 sm:px-6 py-4 whitespace-nowrap border border-gray-300">
+                      <td className="px-4 sm:px-6 py-4 whitespace-nowrap">
                         {caseItem.status ? (
                           <span
-                            className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusColor(
+                            className={`px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusColor(
                               caseItem.status
                             )}`}
                           >
@@ -331,7 +376,7 @@ const DashboardContent = () => {
                           '-'
                         )}
                       </td>
-                      <td className="px-4 sm:px-6 py-4 whitespace-nowrap text-center text-xs font-medium border border-gray-300">
+                      <td className="px-4 sm:px-6 py-4 whitespace-nowrap text-center text-sm font-medium">
                         <div className="flex justify-center gap-2">
                           <button
                             onClick={() => setViewingCase(caseItem)}

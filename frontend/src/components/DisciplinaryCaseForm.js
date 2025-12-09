@@ -730,6 +730,16 @@ const DisciplinaryCaseForm = ({ onSubmit, initialData = {}, isEdit = false, onCa
   // Determine if form should be disabled (after final submit)
   const isFormDisabled = isFinalSubmitted;
 
+  // Input field class constants for consistent sizing
+  const inputClasses = "w-full px-4 py-3 text-base border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 transition-colors";
+  const inputClassesSmall = "w-full max-w-xs px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 transition-colors";
+  const inputClassesError = "w-full px-4 py-3 text-base border border-red-500 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 transition-colors";
+  const selectClasses = "w-full px-4 py-3 text-base border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 bg-white transition-colors";
+  const selectClassesError = "w-full px-4 py-3 text-base border border-red-500 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 bg-white transition-colors";
+  const dateClasses = "w-full max-w-sm px-4 py-3 text-base border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 transition-colors";
+  const textareaClasses = "w-full px-4 py-3 text-base border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 resize-y transition-colors";
+  const disabledClasses = "bg-gray-100 cursor-not-allowed";
+
   return (
     <form onSubmit={handleNext} className="space-y-6">
       <fieldset disabled={isFormDisabled} className={isFormDisabled ? 'opacity-75' : ''}>
@@ -750,8 +760,8 @@ const DisciplinaryCaseForm = ({ onSubmit, initialData = {}, isEdit = false, onCa
                 value={formData.fileNumber}
                 onChange={handleChange}
                 disabled={isSubmitted || isFinalSubmitted}
-                className={`w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 ${
-                  isSubmitted || isFinalSubmitted ? 'bg-gray-100 cursor-not-allowed' : ''
+                className={`${inputClassesSmall} ${
+                  isSubmitted || isFinalSubmitted ? disabledClasses : ''
                 }`}
               />
             </div>
@@ -766,8 +776,8 @@ const DisciplinaryCaseForm = ({ onSubmit, initialData = {}, isEdit = false, onCa
                 value={formData.eOfficeNumber}
                 onChange={handleChange}
                 disabled={isSubmitted || isFinalSubmitted}
-                className={`w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 ${
-                  isSubmitted || isFinalSubmitted ? 'bg-gray-100 cursor-not-allowed' : ''
+                className={`${inputClassesSmall} ${
+                  isSubmitted || isFinalSubmitted ? disabledClasses : ''
                 }`}
               />
             </div>
@@ -781,7 +791,7 @@ const DisciplinaryCaseForm = ({ onSubmit, initialData = {}, isEdit = false, onCa
                 name="employeeId"
                 value={formData.employeeId}
                 onChange={handleChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
+                className={inputClassesSmall}
               />
             </div>
 
@@ -794,9 +804,7 @@ const DisciplinaryCaseForm = ({ onSubmit, initialData = {}, isEdit = false, onCa
                 name="name"
                 value={formData.name}
                 onChange={handleChange}
-                className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 ${
-                  errors.name ? 'border-red-500' : 'border-gray-300'
-                }`}
+                className={errors.name ? inputClassesError : inputClasses}
               />
               {errors.name && (
                 <p className="mt-1 text-sm text-red-600">{errors.name}</p>
@@ -811,9 +819,7 @@ const DisciplinaryCaseForm = ({ onSubmit, initialData = {}, isEdit = false, onCa
                 name="designationWhenChargesIssued"
                 value={formData.designationWhenChargesIssued}
                 onChange={handleChange}
-                className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 ${
-                  errors.designationWhenChargesIssued ? 'border-red-500' : 'border-gray-300'
-                }`}
+                className={errors.designationWhenChargesIssued ? selectClassesError : selectClasses}
               >
                 <option value="">Select Designation</option>
                 {designations.map((designation, index) => (
@@ -835,7 +841,7 @@ const DisciplinaryCaseForm = ({ onSubmit, initialData = {}, isEdit = false, onCa
                 name="nameOfULB"
                 value={formData.nameOfULB}
                 onChange={handleChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 text-sm"
+                className={selectClasses}
               >
                 <option value="">Select ULB</option>
                 {ulbOptions.map((ulb, index) => (
@@ -855,7 +861,7 @@ const DisciplinaryCaseForm = ({ onSubmit, initialData = {}, isEdit = false, onCa
                 name="caseType"
                 value={formData.caseType}
                 readOnly
-                className="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-50 text-gray-600"
+                className="w-full px-4 py-3 text-base border border-gray-300 rounded-md bg-gray-50 text-gray-600"
               />
             </div>
           </div>
@@ -877,7 +883,7 @@ const DisciplinaryCaseForm = ({ onSubmit, initialData = {}, isEdit = false, onCa
                   value={formData.dateOfIncident}
                   onChange={handleChange}
                   max={today}
-                  className="w-full max-w-xs px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
+                  className={dateClasses}
                 />
               </div>
 
@@ -900,7 +906,7 @@ const DisciplinaryCaseForm = ({ onSubmit, initialData = {}, isEdit = false, onCa
                         name="suspendedBy"
                         value={formData.suspendedBy}
                         onChange={handleChange}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
+                        className={inputClasses}
                       />
                     </div>
                     <div>
@@ -912,7 +918,7 @@ const DisciplinaryCaseForm = ({ onSubmit, initialData = {}, isEdit = false, onCa
                         name="suspensionProceedingNumber"
                         value={formData.suspensionProceedingNumber}
                         onChange={handleChange}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
+                        className={inputClasses}
                       />
                     </div>
                     <div>
@@ -925,7 +931,7 @@ const DisciplinaryCaseForm = ({ onSubmit, initialData = {}, isEdit = false, onCa
                         value={formData.suspensionDate}
                         onChange={handleChange}
                         max={today}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
+                        className={dateClasses}
                       />
                     </div>
                   </div>
@@ -949,7 +955,7 @@ const DisciplinaryCaseForm = ({ onSubmit, initialData = {}, isEdit = false, onCa
                             name="reinstatedBy"
                             value={formData.reinstatedBy}
                             onChange={handleChange}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
+                            className={inputClasses}
                           />
                         </div>
                         <div>
@@ -961,21 +967,21 @@ const DisciplinaryCaseForm = ({ onSubmit, initialData = {}, isEdit = false, onCa
                             name="reinitiationProceedingNumber"
                             value={formData.reinitiationProceedingNumber}
                             onChange={handleChange}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
+                            className={inputClasses}
                           />
                         </div>
                         <div>
                           <label className="block text-sm font-medium text-gray-700 mb-1">
                             Date
                           </label>
-                          <input
-                            type="date"
-                            name="reinitiationDate"
-                            value={formData.reinitiationDate}
-                            onChange={handleChange}
-                            max={today}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
-                          />
+                            <input
+                              type="date"
+                              name="reinitiationDate"
+                              value={formData.reinitiationDate}
+                              onChange={handleChange}
+                              max={today}
+                              className={dateClasses}
+                            />
                         </div>
                       </div>
                     </div>
@@ -1002,7 +1008,7 @@ const DisciplinaryCaseForm = ({ onSubmit, initialData = {}, isEdit = false, onCa
                             name="regularisedBy"
                             value={formData.regularisedBy}
                             onChange={handleChange}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
+                            className={inputClasses}
                           />
                         </div>
                         <div>
@@ -1014,21 +1020,21 @@ const DisciplinaryCaseForm = ({ onSubmit, initialData = {}, isEdit = false, onCa
                             name="regularizationProceedingNumber"
                             value={formData.regularizationProceedingNumber}
                             onChange={handleChange}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
+                            className={inputClasses}
                           />
                         </div>
                         <div>
                           <label className="block text-sm font-medium text-gray-700 mb-1">
                             Date
                           </label>
-                          <input
-                            type="date"
-                            name="regularizationDate"
-                            value={formData.regularizationDate}
-                            onChange={handleChange}
-                            max={today}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
-                          />
+                            <input
+                              type="date"
+                              name="regularizationDate"
+                              value={formData.regularizationDate}
+                              onChange={handleChange}
+                              max={today}
+                              className={dateClasses}
+                            />
                         </div>
                       </div>
                     </div>
@@ -1057,21 +1063,21 @@ const DisciplinaryCaseForm = ({ onSubmit, initialData = {}, isEdit = false, onCa
                         name="criminalCaseNumber"
                         value={formData.criminalCaseNumber}
                         onChange={handleChange}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
+                        className={inputClasses}
                       />
                     </div>
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-1">
                         Date
                       </label>
-                      <input
-                        type="date"
-                        name="criminalCaseDate"
-                        value={formData.criminalCaseDate}
-                        onChange={handleChange}
-                        max={today}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
-                      />
+                        <input
+                          type="date"
+                          name="criminalCaseDate"
+                          value={formData.criminalCaseDate}
+                          onChange={handleChange}
+                          max={today}
+                          className={dateClasses}
+                        />
                     </div>
                   </div>
                 </div>
@@ -1104,7 +1110,7 @@ const DisciplinaryCaseForm = ({ onSubmit, initialData = {}, isEdit = false, onCa
                       name="prosecutionIssuedBy"
                       value={formData.prosecutionIssuedBy}
                       onChange={handleChange}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
+                      className={inputClasses}
                     />
                   </div>
                   <div>
@@ -1116,21 +1122,21 @@ const DisciplinaryCaseForm = ({ onSubmit, initialData = {}, isEdit = false, onCa
                       name="prosecutionProceedingNumber"
                       value={formData.prosecutionProceedingNumber}
                       onChange={handleChange}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
+                      className={inputClasses}
                     />
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
                       Date
                     </label>
-                    <input
-                      type="date"
-                      name="prosecutionDate"
-                      value={formData.prosecutionDate}
-                      onChange={handleChange}
-                      max={today}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
-                    />
+                      <input
+                        type="date"
+                        name="prosecutionDate"
+                        value={formData.prosecutionDate}
+                        onChange={handleChange}
+                        max={today}
+                        className={dateClasses}
+                      />
                   </div>
                 </div>
               </div>
@@ -1155,7 +1161,7 @@ const DisciplinaryCaseForm = ({ onSubmit, initialData = {}, isEdit = false, onCa
                       name="chargeMemoNumberAndDate"
                       value={formData.chargeMemoNumberAndDate}
                       onChange={handleChange}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
+                      className={inputClasses}
                     />
                   </div>
                   <div>
@@ -1167,21 +1173,21 @@ const DisciplinaryCaseForm = ({ onSubmit, initialData = {}, isEdit = false, onCa
                       name="chargesMemoNumber"
                       value={formData.chargesMemoNumber}
                       onChange={handleChange}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
+                      className={inputClasses}
                     />
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
                       Date
                     </label>
-                    <input
-                      type="date"
-                      name="chargesDate"
-                      value={formData.chargesDate}
-                      onChange={handleChange}
-                      max={today}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
-                    />
+                      <input
+                        type="date"
+                        name="chargesDate"
+                        value={formData.chargesDate}
+                        onChange={handleChange}
+                        max={today}
+                        className={dateClasses}
+                      />
                   </div>
                 </div>
               </div>
@@ -1197,7 +1203,7 @@ const DisciplinaryCaseForm = ({ onSubmit, initialData = {}, isEdit = false, onCa
                   value={formData.chargesIssuedRemarks}
                   onChange={handleChange}
                   rows="4"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
+                  className={textareaClasses}
                   placeholder="Enter remarks..."
                 />
               </div>
@@ -1214,7 +1220,7 @@ const DisciplinaryCaseForm = ({ onSubmit, initialData = {}, isEdit = false, onCa
                   value={formData.endorcementDate}
                   onChange={handleChange}
                   max={today}
-                  className="w-full max-w-xs px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
+                  className={dateClasses}
                 />
               </div>
             )}
@@ -1269,7 +1275,7 @@ const DisciplinaryCaseForm = ({ onSubmit, initialData = {}, isEdit = false, onCa
                       name="furtherActionWSD"
                       value={formData.furtherActionWSD}
                       onChange={handleChange}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
+                      className={inputClasses}
                     >
                       <option value="">Select Action</option>
                       <option value="conclude">Conclude</option>
@@ -1288,7 +1294,7 @@ const DisciplinaryCaseForm = ({ onSubmit, initialData = {}, isEdit = false, onCa
                             value={formData.concludeText}
                             onChange={handleChange}
                             rows="4"
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
+                            className={textareaClasses}
                           />
                         </div>
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -1301,7 +1307,7 @@ const DisciplinaryCaseForm = ({ onSubmit, initialData = {}, isEdit = false, onCa
                               name="wsdIssuedBy"
                               value={formData.wsdIssuedBy}
                               onChange={handleChange}
-                              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
+                              className={inputClasses}
                             />
                           </div>
                           <div>
@@ -1313,21 +1319,21 @@ const DisciplinaryCaseForm = ({ onSubmit, initialData = {}, isEdit = false, onCa
                               name="wsdNumber"
                               value={formData.wsdNumber}
                               onChange={handleChange}
-                              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
+                              className={inputClasses}
                             />
                           </div>
                           <div>
                             <label className="block text-sm font-medium text-gray-700 mb-1">
                               Date
                             </label>
-                            <input
-                              type="date"
-                              name="wsdDate"
-                              value={formData.wsdDate}
-                              onChange={handleChange}
-                              max={today}
-                              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
-                            />
+                              <input
+                                type="date"
+                                name="wsdDate"
+                                value={formData.wsdDate}
+                                onChange={handleChange}
+                                max={today}
+                                className={dateClasses}
+                              />
                           </div>
                         </div>
                       </div>
@@ -1344,7 +1350,7 @@ const DisciplinaryCaseForm = ({ onSubmit, initialData = {}, isEdit = false, onCa
                             value={formData.furtherActionWSDOthers}
                             onChange={handleChange}
                             rows="4"
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
+                            className={textareaClasses}
                             placeholder="Enter details..."
                           />
                         </div>
@@ -1358,7 +1364,7 @@ const DisciplinaryCaseForm = ({ onSubmit, initialData = {}, isEdit = false, onCa
                               name="wsdIssuedBy"
                               value={formData.wsdIssuedBy}
                               onChange={handleChange}
-                              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
+                              className={inputClasses}
                             />
                           </div>
                           <div>
@@ -1370,21 +1376,21 @@ const DisciplinaryCaseForm = ({ onSubmit, initialData = {}, isEdit = false, onCa
                               name="wsdNumber"
                               value={formData.wsdNumber}
                               onChange={handleChange}
-                              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
+                              className={inputClasses}
                             />
                           </div>
                           <div>
                             <label className="block text-sm font-medium text-gray-700 mb-1">
                               Date
                             </label>
-                            <input
-                              type="date"
-                              name="wsdDate"
-                              value={formData.wsdDate}
-                              onChange={handleChange}
-                              max={today}
-                              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
-                            />
+                              <input
+                                type="date"
+                                name="wsdDate"
+                                value={formData.wsdDate}
+                                onChange={handleChange}
+                                max={today}
+                                className={dateClasses}
+                              />
                           </div>
                         </div>
                       </div>
@@ -1413,21 +1419,21 @@ const DisciplinaryCaseForm = ({ onSubmit, initialData = {}, isEdit = false, onCa
                                     name="ioGoProceedingsNumber"
                                     value={formData.ioGoProceedingsNumber}
                                     onChange={handleChange}
-                                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
+                                    className={inputClasses}
                                   />
                                 </div>
                                 <div>
                                   <label className="block text-sm font-medium text-gray-700 mb-1">
                                     Date
                                   </label>
-                                  <input
-                                    type="date"
-                                    name="ioAppointmentDate"
-                                    value={formData.ioAppointmentDate}
-                                    onChange={handleChange}
-                                    max={today}
-                                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
-                                  />
+                                    <input
+                                      type="date"
+                                      name="ioAppointmentDate"
+                                      value={formData.ioAppointmentDate}
+                                      onChange={handleChange}
+                                      max={today}
+                                      className={dateClasses}
+                                    />
                                 </div>
                               </div>
                               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -1440,7 +1446,7 @@ const DisciplinaryCaseForm = ({ onSubmit, initialData = {}, isEdit = false, onCa
                                     name="ioAppointmentIOName"
                                     value={formData.ioAppointmentIOName}
                                     onChange={handleChange}
-                                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
+                                    className={inputClasses}
                                   />
                                 </div>
                                 <div>
@@ -1452,7 +1458,7 @@ const DisciplinaryCaseForm = ({ onSubmit, initialData = {}, isEdit = false, onCa
                                     name="ioAppointmentIODesignation"
                                     value={formData.ioAppointmentIODesignation}
                                     onChange={handleChange}
-                                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
+                                    className={inputClasses}
                                   />
                                 </div>
                               </div>
@@ -1481,21 +1487,21 @@ const DisciplinaryCaseForm = ({ onSubmit, initialData = {}, isEdit = false, onCa
                                     name="poGoProceedingsNumber"
                                     value={formData.poGoProceedingsNumber}
                                     onChange={handleChange}
-                                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
+                                    className={inputClasses}
                                   />
                                 </div>
                                 <div>
                                   <label className="block text-sm font-medium text-gray-700 mb-1">
                                     Date
                                   </label>
-                                  <input
-                                    type="date"
-                                    name="poAppointmentDate"
-                                    value={formData.poAppointmentDate}
-                                    onChange={handleChange}
-                                    max={today}
-                                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
-                                  />
+                                    <input
+                                      type="date"
+                                      name="poAppointmentDate"
+                                      value={formData.poAppointmentDate}
+                                      onChange={handleChange}
+                                      max={today}
+                                      className={dateClasses}
+                                    />
                                 </div>
                               </div>
                               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -1508,7 +1514,7 @@ const DisciplinaryCaseForm = ({ onSubmit, initialData = {}, isEdit = false, onCa
                                     name="poAppointmentIOName"
                                     value={formData.poAppointmentIOName}
                                     onChange={handleChange}
-                                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
+                                    className={inputClasses}
                                   />
                                 </div>
                                 <div>
@@ -1520,7 +1526,7 @@ const DisciplinaryCaseForm = ({ onSubmit, initialData = {}, isEdit = false, onCa
                                     name="poAppointmentIODesignation"
                                     value={formData.poAppointmentIODesignation}
                                     onChange={handleChange}
-                                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
+                                    className={inputClasses}
                                   />
                                 </div>
                               </div>
@@ -1563,21 +1569,21 @@ const DisciplinaryCaseForm = ({ onSubmit, initialData = {}, isEdit = false, onCa
                       name="inquiryReportNumber"
                       value={formData.inquiryReportNumber}
                       onChange={handleChange}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
+                      className={inputClasses}
                     />
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
                       Date
                     </label>
-                    <input
-                      type="date"
-                      name="inquiryReportDate"
-                      value={formData.inquiryReportDate}
-                      onChange={handleChange}
-                      max={today}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
-                    />
+                      <input
+                        type="date"
+                        name="inquiryReportDate"
+                        value={formData.inquiryReportDate}
+                        onChange={handleChange}
+                        max={today}
+                        className={dateClasses}
+                      />
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -1588,7 +1594,7 @@ const DisciplinaryCaseForm = ({ onSubmit, initialData = {}, isEdit = false, onCa
                       name="inquiryReportName"
                       value={formData.inquiryReportName}
                       onChange={handleChange}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
+                      className={inputClasses}
                     />
                   </div>
                 </div>
@@ -1601,7 +1607,7 @@ const DisciplinaryCaseForm = ({ onSubmit, initialData = {}, isEdit = false, onCa
                       name="furtherActionInquiry"
                       value={formData.furtherActionInquiry}
                       onChange={handleChange}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
+                      className={inputClasses}
                     >
                       <option value="">Select Action</option>
                       <option value="agreed">Agreed with Inquiry report</option>
@@ -1614,14 +1620,14 @@ const DisciplinaryCaseForm = ({ onSubmit, initialData = {}, isEdit = false, onCa
                       <label className="block text-sm font-medium text-gray-700 mb-1">
                         Endorcement Date
                       </label>
-                      <input
-                        type="date"
-                        name="inquiryAgreedEndorsementDate"
-                        value={formData.inquiryAgreedEndorsementDate}
-                        onChange={handleChange}
-                        max={today}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
-                      />
+                        <input
+                          type="date"
+                          name="inquiryAgreedEndorsementDate"
+                          value={formData.inquiryAgreedEndorsementDate}
+                          onChange={handleChange}
+                          max={today}
+                          className={dateClasses}
+                        />
                     </div>
                   )}
                 </div>
@@ -1637,7 +1643,7 @@ const DisciplinaryCaseForm = ({ onSubmit, initialData = {}, isEdit = false, onCa
                           name="inquiryDisagreedAction"
                           value={formData.inquiryDisagreedAction}
                           onChange={handleChange}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
+                          className={inputClasses}
                         >
                           <option value="">Select Option</option>
                           <option value="remitted">Remitted back to same IO</option>
@@ -1657,21 +1663,21 @@ const DisciplinaryCaseForm = ({ onSubmit, initialData = {}, isEdit = false, onCa
                               name="inquiryRemittedNumber"
                               value={formData.inquiryRemittedNumber}
                               onChange={handleChange}
-                              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
+                              className={inputClasses}
                             />
                           </div>
                           <div>
                             <label className="block text-sm font-medium text-gray-700 mb-1">
                               Date
                             </label>
-                            <input
-                              type="date"
-                              name="inquiryRemittedDate"
-                              value={formData.inquiryRemittedDate}
-                              onChange={handleChange}
-                              max={today}
-                              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
-                            />
+                              <input
+                                type="date"
+                                name="inquiryRemittedDate"
+                                value={formData.inquiryRemittedDate}
+                                onChange={handleChange}
+                                max={today}
+                                className={dateClasses}
+                              />
                           </div>
                         </>
                       )}
@@ -1687,7 +1693,7 @@ const DisciplinaryCaseForm = ({ onSubmit, initialData = {}, isEdit = false, onCa
                               name="inquiryAppointmentProceedingNumber"
                               value={formData.inquiryAppointmentProceedingNumber}
                               onChange={handleChange}
-                              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
+                              className={inputClasses}
                             />
                           </div>
                           <div>
@@ -1699,21 +1705,21 @@ const DisciplinaryCaseForm = ({ onSubmit, initialData = {}, isEdit = false, onCa
                               name="inquiryAppointmentIOName"
                               value={formData.inquiryAppointmentIOName}
                               onChange={handleChange}
-                              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
+                              className={inputClasses}
                             />
                           </div>
                           <div>
                             <label className="block text-sm font-medium text-gray-700 mb-1">
                               Date
                             </label>
-                            <input
-                              type="date"
-                              name="inquiryAppointmentIODate"
-                              value={formData.inquiryAppointmentIODate}
-                              onChange={handleChange}
-                              max={today}
-                              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
-                            />
+                              <input
+                                type="date"
+                                name="inquiryAppointmentIODate"
+                                value={formData.inquiryAppointmentIODate}
+                                onChange={handleChange}
+                                max={today}
+                                className={dateClasses}
+                              />
                           </div>
                         </>
                       )}
@@ -1723,14 +1729,14 @@ const DisciplinaryCaseForm = ({ onSubmit, initialData = {}, isEdit = false, onCa
                           <label className="block text-sm font-medium text-gray-700 mb-1">
                             Endorsement date
                           </label>
-                          <input
-                            type="date"
-                            name="inquiryCommunicationEndorsementDate"
-                            value={formData.inquiryCommunicationEndorsementDate}
-                            onChange={handleChange}
-                            max={today}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
-                          />
+                            <input
+                              type="date"
+                              name="inquiryCommunicationEndorsementDate"
+                              value={formData.inquiryCommunicationEndorsementDate}
+                              onChange={handleChange}
+                              max={today}
+                              className={dateClasses}
+                            />
                         </div>
                       )}
                     </div>
@@ -1790,7 +1796,7 @@ const DisciplinaryCaseForm = ({ onSubmit, initialData = {}, isEdit = false, onCa
                       name="furtherActionWR"
                       value={formData.furtherActionWR}
                       onChange={handleChange}
-                      className="w-full max-w-xs px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
+                      className={dateClasses}
                     >
                       <option value="">Select Action</option>
                       <option value="punishment">Punishment</option>
@@ -1809,7 +1815,7 @@ const DisciplinaryCaseForm = ({ onSubmit, initialData = {}, isEdit = false, onCa
                           value={formData.furtherActionWRRemarks}
                           onChange={handleChange}
                           rows="4"
-                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
+                          className={textareaClasses}
                           placeholder="Enter remarks..."
                         />
                       </div>
@@ -1826,7 +1832,7 @@ const DisciplinaryCaseForm = ({ onSubmit, initialData = {}, isEdit = false, onCa
                             name="wrIssuedBy"
                             value={formData.wrIssuedBy}
                             onChange={handleChange}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
+                            className={inputClasses}
                             placeholder="Enter issued by details..."
                           />
                         </div>
@@ -1839,21 +1845,21 @@ const DisciplinaryCaseForm = ({ onSubmit, initialData = {}, isEdit = false, onCa
                             name="punishmentNumber"
                             value={formData.punishmentNumber}
                             onChange={handleChange}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
+                            className={inputClasses}
                           />
                         </div>
                         <div>
                           <label className="block text-sm font-medium text-gray-700 mb-1">
                             Date
                           </label>
-                          <input
-                            type="date"
-                            name="punishmentDate"
-                            value={formData.punishmentDate}
-                            onChange={handleChange}
-                            max={today}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
-                          />
+                            <input
+                              type="date"
+                              name="punishmentDate"
+                              value={formData.punishmentDate}
+                              onChange={handleChange}
+                              max={today}
+                              className={dateClasses}
+                            />
                         </div>
                       </div>
                     )}
@@ -1879,7 +1885,7 @@ const DisciplinaryCaseForm = ({ onSubmit, initialData = {}, isEdit = false, onCa
               value={formData.remarks}
               onChange={handleChange}
               rows="4"
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
+              className={textareaClasses}
               placeholder="Enter any additional remarks..."
             />
           </div>
