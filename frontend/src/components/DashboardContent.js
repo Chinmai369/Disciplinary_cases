@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { getCases } from '../services/api';
 
@@ -17,37 +17,8 @@ const DashboardContent = () => {
   const [showTotalCasesTable, setShowTotalCasesTable] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState(null);
 
-  useEffect(() => {
-    fetchData();
-    
-    // Refresh data every 30 seconds to show new cases
-    const interval = setInterval(() => {
-      fetchData();
-    }, 30000);
-    
-    // Refresh when page becomes visible (e.g., user switches back to tab)
-    const handleVisibilityChange = () => {
-      if (!document.hidden && location.pathname === '/') {
-        fetchData();
-      }
-    };
-    
-    document.addEventListener('visibilitychange', handleVisibilityChange);
-    
-    return () => {
-      clearInterval(interval);
-      document.removeEventListener('visibilitychange', handleVisibilityChange);
-    };
-  }, [location.pathname]);
-
-  // Refresh data when navigating to dashboard (e.g., after creating a case)
-  useEffect(() => {
-    if (location.pathname === '/') {
-      fetchData();
-    }
-  }, [location.pathname]);
-
-  const fetchData = async () => {
+  // Memoize fetchData to prevent unnecessary re-renders
+  const fetchData = useCallback(async () => {
     try {
       setLoading(true);
       const response = await getCases();
@@ -87,7 +58,35 @@ const DashboardContent = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
+
+  // Main effect: Only run when on dashboard page
+  useEffect(() => {
+    // Only fetch data when on dashboard
+    if (location.pathname !== '/') {
+      return;
+    }
+
+    // Initial fetch when navigating to dashboard
+    fetchData();
+    
+    // Optional: Refresh when page becomes visible (e.g., user switches back to tab)
+    // Uncomment the code below if you want this feature
+    /*
+    const handleVisibilityChange = () => {
+      if (!document.hidden && location.pathname === '/') {
+        fetchData();
+      }
+    };
+    
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
+    */
+  }, [location.pathname, fetchData]);
+
 
   const statCards = [
     { 
