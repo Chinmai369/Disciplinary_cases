@@ -40,7 +40,7 @@ const Menu = ({ isCollapsed: externalIsCollapsed, onCollapseChange }) => {
       ),
     },
     {
-      path: '#',
+      path: '/reports',
       label: 'Reports',
       icon: (
         <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">

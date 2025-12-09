@@ -8,6 +8,7 @@ import Dashboard from './pages/Dashboard';
 import CaseList from './pages/CaseList';
 import CaseForm from './pages/CaseForm';
 import CaseDetails from './pages/CaseDetails';
+import Reports from './pages/Reports';
 
 function App() {
   return (
@@ -26,6 +27,7 @@ function App() {
                     <Route path="/cases/new" element={<CaseForm />} />
                     <Route path="/cases/:id" element={<CaseDetails />} />
                     <Route path="/cases/:id/edit" element={<CaseForm />} />
+                    <Route path="/reports" element={<Reports />} />
                     <Route path="*" element={<Navigate to="/" replace />} />
                   </Routes>
                 </Layout>
