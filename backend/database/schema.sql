@@ -1,8 +1,8 @@
 -- ============================================================================
--- Disciplinary Cases Management System - Complete Database Schema
+-- Disciplinary Cases Management System - Normalized Database Schema
 -- ============================================================================
 -- This file contains all table definitions and seed data for the application
--- Execute this file to set up the complete database structure
+-- Tables are normalized with separate tables for each form section
 -- ============================================================================
 
 -- Disable foreign key checks temporarily for easier setup
@@ -171,46 +171,133 @@ CREATE TABLE employees (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ----------------------------------------------------------------------------
--- 9. Disciplinary Cases Table (Main Core Table)
+-- 9. Disciplinary Cases Table (Main Core Table - Basic Info Only)
 -- ----------------------------------------------------------------------------
 DROP TABLE IF EXISTS disciplinary_cases;
 CREATE TABLE disciplinary_cases (
     id VARCHAR(255) PRIMARY KEY,
     
-    -- Basic Information
+    -- Case Classification
+    case_category_id INT NOT NULL,
+    case_sub_category_id INT NOT NULL,
+    case_type VARCHAR(100),
+    
+    -- Status and Metadata
+    status_id INT DEFAULT 1,
+    severity_id INT,
+    created_by INT,
+    updated_by INT,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    
+    -- Foreign Keys
+    FOREIGN KEY (case_category_id) REFERENCES case_categories(id) ON DELETE RESTRICT,
+    FOREIGN KEY (case_sub_category_id) REFERENCES case_sub_categories(id) ON DELETE RESTRICT,
+    FOREIGN KEY (status_id) REFERENCES case_statuses(id) ON DELETE RESTRICT,
+    FOREIGN KEY (severity_id) REFERENCES severities(id) ON DELETE SET NULL,
+    FOREIGN KEY (created_by) REFERENCES users(id) ON DELETE SET NULL,
+    FOREIGN KEY (updated_by) REFERENCES users(id) ON DELETE SET NULL,
+    
+    -- Indexes
+    INDEX idx_case_category_id (case_category_id),
+    INDEX idx_case_sub_category_id (case_sub_category_id),
+    INDEX idx_status_id (status_id),
+    INDEX idx_created_at (created_at),
+    INDEX idx_created_by (created_by)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- ----------------------------------------------------------------------------
+-- 10. Case Basic Information Table
+-- ----------------------------------------------------------------------------
+DROP TABLE IF EXISTS case_basic_info;
+CREATE TABLE case_basic_info (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    case_id VARCHAR(255) NOT NULL UNIQUE,
+    
+    -- Basic Information Fields
     file_number VARCHAR(255),
     e_office_number VARCHAR(255),
     employee_id VARCHAR(100),
     employee_name VARCHAR(255) NOT NULL,
     designation_when_charges_issued_id INT,
     ulb_id INT,
-    case_category_id INT NOT NULL,
-    case_sub_category_id INT NOT NULL,
-    case_type VARCHAR(100),
     date_of_incident DATE,
     
-    -- Trap Case / Subcategory Details
+    -- Timestamps
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    
+    -- Foreign Keys
+    FOREIGN KEY (case_id) REFERENCES disciplinary_cases(id) ON DELETE CASCADE,
+    FOREIGN KEY (designation_when_charges_issued_id) REFERENCES designations(id) ON DELETE SET NULL,
+    FOREIGN KEY (ulb_id) REFERENCES ulbs(id) ON DELETE SET NULL,
+    
+    -- Indexes
+    INDEX idx_file_number (file_number),
+    INDEX idx_e_office_number (e_office_number),
+    INDEX idx_employee_id (employee_id),
+    INDEX idx_employee_name (employee_name),
+    INDEX idx_date_of_incident (date_of_incident)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- ----------------------------------------------------------------------------
+-- 11. Case Trap Details Table (Subcategory Details)
+-- ----------------------------------------------------------------------------
+DROP TABLE IF EXISTS case_trap_details;
+CREATE TABLE case_trap_details (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    case_id VARCHAR(255) NOT NULL UNIQUE,
+    
+    -- Suspension Details
     employee_suspended ENUM('yes', 'no', '') DEFAULT '',
     suspended_by VARCHAR(255),
     suspension_proceeding_number VARCHAR(255),
     suspension_date DATE,
+    
+    -- Reinitiation Details
     employee_reinitiated ENUM('yes', 'no', '') DEFAULT '',
     reinstated_by VARCHAR(255),
     reinitiation_proceeding_number VARCHAR(255),
     reinitiation_date DATE,
+    
+    -- Regularization Details
     suspension_period_regularize ENUM('yes', 'no', '') DEFAULT '',
     regularised_by VARCHAR(255),
     regularization_proceeding_number VARCHAR(255),
     regularization_date DATE,
+    
+    -- Criminal Case Details
     criminal_case_filed ENUM('yes', 'no', '') DEFAULT '',
     criminal_case_number VARCHAR(255),
     criminal_case_date DATE,
     
-    -- Prosecution and Charges
+    -- Timestamps
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    
+    -- Foreign Keys
+    FOREIGN KEY (case_id) REFERENCES disciplinary_cases(id) ON DELETE CASCADE,
+    
+    -- Indexes
+    INDEX idx_employee_suspended (employee_suspended),
+    INDEX idx_criminal_case_filed (criminal_case_filed)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- ----------------------------------------------------------------------------
+-- 12. Case Prosecution and Charges Table
+-- ----------------------------------------------------------------------------
+DROP TABLE IF EXISTS case_prosecution_charges;
+CREATE TABLE case_prosecution_charges (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    case_id VARCHAR(255) NOT NULL UNIQUE,
+    
+    -- Prosecution Details
     prosecution_sanctioned ENUM('yes', 'no', '') DEFAULT '',
     prosecution_issued_by VARCHAR(255),
     prosecution_proceeding_number VARCHAR(255),
     prosecution_date DATE,
+    
+    -- Charges Details
     charges_issued ENUM('yes', 'no', '') DEFAULT '',
     charge_memo_number_and_date VARCHAR(255),
     charges_memo_number VARCHAR(255),
@@ -218,16 +305,60 @@ CREATE TABLE disciplinary_cases (
     charges_issued_remarks TEXT,
     endorcement_date DATE,
     
-    -- WSD (Written Statement of Defence)
+    -- Timestamps
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    
+    -- Foreign Keys
+    FOREIGN KEY (case_id) REFERENCES disciplinary_cases(id) ON DELETE CASCADE,
+    
+    -- Indexes
+    INDEX idx_prosecution_sanctioned (prosecution_sanctioned),
+    INDEX idx_charges_issued (charges_issued)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- ----------------------------------------------------------------------------
+-- 13. Case WSD (Written Statement of Defence) Table
+-- ----------------------------------------------------------------------------
+DROP TABLE IF EXISTS case_wsd;
+CREATE TABLE case_wsd (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    case_id VARCHAR(255) NOT NULL UNIQUE,
+    
+    -- WSD Basic Info
     wsd_or_served_copy ENUM('yes', 'no', '') DEFAULT '',
     wsd_checkbox BOOLEAN DEFAULT FALSE,
     served_copy_checkbox BOOLEAN DEFAULT FALSE,
+    
+    -- Further Action
     further_action_wsd ENUM('conclude', 'ioPoAppointment', 'others', '') DEFAULT '',
     further_action_wsd_others TEXT,
+    
+    -- Conclude Details
     conclude_text TEXT,
     wsd_issued_by VARCHAR(255),
     wsd_number VARCHAR(255),
     wsd_date DATE,
+    
+    -- Timestamps
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    
+    -- Foreign Keys
+    FOREIGN KEY (case_id) REFERENCES disciplinary_cases(id) ON DELETE CASCADE,
+    
+    -- Indexes
+    INDEX idx_wsd_or_served_copy (wsd_or_served_copy),
+    INDEX idx_further_action_wsd (further_action_wsd)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- ----------------------------------------------------------------------------
+-- 14. Case IO & PO Appointment Table
+-- ----------------------------------------------------------------------------
+DROP TABLE IF EXISTS case_io_po_appointment;
+CREATE TABLE case_io_po_appointment (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    case_id VARCHAR(255) NOT NULL UNIQUE,
     
     -- IO Appointment
     io_appointment ENUM('yes', 'no', '') DEFAULT '',
@@ -243,66 +374,116 @@ CREATE TABLE disciplinary_cases (
     po_appointment_io_name VARCHAR(255),
     po_appointment_io_designation VARCHAR(255),
     
-    -- Inquiry Report
-    inquiry_report_submitted ENUM('yes', 'no', '') DEFAULT '',
-    inquiry_report_number VARCHAR(255),
-    inquiry_report_date DATE,
-    inquiry_report_name VARCHAR(255),
-    further_action_inquiry ENUM('agreed', 'disagreed', '') DEFAULT '',
-    inquiry_disagreed_action ENUM('remitted', 'appointment', 'communication', '') DEFAULT '',
-    inquiry_appointment_proceeding_number VARCHAR(255),
-    inquiry_appointment_io_name VARCHAR(255),
-    inquiry_appointment_io_date DATE,
-    inquiry_remitted_number VARCHAR(255),
-    inquiry_remitted_date DATE,
-    inquiry_communication_endorsement_date DATE,
-    inquiry_agreed_endorsement_date DATE,
-    
-    -- WR (Written Representation)
-    wr_or_served_copy ENUM('yes', 'no', '') DEFAULT '',
-    wr_checkbox BOOLEAN DEFAULT FALSE,
-    wr_served_copy_checkbox BOOLEAN DEFAULT FALSE,
-    further_action_wr ENUM('punishment', 'dropped', 'warn', 'others', '') DEFAULT '',
-    further_action_wr_remarks TEXT,
-    wr_issued_by VARCHAR(255),
-    punishment_number VARCHAR(255),
-    punishment_date DATE,
-    
-    -- Additional Information
-    remarks TEXT,
-    
-    -- Status and Metadata
-    status_id INT DEFAULT 1,
-    severity_id INT,
-    created_by INT,
-    updated_by INT,
+    -- Timestamps
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     
     -- Foreign Keys
-    FOREIGN KEY (case_category_id) REFERENCES case_categories(id) ON DELETE RESTRICT,
-    FOREIGN KEY (case_sub_category_id) REFERENCES case_sub_categories(id) ON DELETE RESTRICT,
-    FOREIGN KEY (designation_when_charges_issued_id) REFERENCES designations(id) ON DELETE SET NULL,
-    FOREIGN KEY (ulb_id) REFERENCES ulbs(id) ON DELETE SET NULL,
-    FOREIGN KEY (status_id) REFERENCES case_statuses(id) ON DELETE RESTRICT,
-    FOREIGN KEY (severity_id) REFERENCES severities(id) ON DELETE SET NULL,
-    FOREIGN KEY (created_by) REFERENCES users(id) ON DELETE SET NULL,
-    FOREIGN KEY (updated_by) REFERENCES users(id) ON DELETE SET NULL,
+    FOREIGN KEY (case_id) REFERENCES disciplinary_cases(id) ON DELETE CASCADE,
     
     -- Indexes
-    INDEX idx_file_number (file_number),
-    INDEX idx_e_office_number (e_office_number),
-    INDEX idx_employee_id (employee_id),
-    INDEX idx_employee_name (employee_name),
-    INDEX idx_case_category_id (case_category_id),
-    INDEX idx_case_sub_category_id (case_sub_category_id),
-    INDEX idx_case_type (case_type),
-    INDEX idx_status_id (status_id),
-    INDEX idx_severity_id (severity_id),
-    INDEX idx_date_of_incident (date_of_incident),
-    INDEX idx_created_at (created_at),
-    INDEX idx_created_by (created_by),
-    INDEX idx_updated_by (updated_by)
+    INDEX idx_io_appointment (io_appointment),
+    INDEX idx_po_appointment (po_appointment)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- ----------------------------------------------------------------------------
+-- 15. Case Inquiry Report Table
+-- ----------------------------------------------------------------------------
+DROP TABLE IF EXISTS case_inquiry_report;
+CREATE TABLE case_inquiry_report (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    case_id VARCHAR(255) NOT NULL UNIQUE,
+    
+    -- Inquiry Report Basic Info
+    inquiry_report_submitted ENUM('yes', 'no', '') DEFAULT '',
+    inquiry_report_number VARCHAR(255),
+    inquiry_report_date DATE,
+    inquiry_report_name VARCHAR(255),
+    
+    -- Further Action
+    further_action_inquiry ENUM('agreed', 'disagreed', '') DEFAULT '',
+    
+    -- Agreed Action
+    inquiry_agreed_endorsement_date DATE,
+    
+    -- Disagreed Action
+    inquiry_disagreed_action ENUM('remitted', 'appointment', 'communication', '') DEFAULT '',
+    
+    -- Remitted Details
+    inquiry_remitted_number VARCHAR(255),
+    inquiry_remitted_date DATE,
+    
+    -- Appointment Details
+    inquiry_appointment_proceeding_number VARCHAR(255),
+    inquiry_appointment_io_name VARCHAR(255),
+    inquiry_appointment_io_date DATE,
+    
+    -- Communication Details
+    inquiry_communication_endorsement_date DATE,
+    
+    -- Timestamps
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    
+    -- Foreign Keys
+    FOREIGN KEY (case_id) REFERENCES disciplinary_cases(id) ON DELETE CASCADE,
+    
+    -- Indexes
+    INDEX idx_inquiry_report_submitted (inquiry_report_submitted),
+    INDEX idx_further_action_inquiry (further_action_inquiry)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- ----------------------------------------------------------------------------
+-- 16. Case WR (Written Representation) Table
+-- ----------------------------------------------------------------------------
+DROP TABLE IF EXISTS case_wr;
+CREATE TABLE case_wr (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    case_id VARCHAR(255) NOT NULL UNIQUE,
+    
+    -- WR Basic Info
+    wr_or_served_copy ENUM('yes', 'no', '') DEFAULT '',
+    wr_checkbox BOOLEAN DEFAULT FALSE,
+    wr_served_copy_checkbox BOOLEAN DEFAULT FALSE,
+    
+    -- Further Action
+    further_action_wr ENUM('punishment', 'dropped', 'warn', 'others', '') DEFAULT '',
+    further_action_wr_remarks TEXT,
+    
+    -- Action Details
+    wr_issued_by VARCHAR(255),
+    punishment_number VARCHAR(255),
+    punishment_date DATE,
+    
+    -- Timestamps
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    
+    -- Foreign Keys
+    FOREIGN KEY (case_id) REFERENCES disciplinary_cases(id) ON DELETE CASCADE,
+    
+    -- Indexes
+    INDEX idx_wr_or_served_copy (wr_or_served_copy),
+    INDEX idx_further_action_wr (further_action_wr)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- ----------------------------------------------------------------------------
+-- 17. Case Remarks Table
+-- ----------------------------------------------------------------------------
+DROP TABLE IF EXISTS case_remarks;
+CREATE TABLE case_remarks (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    case_id VARCHAR(255) NOT NULL UNIQUE,
+    
+    -- Remarks
+    remarks TEXT,
+    
+    -- Timestamps
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    
+    -- Foreign Keys
+    FOREIGN KEY (case_id) REFERENCES disciplinary_cases(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ============================================================================
@@ -310,7 +491,7 @@ CREATE TABLE disciplinary_cases (
 -- ============================================================================
 
 -- ----------------------------------------------------------------------------
--- 10. Case History / Audit Trail
+-- 18. Case History / Audit Trail
 -- ----------------------------------------------------------------------------
 DROP TABLE IF EXISTS case_history;
 CREATE TABLE case_history (
@@ -332,7 +513,7 @@ CREATE TABLE case_history (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ----------------------------------------------------------------------------
--- 11. Case Attachments (for future file uploads)
+-- 19. Case Attachments (for future file uploads)
 -- ----------------------------------------------------------------------------
 DROP TABLE IF EXISTS case_attachments;
 CREATE TABLE case_attachments (
@@ -353,7 +534,7 @@ CREATE TABLE case_attachments (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ----------------------------------------------------------------------------
--- 12. Case Comments / Notes
+-- 20. Case Comments / Notes
 -- ----------------------------------------------------------------------------
 DROP TABLE IF EXISTS case_comments;
 CREATE TABLE case_comments (
@@ -589,11 +770,41 @@ INSERT INTO users (username, email, password_hash, role, full_name, is_active) V
 -- END OF DATABASE SCHEMA
 -- ============================================================================
 -- 
+-- Database Structure Summary:
+-- ============================================================================
+-- MASTER TABLES (6):
+--   1. case_categories
+--   2. case_sub_categories
+--   3. designations
+--   4. ulbs
+--   5. case_statuses
+--   6. severities
+--
+-- CORE TABLES (11):
+--   7. users
+--   8. employees
+--   9. disciplinary_cases (Main table - minimal fields)
+--   10. case_basic_info (Basic Information section)
+--   11. case_trap_details (Trap Case/Subcategory Details section)
+--   12. case_prosecution_charges (Prosecution and Charges section)
+--   13. case_wsd (WSD section)
+--   14. case_io_po_appointment (IO & PO Appointment section)
+--   15. case_inquiry_report (Inquiry Report section)
+--   16. case_wr (WR section)
+--   17. case_remarks (Remarks section)
+--
+-- SUPPORTING TABLES (3):
+--   18. case_history (Audit trail)
+--   19. case_attachments (File uploads)
+--   20. case_comments (Comments/Notes)
+--
+-- TOTAL: 20 TABLES
+--
 -- Notes:
--- 1. Replace password_hash values with actual bcrypt hashes in production
--- 2. Adjust ULB districts if you have that information
--- 3. You may want to add more seed data based on your requirements
--- 4. Consider adding indexes for frequently queried fields
--- 5. Review and adjust field sizes based on your actual data requirements
+-- 1. Each form section has its own table with one-to-one relationship to disciplinary_cases
+-- 2. All related tables use CASCADE delete - when a case is deleted, all related data is deleted
+-- 3. Replace password_hash values with actual bcrypt hashes in production
+-- 4. All tables use UNIQUE constraint on case_id to ensure one-to-one relationship
+-- 5. This normalized structure makes it easier to maintain and query specific sections
 --
 -- ============================================================================
