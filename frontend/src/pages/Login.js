@@ -43,6 +43,9 @@ const Login = () => {
                 className="h-16 w-16 object-contain"
               />
             </div>
+            <p className="text-base font-semibold text-blue-700 mb-3 whitespace-nowrap">
+              Commissioner & Director of Municipal Administration
+            </p>
             <h2 className="text-3xl font-bold text-gray-900">
               Disciplinary Cases
             </h2>
