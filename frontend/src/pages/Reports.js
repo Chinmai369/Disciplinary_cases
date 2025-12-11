@@ -158,35 +158,32 @@ const Reports = () => {
             </h2>
             <p className="text-sm text-gray-600 mt-1">Search results for "{searchQuery}"</p>
           </div>
-          <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-gray-200">
+          <div className="overflow-x-auto max-w-full">
+            <table className="w-full table-auto divide-y divide-gray-200">
               <thead className="bg-gradient-to-r from-blue-600 to-blue-700">
                 <tr>
-                  <th className="px-4 sm:px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider whitespace-nowrap">
+                  <th className="px-2 sm:px-3 py-3 text-left text-xs font-bold text-white uppercase tracking-wider">
                     S.No
                   </th>
-                  <th className="px-4 sm:px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider whitespace-nowrap">
+                  <th className="px-2 sm:px-3 py-3 text-left text-xs font-bold text-white uppercase tracking-wider">
                     File Number
                   </th>
-                  <th className="px-4 sm:px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider whitespace-nowrap">
+                  <th className="px-2 sm:px-3 py-3 text-left text-xs font-bold text-white uppercase tracking-wider">
                     Employee ID
                   </th>
-                  <th className="px-4 sm:px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider whitespace-nowrap">
+                  <th className="px-2 sm:px-3 py-3 text-left text-xs font-bold text-white uppercase tracking-wider">
                     Employee Name
                   </th>
-                  <th className="px-4 sm:px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider whitespace-nowrap">
+                  <th className="px-2 sm:px-3 py-3 text-left text-xs font-bold text-white uppercase tracking-wider">
                     Category
                   </th>
-                  <th className="px-4 sm:px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider whitespace-nowrap">
+                  <th className="px-2 sm:px-3 py-3 text-left text-xs font-bold text-white uppercase tracking-wider">
                     Sub Category
                   </th>
-                  <th className="px-4 sm:px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider whitespace-nowrap">
+                  <th className="px-2 sm:px-3 py-3 text-left text-xs font-bold text-white uppercase tracking-wider">
                     Date of Incident
                   </th>
-                  <th className="px-4 sm:px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider whitespace-nowrap">
-                    Status
-                  </th>
-                  <th className="px-4 sm:px-6 py-4 text-center text-xs font-bold text-white uppercase tracking-wider whitespace-nowrap">
+                  <th className="px-2 sm:px-3 py-3 text-center text-xs font-bold text-white uppercase tracking-wider">
                     Actions
                   </th>
                 </tr>
@@ -194,45 +191,32 @@ const Reports = () => {
               <tbody className="bg-white divide-y divide-gray-200">
                 {filteredCases.map((caseItem, index) => (
                   <tr key={caseItem.id} className="hover:bg-blue-50 transition-colors duration-150 even:bg-gray-50">
-                    <td className="px-4 sm:px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-900">
+                    <td className="px-2 sm:px-3 py-4 text-sm font-semibold text-gray-900">
                       {index + 1}
                     </td>
-                    <td className="px-4 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-700">
+                    <td className="px-2 sm:px-3 py-4 text-sm text-gray-700 break-words max-w-[100px]">
                       {caseItem.fileNumber || '-'}
                     </td>
-                    <td className="px-4 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-700">
+                    <td className="px-2 sm:px-3 py-4 text-sm text-gray-700 break-words max-w-[100px]">
                       {caseItem.employeeId || '-'}
                     </td>
-                    <td className="px-4 sm:px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                    <td className="px-2 sm:px-3 py-4 text-sm font-medium text-gray-900 break-words max-w-[120px]">
                       {caseItem.employeeName || caseItem.name || '-'}
                     </td>
-                    <td className="px-4 sm:px-6 py-4 text-sm text-gray-700">
+                    <td className="px-2 sm:px-3 py-4 text-sm text-gray-700 break-words max-w-[120px]">
                       {caseItem.categoryOfCase || '-'}
                     </td>
-                    <td className="px-4 sm:px-6 py-4 text-sm text-gray-700">
+                    <td className="px-2 sm:px-3 py-4 text-sm text-gray-700 break-words max-w-[120px]">
                       {caseItem.subCategoryOfCase || '-'}
                     </td>
-                    <td className="px-4 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-700">
+                    <td className="px-2 sm:px-3 py-4 text-sm text-gray-700">
                       {caseItem.dateOfIncident ? (
                         new Date(caseItem.dateOfIncident).toLocaleDateString()
                       ) : caseItem.incidentDate ? (
                         new Date(caseItem.incidentDate).toLocaleDateString()
                       ) : '-'}
                     </td>
-                    <td className="px-4 sm:px-6 py-4 whitespace-nowrap">
-                      {caseItem.status ? (
-                        <span
-                          className={`px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusColor(
-                            caseItem.status
-                          )}`}
-                        >
-                          {caseItem.status}
-                        </span>
-                      ) : (
-                        '-'
-                      )}
-                    </td>
-                    <td className="px-4 sm:px-6 py-4 whitespace-nowrap text-center text-sm font-medium">
+                    <td className="px-2 sm:px-3 py-4 text-center text-sm font-medium">
                       <button
                         onClick={() => setSelectedCase(caseItem)}
                         className="text-blue-600 hover:text-blue-800 font-semibold"

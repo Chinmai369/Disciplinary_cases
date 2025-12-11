@@ -7,8 +7,14 @@ const DashboardContent = () => {
   const location = useLocation();
   const [stats, setStats] = useState({
     department: 0,
+    departmentActive: 0,
+    departmentRetired: 0,
     acb: 0,
+    acbActive: 0,
+    acbRetired: 0,
     vigilance: 0,
+    vigilanceActive: 0,
+    vigilanceRetired: 0,
   });
   const [loading, setLoading] = useState(true);
   const [cases, setCases] = useState([]);
@@ -38,10 +44,49 @@ const DashboardContent = () => {
       }
       
       setCases(cases);
+      
+      // Helper function to check if employee is retired
+      const isRetired = (caseItem) => {
+        // Check various possible field names for retirement status
+        const employeeStatus = caseItem.employeeStatus || caseItem.employmentStatus || caseItem.statusOfEmployee;
+        const isRetiredFlag = caseItem.isRetired || caseItem.retired || caseItem.isEmployeeRetired;
+        const retirementDate = caseItem.retirementDate || caseItem.dateOfRetirement;
+        
+        // If there's an explicit status field
+        if (employeeStatus) {
+          const status = String(employeeStatus).toLowerCase();
+          return status.includes('retired') || status === 'retired';
+        }
+        
+        // If there's a boolean flag
+        if (isRetiredFlag !== undefined && isRetiredFlag !== null) {
+          return isRetiredFlag === true || String(isRetiredFlag).toLowerCase() === 'yes' || String(isRetiredFlag).toLowerCase() === 'true';
+        }
+        
+        // If there's a retirement date, consider them retired
+        if (retirementDate) {
+          return true;
+        }
+        
+        // Default to active if no retirement indicators found
+        return false;
+      };
+      
+      // Calculate stats with bifurcation
+      const departmentCases = cases.filter(c => c.categoryOfCase === 'Department');
+      const acbCases = cases.filter(c => c.categoryOfCase === 'ACB');
+      const vigilanceCases = cases.filter(c => c.categoryOfCase === 'Vigilance and Enforcement');
+      
       setStats({
-        department: cases.filter(c => c.categoryOfCase === 'Department').length,
-        acb: cases.filter(c => c.categoryOfCase === 'ACB').length,
-        vigilance: cases.filter(c => c.categoryOfCase === 'Vigilance and Enforcement').length,
+        department: departmentCases.length,
+        departmentActive: departmentCases.filter(c => !isRetired(c)).length,
+        departmentRetired: departmentCases.filter(c => isRetired(c)).length,
+        acb: acbCases.length,
+        acbActive: acbCases.filter(c => !isRetired(c)).length,
+        acbRetired: acbCases.filter(c => isRetired(c)).length,
+        vigilance: vigilanceCases.length,
+        vigilanceActive: vigilanceCases.filter(c => !isRetired(c)).length,
+        vigilanceRetired: vigilanceCases.filter(c => isRetired(c)).length,
       });
 
       console.log('Fetched cases:', cases.length);
@@ -52,8 +97,14 @@ const DashboardContent = () => {
       setCases([]);
       setStats({
         department: 0,
+        departmentActive: 0,
+        departmentRetired: 0,
         acb: 0,
+        acbActive: 0,
+        acbRetired: 0,
         vigilance: 0,
+        vigilanceActive: 0,
+        vigilanceRetired: 0,
       });
     } finally {
       setLoading(false);
@@ -91,7 +142,9 @@ const DashboardContent = () => {
   const statCards = [
     { 
       label: 'Department Cases', 
-      value: stats.department, 
+      value: stats.department,
+      active: stats.departmentActive || 0,
+      retired: stats.departmentRetired || 0,
       headerGradient: 'linear-gradient(to right, #eff6ff 0%, #dbeafe 50%, #bfdbfe 100%)',
       iconBg: 'bg-blue-500',
       textColor: 'text-blue-600',
@@ -100,7 +153,9 @@ const DashboardContent = () => {
     },
     { 
       label: 'ACB Cases', 
-      value: stats.acb, 
+      value: stats.acb,
+      active: stats.acbActive || 0,
+      retired: stats.acbRetired || 0,
       headerGradient: 'linear-gradient(to right, #fff7ed 0%, #ffedd5 50%, #fed7aa 100%)',
       iconBg: 'bg-orange-500',
       textColor: 'text-orange-600',
@@ -109,7 +164,9 @@ const DashboardContent = () => {
     },
     { 
       label: 'Vigilance & Enforcement Cases', 
-      value: stats.vigilance, 
+      value: stats.vigilance,
+      active: stats.vigilanceActive || 0,
+      retired: stats.vigilanceRetired || 0,
       headerGradient: 'linear-gradient(to right, #faf5ff 0%, #f3e8ff 50%, #e9d5ff 100%)',
       iconBg: 'bg-purple-500',
       textColor: 'text-purple-600',
@@ -207,7 +264,7 @@ const DashboardContent = () => {
             
             {/* Card Body */}
             <div className="px-5 py-4 bg-gradient-to-br from-white to-gray-50">
-              <div className="flex items-baseline justify-between">
+              <div className="flex items-baseline justify-between mb-3">
                 <div>
                   <p className={`${stat.numberColor} text-3xl md:text-4xl font-extrabold mb-1.5 tracking-tight`}>
                     {stat.value}
@@ -234,6 +291,26 @@ const DashboardContent = () => {
                       d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
                     />
                   </svg>
+                </div>
+              </div>
+              
+              {/* Bifurcation: Active vs Retired */}
+              <div className="border-t border-gray-200 pt-3 mt-3">
+                <div className="flex items-center justify-between gap-4">
+                  <div className="flex-1">
+                    <div className="flex items-center gap-2 mb-1">
+                      <div className="w-2 h-2 rounded-full bg-green-500"></div>
+                      <span className="text-xs font-semibold text-gray-700">Active</span>
+                    </div>
+                    <p className="text-lg font-bold text-green-600 ml-4">{stat.active || 0}</p>
+                  </div>
+                  <div className="flex-1">
+                    <div className="flex items-center gap-2 mb-1">
+                      <div className="w-2 h-2 rounded-full bg-orange-500"></div>
+                      <span className="text-xs font-semibold text-gray-700">Retired</span>
+                    </div>
+                    <p className="text-lg font-bold text-orange-600 ml-4">{stat.retired || 0}</p>
+                  </div>
                 </div>
               </div>
             </div>
@@ -263,41 +340,38 @@ const DashboardContent = () => {
               </svg>
             </button>
           </div>
-          <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-gray-200">
+          <div className="overflow-x-auto max-w-full">
+            <table className="w-full table-auto divide-y divide-gray-200">
               <thead className="bg-gradient-to-r from-blue-600 to-blue-700">
                 <tr>
-                  <th className="px-4 sm:px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider whitespace-nowrap">
+                  <th className="px-2 sm:px-3 py-3 text-left text-xs font-bold text-white uppercase tracking-wider">
                     S.No
                   </th>
-                  <th className="px-4 sm:px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider whitespace-nowrap">
+                  <th className="px-2 sm:px-3 py-3 text-left text-xs font-bold text-white uppercase tracking-wider">
                     File Number
                   </th>
-                  <th className="px-4 sm:px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider whitespace-nowrap">
+                  <th className="px-2 sm:px-3 py-3 text-left text-xs font-bold text-white uppercase tracking-wider">
                     Employee ID
                   </th>
-                  <th className="px-4 sm:px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider whitespace-nowrap">
+                  <th className="px-2 sm:px-3 py-3 text-left text-xs font-bold text-white uppercase tracking-wider">
                     Name
                   </th>
-                  <th className="px-4 sm:px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider whitespace-nowrap">
+                  <th className="px-2 sm:px-3 py-3 text-left text-xs font-bold text-white uppercase tracking-wider">
                     Category
                   </th>
-                  <th className="px-4 sm:px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider whitespace-nowrap">
+                  <th className="px-2 sm:px-3 py-3 text-left text-xs font-bold text-white uppercase tracking-wider">
                     Sub Category
                   </th>
-                  <th className="px-4 sm:px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider whitespace-nowrap">
+                  <th className="px-2 sm:px-3 py-3 text-left text-xs font-bold text-white uppercase tracking-wider">
                     Date of Incident
                   </th>
-                  <th className="px-4 sm:px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider whitespace-nowrap">
+                  <th className="px-2 sm:px-3 py-3 text-left text-xs font-bold text-white uppercase tracking-wider">
                     Designation
                   </th>
-                  <th className="px-4 sm:px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider whitespace-nowrap">
+                  <th className="px-2 sm:px-3 py-3 text-left text-xs font-bold text-white uppercase tracking-wider">
                     ULB
                   </th>
-                  <th className="px-4 sm:px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider whitespace-nowrap">
-                    Status
-                  </th>
-                  <th className="px-4 sm:px-6 py-4 text-center text-xs font-bold text-white uppercase tracking-wider whitespace-nowrap">
+                  <th className="px-2 sm:px-3 py-3 text-center text-xs font-bold text-white uppercase tracking-wider">
                     Actions
                   </th>
                 </tr>
@@ -310,7 +384,7 @@ const DashboardContent = () => {
                   
                   return filteredCases.length === 0 ? (
                     <tr>
-                      <td colSpan="11" className="px-6 py-12 text-center">
+                      <td colSpan="10" className="px-6 py-12 text-center">
                         <div className="flex flex-col items-center justify-center">
                           <svg className="w-16 h-16 text-gray-300 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
@@ -323,25 +397,25 @@ const DashboardContent = () => {
                   ) : (
                     filteredCases.map((caseItem, index) => (
                     <tr key={caseItem.id} className="hover:bg-blue-50 transition-colors duration-150 even:bg-gray-50">
-                      <td className="px-4 sm:px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-900">
+                      <td className="px-2 sm:px-3 py-3 text-sm font-semibold text-gray-900">
                         {index + 1}
                       </td>
-                      <td className="px-4 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-700">
+                      <td className="px-2 sm:px-3 py-3 text-sm text-gray-700 break-words max-w-[100px]">
                         {caseItem.fileNumber || '-'}
                       </td>
-                      <td className="px-4 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-700">
+                      <td className="px-2 sm:px-3 py-3 text-sm text-gray-700 break-words max-w-[100px]">
                         {caseItem.employeeId || '-'}
                       </td>
-                      <td className="px-4 sm:px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                      <td className="px-2 sm:px-3 py-3 text-sm font-medium text-gray-900 break-words max-w-[120px]">
                         {caseItem.employeeName || caseItem.name || '-'}
                       </td>
-                      <td className="px-4 sm:px-6 py-4 text-sm text-gray-700">
+                      <td className="px-2 sm:px-3 py-3 text-sm text-gray-700 break-words max-w-[120px]">
                         {caseItem.categoryOfCase || '-'}
                       </td>
-                      <td className="px-4 sm:px-6 py-4 text-sm text-gray-700">
+                      <td className="px-2 sm:px-3 py-3 text-sm text-gray-700 break-words max-w-[120px]">
                         {caseItem.subCategoryOfCase || '-'}
                       </td>
-                      <td className="px-4 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-700">
+                      <td className="px-2 sm:px-3 py-3 text-sm text-gray-700">
                         {caseItem.dateOfIncident ? (
                           (() => {
                             try {
@@ -355,36 +429,23 @@ const DashboardContent = () => {
                           new Date(caseItem.incidentDate).toLocaleDateString()
                         ) : '-'}
                       </td>
-                      <td className="px-4 sm:px-6 py-4 text-sm text-gray-700">
+                      <td className="px-2 sm:px-3 py-3 text-sm text-gray-700 break-words max-w-[120px]">
                         {caseItem.designationWhenChargesIssued || '-'}
                       </td>
-                      <td className="px-4 sm:px-6 py-4 text-sm text-gray-700">
+                      <td className="px-2 sm:px-3 py-3 text-sm text-gray-700 break-words max-w-[100px]">
                         {caseItem.nameOfULB || '-'}
                       </td>
-                      <td className="px-4 sm:px-6 py-4 whitespace-nowrap">
-                        {caseItem.status ? (
-                          <span
-                            className={`px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusColor(
-                              caseItem.status
-                            )}`}
-                          >
-                            {caseItem.status}
-                          </span>
-                        ) : (
-                          '-'
-                        )}
-                      </td>
-                      <td className="px-4 sm:px-6 py-4 whitespace-nowrap text-center text-sm font-medium">
-                        <div className="flex justify-center gap-2">
+                      <td className="px-2 sm:px-3 py-3 text-center text-sm font-medium">
+                        <div className="flex justify-center gap-1 flex-wrap">
                           <button
                             onClick={() => setViewingCase(caseItem)}
-                            className="px-3 py-1.5 bg-blue-600 text-white rounded-md hover:bg-blue-700 font-medium text-xs transition-colors"
+                            className="px-2 py-1 bg-blue-600 text-white rounded-md hover:bg-blue-700 font-medium text-xs transition-colors"
                           >
                             View
                           </button>
                           <button
                             onClick={() => setEditingCase(caseItem)}
-                            className="px-3 py-1.5 bg-green-600 text-white rounded-md hover:bg-green-700 font-medium text-xs transition-colors"
+                            className="px-2 py-1 bg-green-600 text-white rounded-md hover:bg-green-700 font-medium text-xs transition-colors"
                           >
                             Edit
                           </button>
@@ -408,32 +469,38 @@ const DashboardContent = () => {
               className="fixed inset-0 transition-opacity bg-gray-500 bg-opacity-75"
               onClick={() => setViewingCase(null)}
             ></div>
-            <div className="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-4xl sm:w-full">
+            <div className="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-6xl sm:w-full">
               <div className="bg-white px-4 pt-5 pb-4 sm:p-6">
-                <div className="flex justify-between items-center mb-4">
-                  <h3 className="text-lg font-semibold text-gray-900">
-                    Employee Details
-                  </h3>
+                <div className="flex justify-between items-center mb-4 border-b border-gray-200 pb-3">
+                  <div>
+                    <h3 className="text-xl font-bold text-gray-900">
+                      Complete Case Details
+                    </h3>
+                    <p className="text-sm text-gray-600 mt-1">
+                      {viewingCase.fileNumber && `File Number: ${viewingCase.fileNumber}`}
+                      {viewingCase.employeeName || viewingCase.name ? ` | Employee: ${viewingCase.employeeName || viewingCase.name}` : ''}
+                    </p>
+                  </div>
                   <button
                     onClick={() => {
                       console.log('Viewing case data:', viewingCase);
                       console.log('Case keys:', Object.keys(viewingCase));
                       setViewingCase(null);
                     }}
-                    className="text-gray-400 hover:text-gray-600"
+                    className="text-gray-400 hover:text-gray-600 transition-colors"
                   >
                     <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                     </svg>
                   </button>
                 </div>
-                <div className="max-h-96 overflow-y-auto">
+                <div className="max-h-[70vh] overflow-y-auto">
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 text-sm">
                     {/* Display all fields that exist in the case data */}
                     {(() => {
                       if (!viewingCase) return null;
                       
-                      // First, try to display form fields if they exist
+                      // First, try to display form fields if they exist - COMPLETE LIST OF ALL FORM FIELDS
                       const formFields = [
                         // Basic fields
                         { key: 'fileNumber', label: 'File Number' },
@@ -445,55 +512,121 @@ const DashboardContent = () => {
                         { key: 'caseType', label: 'Case Type' },
                         { key: 'categoryOfCase', label: 'Category of Case' },
                         { key: 'subCategoryOfCase', label: 'Sub Category of Case' },
+                        { key: 'dateOfIncident', label: 'Date of Incident', isDate: true, altKey: 'incidentDate' },
                       
-                      // Trap case fields
-                      { key: 'employeeSuspended', label: 'Employee Suspended' },
-                      { key: 'suspensionProceedingNumber', label: 'Suspension Proceeding Number' },
-                      { key: 'suspensionDate', label: 'Suspension Date', isDate: true },
-                      { key: 'employeeReinitiated', label: 'Employee Re-initiated' },
-                      { key: 'reinitiationProceedingNumber', label: 'Re-initiation Proceeding Number' },
-                      { key: 'reinitiationDate', label: 'Re-initiation Date', isDate: true },
-                      { key: 'criminalCaseFiled', label: 'Criminal Case Filed' },
-                      { key: 'criminalCaseNumber', label: 'Criminal Case Number' },
-                      { key: 'criminalCaseDate', label: 'Criminal Case Date', isDate: true },
+                        // Trap case fields - Suspension
+                        { key: 'employeeSuspended', label: 'Employee Suspended' },
+                        { key: 'suspendedBy', label: 'Suspended By' },
+                        { key: 'suspensionProceedingNumber', label: 'Suspension Proceeding Number' },
+                        { key: 'suspensionDate', label: 'Suspension Date', isDate: true },
+                        
+                        // Trap case fields - Reinitiation
+                        { key: 'employeeReinitiated', label: 'Employee Re-initiated' },
+                        { key: 'reinstatedBy', label: 'Reinstated By' },
+                        { key: 'reinitiationProceedingNumber', label: 'Re-initiation Proceeding Number' },
+                        { key: 'reinitiationDate', label: 'Re-initiation Date', isDate: true },
+                        
+                        // Trap case fields - Regularization
+                        { key: 'suspensionPeriodRegularize', label: 'Suspension Period Regularize' },
+                        { key: 'regularisedBy', label: 'Regularised By' },
+                        { key: 'regularizationProceedingNumber', label: 'Regularization Proceeding Number' },
+                        { key: 'regularizationDate', label: 'Regularization Date', isDate: true },
+                        
+                        // Trap case fields - Criminal Case
+                        { key: 'criminalCaseFiled', label: 'Criminal Case Filed' },
+                        { key: 'criminalCaseNumber', label: 'Criminal Case Number' },
+                        { key: 'criminalCaseDate', label: 'Criminal Case Date', isDate: true },
                       
-                      // Prosecution and charges
-                      { key: 'prosecutionSanctioned', label: 'Prosecution Sanctioned' },
-                      { key: 'prosecutionIssuedBy', label: 'Prosecution Issued By' },
-                      { key: 'chargesIssued', label: 'Charges Issued' },
-                      { key: 'chargeMemoNumberAndDate', label: 'Charge Memo Number & Date' },
-                      { key: 'endorcementDate', label: 'Endorcement Date', isDate: true },
+                        // Prosecution and charges - ALL DATES INCLUDED
+                        { key: 'prosecutionSanctioned', label: 'Prosecution Sanctioned' },
+                        { key: 'prosecutionIssuedBy', label: 'Prosecution Issued By' },
+                        { key: 'prosecutionProceedingNumber', label: 'Prosecution Proceeding Number' },
+                        { key: 'prosecutionDate', label: 'Prosecution Date', isDate: true },
+                        { key: 'chargesIssued', label: 'Charges Issued' },
+                        { key: 'chargeMemoNumberAndDate', label: 'Charge Memo Number & Date' },
+                        { key: 'chargesMemoNumber', label: 'Charges Memo Number' },
+                        { key: 'chargesDate', label: 'Charges Date', isDate: true },
+                        { key: 'chargesIssuedRemarks', label: 'Charges Issued Remarks' },
+                        { key: 'endorcementDate', label: 'Endorcement Date', isDate: true },
+                        // Alternative field names for prosecution dates (if stored differently)
+                        { key: 'prosecutionDateOfIssue', label: 'Prosecution Date of Issue', isDate: true },
+                        { key: 'chargesDateOfIssue', label: 'Charges Date of Issue', isDate: true },
+                        { key: 'endorsementDate', label: 'Endorsement Date', isDate: true },
                       
-                      // WSD fields
-                      { key: 'wsdOrServedCopy', label: 'WSD or Served Copy' },
-                      { key: 'wsdCheckbox', label: 'WSD', isBoolean: true },
-                      { key: 'servedCopyCheckbox', label: 'Served Copy', isBoolean: true },
-                      { key: 'furtherActionWSD', label: 'Further Action (WSD)' },
-                      { key: 'concludeText', label: 'Conclude Text' },
-                      { key: 'ioPoAppointment', label: 'IO & PO Appointment' },
-                      { key: 'goProceedingsNumber', label: 'GO/Proceedings Number' },
-                      { key: 'ioPoDate', label: 'IO & PO Date', isDate: true },
-                      { key: 'nameOfIO', label: 'Name of IO' },
-                      { key: 'designationOfIO', label: 'Designation of IO' },
-                      { key: 'nameOfPO', label: 'Name of PO' },
-                      { key: 'designationOfPO', label: 'Designation of PO' },
+                        // WSD fields
+                        { key: 'wsdOrServedCopy', label: 'WSD or Served Copy' },
+                        { key: 'wsdCheckbox', label: 'WSD', isBoolean: true },
+                        { key: 'servedCopyCheckbox', label: 'Served Copy', isBoolean: true },
+                        { key: 'furtherActionWSD', label: 'Further Action (WSD)' },
+                        { key: 'furtherActionWSDOthers', label: 'Further Action WSD (Others)' },
+                        { key: 'concludeText', label: 'Conclude Text' },
+                        { key: 'wsdIssuedBy', label: 'WSD Issued By' },
+                        { key: 'wsdNumber', label: 'WSD Number' },
+                        { key: 'wsdDate', label: 'WSD Date', isDate: true },
+                        
+                        // IO Appointment fields
+                        { key: 'ioAppointment', label: 'IO Appointment' },
+                        { key: 'ioGoProceedingsNumber', label: 'IO GO/Proceedings Number' },
+                        { key: 'ioAppointmentDate', label: 'IO Appointment Date', isDate: true },
+                        { key: 'ioAppointmentIOName', label: 'IO Appointment - IO Name' },
+                        { key: 'ioAppointmentIODesignation', label: 'IO Appointment - IO Designation' },
+                        
+                        // PO Appointment fields
+                        { key: 'poAppointment', label: 'PO Appointment' },
+                        { key: 'poGoProceedingsNumber', label: 'PO GO/Proceedings Number' },
+                        { key: 'poAppointmentDate', label: 'PO Appointment Date', isDate: true },
+                        { key: 'poAppointmentIOName', label: 'PO Appointment - PO Name' },
+                        { key: 'poAppointmentIODesignation', label: 'PO Appointment - PO Designation' },
+                        
+                        // Legacy IO/PO fields (for backward compatibility)
+                        { key: 'ioPoAppointment', label: 'IO & PO Appointment' },
+                        { key: 'goProceedingsNumber', label: 'GO/Proceedings Number' },
+                        { key: 'ioPoDate', label: 'IO & PO Date', isDate: true },
+                        { key: 'nameOfIO', label: 'Name of IO' },
+                        { key: 'designationOfIO', label: 'Designation of IO' },
+                        { key: 'nameOfPO', label: 'Name of PO' },
+                        { key: 'designationOfPO', label: 'Designation of PO' },
                       
-                      // Inquiry report fields
-                      { key: 'inquiryReportSubmitted', label: 'Inquiry Report Submitted' },
-                      { key: 'inquiryReportNumber', label: 'Inquiry Report Number' },
-                      { key: 'inquiryReportCommunicated', label: 'Inquiry Report Communicated' },
-                      { key: 'inquiryEndorcementDate', label: 'Inquiry Endorcement Date', isDate: true },
+                        // Inquiry report fields
+                        { key: 'inquiryReportSubmitted', label: 'Inquiry Report Submitted' },
+                        { key: 'inquiryReportNumber', label: 'Inquiry Report Number' },
+                        { key: 'inquiryReportDate', label: 'Inquiry Report Date', isDate: true },
+                        { key: 'inquiryReportName', label: 'Inquiry Report Name' },
+                        { key: 'inquiryReportCommunicated', label: 'Inquiry Report Communicated' },
+                        { key: 'furtherActionInquiry', label: 'Further Action (Inquiry)' },
+                        { key: 'inquiryDisagreedAction', label: 'Inquiry Disagreed Action' },
+                        { key: 'inquiryAppointmentProceedingNumber', label: 'Inquiry Appointment Proceeding Number' },
+                        { key: 'inquiryAppointmentIOName', label: 'Inquiry Appointment IO Name' },
+                        { key: 'inquiryAppointmentIODate', label: 'Inquiry Appointment IO Date', isDate: true },
+                        { key: 'inquiryRemittedNumber', label: 'Inquiry Remitted Number' },
+                        { key: 'inquiryRemittedDate', label: 'Inquiry Remitted Date', isDate: true },
+                        { key: 'inquiryCommunicationEndorsementDate', label: 'Inquiry Communication Endorsement Date', isDate: true },
+                        { key: 'inquiryAgreedEndorsementDate', label: 'Inquiry Agreed Endorsement Date', isDate: true },
+                        { key: 'inquiryEndorcementDate', label: 'Inquiry Endorcement Date', isDate: true },
                       
-                      // WR fields
-                      { key: 'wrOrServedCopy', label: 'WR or Served Copy' },
-                      { key: 'wrCheckbox', label: 'WR', isBoolean: true },
-                      { key: 'wrServedCopyCheckbox', label: 'WR Served Copy', isBoolean: true },
-                      { key: 'furtherActionWR', label: 'Further Action (WR)' },
-                      { key: 'punishmentNumber', label: 'Punishment Number' },
-                      { key: 'punishmentDate', label: 'Punishment Date', isDate: true },
+                        // WR fields
+                        { key: 'wrOrServedCopy', label: 'WR or Served Copy' },
+                        { key: 'wrCheckbox', label: 'WR', isBoolean: true },
+                        { key: 'wrServedCopyCheckbox', label: 'WR Served Copy', isBoolean: true },
+                        { key: 'furtherActionWR', label: 'Further Action (WR)' },
+                        { key: 'furtherActionWRRemarks', label: 'Further Action WR Remarks' },
+                        { key: 'wrIssuedBy', label: 'WR Issued By' },
+                        { key: 'punishmentNumber', label: 'Punishment Number' },
+                        { key: 'punishmentDate', label: 'Punishment Date', isDate: true },
                       
-                      // Remarks
-                      { key: 'remarks', label: 'Remarks' },
+                        // Remarks
+                        { key: 'remarks', label: 'Remarks' },
+                        
+                        // Additional fields that might exist
+                        { key: 'description', label: 'Description' },
+                        { key: 'severity', label: 'Severity' },
+                        { key: 'status', label: 'Status' },
+                        { key: 'actionTaken', label: 'Action Taken' },
+                        { key: 'notes', label: 'Notes' },
+                        { key: 'reportedDate', label: 'Reported Date', isDate: true },
+                        { key: 'employeeEmail', label: 'Employee Email' },
+                        { key: 'department', label: 'Department' },
+                        { key: 'position', label: 'Position' },
                       ];
                       
                       // Map old field names to friendly labels
@@ -535,22 +668,63 @@ const DashboardContent = () => {
                           
                           if (isBoolean) {
                             // Boolean fields always show Yes/No
-                            displayValue = value === true || value === 'yes' || value === 'Yes' ? 'Yes' : 'No';
+                            displayValue = value === true || value === 'yes' || value === 'Yes' || value === true ? 'Yes' : 'No';
                           } else if (isDate && value) {
-                            // Format dates
+                            // Format dates - handle various date formats
                             try {
-                              const date = new Date(value);
-                              displayValue = isNaN(date.getTime()) ? value : date.toLocaleDateString();
-                            } catch {
+                              let date;
+                              if (typeof value === 'string') {
+                                // Try parsing different date formats
+                                if (value.includes('T')) {
+                                  date = new Date(value);
+                                } else if (value.match(/^\d{4}-\d{2}-\d{2}$/)) {
+                                  date = new Date(value + 'T00:00:00');
+                                } else {
+                                  date = new Date(value);
+                                }
+                              } else {
+                                date = new Date(value);
+                              }
+                              
+                              if (!isNaN(date.getTime())) {
+                                displayValue = date.toLocaleDateString('en-GB', { 
+                                  day: '2-digit', 
+                                  month: '2-digit', 
+                                  year: 'numeric' 
+                                });
+                              } else {
+                                displayValue = value;
+                              }
+                            } catch (e) {
                               displayValue = value;
                             }
                           } else if (value === null || value === undefined || value === '') {
                             // Empty values show as "-"
                             displayValue = '-';
                           } else {
-                            displayValue = String(value);
+                            // Check if it looks like a date even if not marked as isDate
+                            const valueStr = String(value);
+                            if (valueStr.match(/^\d{4}-\d{2}-\d{2}/) || valueStr.match(/^\d{2}\/\d{2}\/\d{4}/)) {
+                              try {
+                                const date = new Date(value);
+                                if (!isNaN(date.getTime())) {
+                                  displayValue = date.toLocaleDateString('en-GB', { 
+                                    day: '2-digit', 
+                                    month: '2-digit', 
+                                    year: 'numeric' 
+                                  });
+                                } else {
+                                  displayValue = valueStr;
+                                }
+                              } catch {
+                                displayValue = valueStr;
+                              }
+                            } else {
+                              displayValue = valueStr;
+                            }
                           }
                           
+                          // Always show the field, even if empty
                           return (
                             <div key={key} className="border-b border-gray-100 pb-2">
                               <span className="text-gray-500 font-medium capitalize block mb-1">
@@ -564,29 +738,51 @@ const DashboardContent = () => {
                         });
                       
                       // Then, add any other fields from the case that we haven't displayed yet
+                      // Show ALL fields, even if empty, to ensure nothing is missed
                       const otherFieldsElements = caseKeys
                         .filter(key => !displayedKeys.has(key))
                         .map(key => {
                           const value = viewingCase[key];
+                          
+                          let displayValue;
                           if (value === null || value === undefined || value === '') {
-                            return null;
-                          }
-                          
-                          let displayValue = String(value);
-                          
-                          // Try to format dates
-                          if (typeof value === 'string' && value.match(/^\d{4}-\d{2}-\d{2}/)) {
-                            try {
-                              const date = new Date(value);
-                              if (!isNaN(date.getTime())) {
-                                displayValue = date.toLocaleDateString();
+                            displayValue = '-';
+                          } else {
+                            const valueStr = String(value);
+                            
+                            // Try to format dates - check multiple date formats
+                            if (valueStr.match(/^\d{4}-\d{2}-\d{2}/) || 
+                                valueStr.match(/^\d{4}-\d{2}-\d{2}T/) ||
+                                valueStr.match(/^\d{2}\/\d{2}\/\d{4}/) ||
+                                valueStr.match(/^\d{2}-\d{2}-\d{4}/)) {
+                              try {
+                                let date;
+                                if (valueStr.includes('T')) {
+                                  date = new Date(valueStr);
+                                } else if (valueStr.match(/^\d{4}-\d{2}-\d{2}/)) {
+                                  date = new Date(valueStr + 'T00:00:00');
+                                } else {
+                                  date = new Date(valueStr);
+                                }
+                                
+                                if (!isNaN(date.getTime())) {
+                                  displayValue = date.toLocaleDateString('en-GB', { 
+                                    day: '2-digit', 
+                                    month: '2-digit', 
+                                    year: 'numeric' 
+                                  });
+                                } else {
+                                  displayValue = valueStr;
+                                }
+                              } catch {
+                                displayValue = valueStr;
                               }
-                            } catch {
-                              // Keep original value
+                            } else {
+                              displayValue = valueStr;
                             }
                           }
                           
-                          const label = fieldLabelMap[key] || key.replace(/([A-Z])/g, ' $1').trim();
+                          const label = fieldLabelMap[key] || key.replace(/([A-Z])/g, ' $1').replace(/_/g, ' ').trim();
                           
                           return (
                             <div key={key} className="border-b border-gray-100 pb-2">
@@ -598,8 +794,7 @@ const DashboardContent = () => {
                               </p>
                             </div>
                           );
-                        })
-                        .filter(Boolean);
+                        });
                       
                       return [...formFieldsElements, ...otherFieldsElements];
                     })()}

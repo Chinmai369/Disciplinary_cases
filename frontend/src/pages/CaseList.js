@@ -155,35 +155,32 @@ const CaseList = () => {
 
       {/* Cases Table */}
       <div className="bg-white rounded-lg shadow overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-gray-200 border border-gray-300">
+        <div className="overflow-x-auto max-w-full">
+          <table className="w-full table-auto divide-y divide-gray-200 border border-gray-300">
             <thead className="bg-blue-200">
               <tr>
-                <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider border border-gray-300">
+                <th className="px-2 sm:px-3 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider border border-gray-300">
                   S.No
                 </th>
-                <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider border border-gray-300">
+                <th className="px-2 sm:px-3 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider border border-gray-300">
                   File Number
                 </th>
-                <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider border border-gray-300">
+                <th className="px-2 sm:px-3 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider border border-gray-300">
                   Employee ID
                 </th>
-                <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider border border-gray-300">
+                <th className="px-2 sm:px-3 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider border border-gray-300">
                   Name
                 </th>
-                <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider border border-gray-300">
+                <th className="px-2 sm:px-3 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider border border-gray-300">
                   Category
                 </th>
-                <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider border border-gray-300">
+                <th className="px-2 sm:px-3 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider border border-gray-300">
                   Sub Category
                 </th>
-                <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider border border-gray-300">
+                <th className="px-2 sm:px-3 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider border border-gray-300">
                   Date of Incident
                 </th>
-                <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider border border-gray-300">
-                  Status
-                </th>
-                <th className="px-4 sm:px-6 py-3 text-center text-xs font-medium text-gray-700 uppercase tracking-wider border border-gray-300">
+                <th className="px-2 sm:px-3 py-3 text-center text-xs font-medium text-gray-700 uppercase tracking-wider border border-gray-300">
                   Actions
                 </th>
               </tr>
@@ -191,32 +188,32 @@ const CaseList = () => {
             <tbody className="bg-gray-50 divide-y divide-gray-200">
               {filteredCases.length === 0 ? (
                 <tr>
-                  <td colSpan="9" className="px-4 sm:px-6 py-4 text-center text-gray-500 border border-gray-300">
+                  <td colSpan="8" className="px-4 sm:px-6 py-4 text-center text-gray-500 border border-gray-300">
                     No cases found
                   </td>
                 </tr>
               ) : (
                 filteredCases.map((caseItem, index) => (
                   <tr key={caseItem.id} className="hover:bg-blue-100">
-                    <td className="px-4 sm:px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 border border-gray-300">
+                    <td className="px-2 sm:px-3 py-4 text-sm font-medium text-gray-900 border border-gray-300">
                       {index + 1}
                     </td>
-                    <td className="px-4 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-900 border border-gray-300">
+                    <td className="px-2 sm:px-3 py-4 text-sm text-gray-900 border border-gray-300 break-words max-w-[100px]">
                       {caseItem.fileNumber || '-'}
                     </td>
-                    <td className="px-4 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-900 border border-gray-300">
+                    <td className="px-2 sm:px-3 py-4 text-sm text-gray-900 border border-gray-300 break-words max-w-[100px]">
                       {caseItem.employeeId || '-'}
                     </td>
-                    <td className="px-4 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-900 border border-gray-300">
+                    <td className="px-2 sm:px-3 py-4 text-sm text-gray-900 border border-gray-300 break-words max-w-[120px]">
                       {caseItem.employeeName || caseItem.name || '-'}
                     </td>
-                    <td className="px-4 sm:px-6 py-4 text-sm text-gray-900 border border-gray-300">
+                    <td className="px-2 sm:px-3 py-4 text-sm text-gray-900 border border-gray-300 break-words max-w-[120px]">
                       {caseItem.categoryOfCase || '-'}
                     </td>
-                    <td className="px-4 sm:px-6 py-4 text-sm text-gray-900 border border-gray-300">
+                    <td className="px-2 sm:px-3 py-4 text-sm text-gray-900 border border-gray-300 break-words max-w-[120px]">
                       {caseItem.subCategoryOfCase || '-'}
                     </td>
-                    <td className="px-4 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-900 border border-gray-300">
+                    <td className="px-2 sm:px-3 py-4 text-sm text-gray-900 border border-gray-300">
                       {caseItem.dateOfIncident ? (
                         (() => {
                           try {
@@ -230,36 +227,23 @@ const CaseList = () => {
                         new Date(caseItem.incidentDate).toLocaleDateString()
                       ) : '-'}
                     </td>
-                    <td className="px-4 sm:px-6 py-4 whitespace-nowrap border border-gray-300">
-                      {caseItem.status ? (
-                        <span
-                          className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusColor(
-                            caseItem.status
-                          )}`}
-                        >
-                          {caseItem.status}
-                        </span>
-                      ) : (
-                        '-'
-                      )}
-                    </td>
-                    <td className="px-4 sm:px-6 py-4 whitespace-nowrap text-center text-sm font-medium border border-gray-300">
-                      <div className="flex justify-center gap-2">
+                    <td className="px-2 sm:px-3 py-4 text-center text-sm font-medium border border-gray-300">
+                      <div className="flex justify-center gap-1 flex-wrap">
                         <Link
                           to={`/cases/${caseItem.id}`}
-                          className="px-3 py-1.5 bg-blue-600 text-white rounded-md hover:bg-blue-700 font-medium text-sm transition-colors"
+                          className="px-2 py-1.5 bg-blue-600 text-white rounded-md hover:bg-blue-700 font-medium text-xs transition-colors"
                         >
                           View
                         </Link>
                         <Link
                           to={`/cases/${caseItem.id}/edit`}
-                          className="px-3 py-1.5 bg-green-600 text-white rounded-md hover:bg-green-700 font-medium text-sm transition-colors"
+                          className="px-2 py-1.5 bg-green-600 text-white rounded-md hover:bg-green-700 font-medium text-xs transition-colors"
                         >
                           Edit
                         </Link>
                         <button
                           onClick={() => handleDelete(caseItem.id)}
-                          className="px-3 py-1.5 bg-red-600 text-white rounded-md hover:bg-red-700 font-medium text-sm transition-colors"
+                          className="px-2 py-1.5 bg-red-600 text-white rounded-md hover:bg-red-700 font-medium text-xs transition-colors"
                         >
                           Delete
                         </button>
